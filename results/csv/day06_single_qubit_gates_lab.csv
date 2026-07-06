@@ -1,0 +1,8 @@
+day,lab,gate_or_experiment,concept,outcome,count
+Day 06,Lab 1,X,bit_flip,1,1000
+Day 06,Lab 2,Y,bit_flip_plus_phase,1,1000
+Day 06,Lab 3,Z,phase_gate_on_zero_state,0,1000
+Day 06,Lab 4,H,creates_superposition,1,495
+Day 06,Lab 4,H,creates_superposition,0,505
+Day 06,Lab 5A,H_then_H,interference_without_z_phase,0,1000
+Day 06,Lab 5B,H_then_Z_then_H,z_phase_affects_interference,1,1000
