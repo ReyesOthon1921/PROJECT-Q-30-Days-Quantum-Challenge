@@ -1,0 +1,8 @@
+Day 08 Lab: Understanding Qiskit Architecture
+PROJECT-Q 30-Day Quantum Computing Challenge
+============================================================
+
+Workflow:
+Python Program -> Quantum Circuit -> Qiskit SDK -> Transpiler -> Backend -> Results -> Analysis
+
+Original Circuit:

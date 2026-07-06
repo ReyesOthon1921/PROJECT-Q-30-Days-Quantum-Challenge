@@ -1,0 +1,7 @@
+day,layer,component,description
+Day 08,Layer 1,Python Program,User writes Python code to describe the circuit
+Day 08,Layer 2,Qiskit SDK,"Qiskit creates qubits, gates, circuits, and measurements"
+Day 08,Layer 3,Transpiler,Prepares and optimizes the circuit for the selected backend
+Day 08,Layer 4,Backend,Simulator or real quantum hardware executes the circuit
+Day 08,Layer 5,Results,Measurement counts are returned after execution
+Day 08,Layer 6,Analysis,Counts are interpreted and compared
