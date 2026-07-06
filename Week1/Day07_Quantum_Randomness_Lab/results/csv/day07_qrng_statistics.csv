@@ -1,0 +1,6 @@
+day,project,metric,value
+Day 07,Quantum Randomness Laboratory,zeros,486
+Day 07,Quantum Randomness Laboratory,ones,514
+Day 07,Quantum Randomness Laboratory,mean,500.0
+Day 07,Quantum Randomness Laboratory,standard_deviation,14.0
+Day 07,Quantum Randomness Laboratory,difference,28
