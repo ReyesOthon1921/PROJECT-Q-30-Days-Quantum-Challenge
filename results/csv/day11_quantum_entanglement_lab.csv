@@ -1,0 +1,10 @@
+day,lab,experiment,description,outcome,count
+Day 11,Lab 1,bell_state_h_then_cnot,H creates superposition and CNOT creates entanglement,11,528
+Day 11,Lab 1,bell_state_h_then_cnot,H creates superposition and CNOT creates entanglement,00,472
+Day 11,Lab 2,cnot_alone,CNOT alone from |00> does not create Bell-state randomness,00,1000
+Day 11,Lab 3,superposition_without_cnot,H alone creates superposition but not entanglement,10,497
+Day 11,Lab 3,superposition_without_cnot,H alone creates superposition but not entanglement,00,503
+Day 11,Lab 4,opposite_correlation_bell_pattern,Different Bell-style preparation gives opposite correlation,01,493
+Day 11,Lab 4,opposite_correlation_bell_pattern,Different Bell-style preparation gives opposite correlation,10,507
+Day 11,Lab 5,correlation_check,Bell state correlated outcomes 00 and 11,correlated_00_plus_11,1000
+Day 11,Lab 5,correlation_check,Bell state uncorrelated outcomes 01 and 10,uncorrelated_01_plus_10,0
