@@ -1,0 +1,8 @@
+day,number_of_qubits,basis_states
+Day 09,1,2
+Day 09,2,4
+Day 09,3,8
+Day 09,4,16
+Day 09,5,32
+Day 09,6,64
+Day 09,7,128

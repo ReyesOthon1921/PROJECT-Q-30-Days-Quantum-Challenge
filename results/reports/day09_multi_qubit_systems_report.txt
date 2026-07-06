@@ -1,0 +1,28 @@
+Day 09 Lab: Multi-Qubit Systems
+PROJECT-Q 30-Day Quantum Computing Challenge
+============================================================
+
+Main ideas:
+1. Multiple qubits form one combined quantum system.
+2. Tensor products combine state spaces by multiplication.
+3. Two qubits have four computational basis states.
+4. Three qubits have eight computational basis states.
+5. In general, n qubits have 2^n basis states.
+
+Basis state growth:
+1 qubit(s): 2 basis states
+2 qubit(s): 4 basis states
+3 qubit(s): 8 basis states
+4 qubit(s): 16 basis states
+5 qubit(s): 32 basis states
+6 qubit(s): 64 basis states
+7 qubit(s): 128 basis states
+
+Worked example counts:
+{'11': 485, '01': 515}
+
+Three-qubit superposition counts:
+{'110': 114, '100': 109, '101': 141, '111': 130, '010': 126, '011': 125, '001': 141, '000': 114}
+
+Lab conclusion:
+Multi-qubit systems unlock larger quantum state spaces and prepare us for controlled gates, entanglement, and quantum algorithms.

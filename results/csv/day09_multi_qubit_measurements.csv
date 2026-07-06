@@ -1,0 +1,15 @@
+day,lab,experiment,description,outcome,count
+Day 09,Lab 2,two_qubit_basis_state,Prepared |00>,00,1000
+Day 09,Lab 2,two_qubit_basis_state,Prepared |01>,01,1000
+Day 09,Lab 2,two_qubit_basis_state,Prepared |10>,10,1000
+Day 09,Lab 2,two_qubit_basis_state,Prepared |11>,11,1000
+Day 09,Lab 3,worked_example_h_q0_x_q1,H on q0 creates superposition and X on q1 fixes q1 at 1,11,485
+Day 09,Lab 3,worked_example_h_q0_x_q1,H on q0 creates superposition and X on q1 fixes q1 at 1,01,515
+Day 09,Lab 4,three_qubit_equal_superposition,H on all three qubits creates 8 possible basis states,110,114
+Day 09,Lab 4,three_qubit_equal_superposition,H on all three qubits creates 8 possible basis states,100,109
+Day 09,Lab 4,three_qubit_equal_superposition,H on all three qubits creates 8 possible basis states,101,141
+Day 09,Lab 4,three_qubit_equal_superposition,H on all three qubits creates 8 possible basis states,111,130
+Day 09,Lab 4,three_qubit_equal_superposition,H on all three qubits creates 8 possible basis states,010,126
+Day 09,Lab 4,three_qubit_equal_superposition,H on all three qubits creates 8 possible basis states,011,125
+Day 09,Lab 4,three_qubit_equal_superposition,H on all three qubits creates 8 possible basis states,001,141
+Day 09,Lab 4,three_qubit_equal_superposition,H on all three qubits creates 8 possible basis states,000,114
