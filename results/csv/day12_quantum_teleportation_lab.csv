@@ -1,0 +1,21 @@
+day,lab,experiment,description,outcome,count
+Day 12,Lab 1,bell_pair_channel,Shared Bell pair used as teleportation channel,11,498
+Day 12,Lab 1,bell_pair_channel,Shared Bell pair used as teleportation channel,00,502
+Day 12,Lab 2,teleport_plus_state,Teleport |+> and verify Bob in X basis,110,255
+Day 12,Lab 2,teleport_plus_state,Teleport |+> and verify Bob in X basis,100,243
+Day 12,Lab 2,teleport_plus_state,Teleport |+> and verify Bob in X basis,010,271
+Day 12,Lab 2,teleport_plus_state,Teleport |+> and verify Bob in X basis,000,231
+Day 12,Lab 2,teleport_plus_state_summary,Bob verification success,success,1000
+Day 12,Lab 2,teleport_plus_state_summary,Bob verification fail,fail,0
+Day 12,Lab 3,teleport_one_state,Teleport |1> and verify Bob in Z basis,101,250
+Day 12,Lab 3,teleport_one_state,Teleport |1> and verify Bob in Z basis,001,233
+Day 12,Lab 3,teleport_one_state,Teleport |1> and verify Bob in Z basis,111,261
+Day 12,Lab 3,teleport_one_state,Teleport |1> and verify Bob in Z basis,011,256
+Day 12,Lab 3,teleport_one_state_summary,Bob verification success,success,1000
+Day 12,Lab 3,teleport_one_state_summary,Bob verification fail,fail,0
+Day 12,Lab 4,teleport_without_corrections,Shows why Bob's correction gates are necessary,111,244
+Day 12,Lab 4,teleport_without_corrections,Shows why Bob's correction gates are necessary,010,263
+Day 12,Lab 4,teleport_without_corrections,Shows why Bob's correction gates are necessary,000,260
+Day 12,Lab 4,teleport_without_corrections,Shows why Bob's correction gates are necessary,101,233
+Day 12,Lab 4,teleport_without_corrections_summary,Bob verification success,success,523
+Day 12,Lab 4,teleport_without_corrections_summary,Bob verification fail,fail,477
