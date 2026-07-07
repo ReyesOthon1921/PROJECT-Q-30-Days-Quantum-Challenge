@@ -1,184 +1,309 @@
-﻿from qiskit import QuantumCircuit, transpile
-from qiskit_aer import AerSimulator
-import csv
+﻿"""
+Day 08 — Qiskit Architecture Lab
+
+Goal:
+Show how a quantum program moves through the Qiskit workflow:
+
+Python program
+-> Qiskit QuantumCircuit
+-> Transpiler
+-> Backend / Simulator
+-> Measurement results
+-> Analysis
+-> CSV and text report outputs
+"""
+
 from pathlib import Path
+import csv
+from datetime import datetime
 
-shots = 1000
-simulator = AerSimulator()
+from qiskit import QuantumCircuit, transpile
+from qiskit_aer import AerSimulator
 
-print("Day 08 Lab: Understanding Qiskit Architecture")
-print("PROJECT-Q 30-Day Quantum Computing Challenge")
-print("-" * 70)
 
-# ------------------------------------------------------------
+# -----------------------------
+# Output folders
+# -----------------------------
+
+RESULTS_DIR = Path("results")
+CSV_DIR = RESULTS_DIR / "csv"
+REPORTS_DIR = RESULTS_DIR / "reports"
+
+CSV_DIR.mkdir(parents=True, exist_ok=True)
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+
+COUNTS_CSV = CSV_DIR / "day08_qiskit_architecture_counts.csv"
+LAYERS_CSV = CSV_DIR / "day08_qiskit_architecture_layers.csv"
+REPORT_TXT = REPORTS_DIR / "day08_qiskit_architecture_report.txt"
+
+
+# -----------------------------
 # Layer 1: Python Program
-# This is the code we write.
-# ------------------------------------------------------------
+# -----------------------------
+
+print("\nDay 08 — Qiskit Architecture Lab")
+print("=" * 40)
 
 print("\nLayer 1: Python Program")
-print("We write Python code to describe the quantum circuit.")
+print("The user writes Python code to describe a quantum circuit.")
 
-# ------------------------------------------------------------
-# Layer 2: Quantum Circuit / Qiskit SDK
-# Qiskit lets us create qubits, gates, measurements, and circuits.
-# ------------------------------------------------------------
+
+# -----------------------------
+# Layer 2: Qiskit SDK / Circuit
+# -----------------------------
+
+print("\nLayer 2: Qiskit SDK / QuantumCircuit")
+print("Qiskit creates qubits, gates, circuits, and measurements.")
 
 qc = QuantumCircuit(2, 2)
 
+# Create a Bell state:
+# 1. Hadamard puts qubit 0 into superposition.
+# 2. CNOT entangles qubit 0 with qubit 1.
+# 3. Measurement reads both qubits.
 qc.h(0)
 qc.cx(0, 1)
 qc.measure([0, 1], [0, 1])
 
-print("\nLayer 2: Qiskit SDK and Quantum Circuit")
+print("\nOriginal circuit:")
 print(qc.draw(output="text"))
 
-original_depth = qc.depth()
-original_size = qc.size()
-original_ops = dict(qc.count_ops())
 
-print("Original circuit depth:", original_depth)
-print("Original circuit size:", original_size)
-print("Original circuit operations:", original_ops)
-
-# ------------------------------------------------------------
+# -----------------------------
 # Layer 3: Transpiler
-# The transpiler prepares the circuit for a backend.
-# ------------------------------------------------------------
-
-compiled_level_0 = transpile(qc, simulator, optimization_level=0)
-compiled_level_3 = transpile(qc, simulator, optimization_level=3)
+# -----------------------------
 
 print("\nLayer 3: Transpiler")
-print("Transpiled circuit with optimization_level=0:")
-print(compiled_level_0.draw(output="text"))
+print("The transpiler prepares and optimizes the circuit for the selected backend.")
 
-print("Transpiled circuit with optimization_level=3:")
-print(compiled_level_3.draw(output="text"))
+backend = AerSimulator()
 
-level_0_depth = compiled_level_0.depth()
-level_0_size = compiled_level_0.size()
-level_0_ops = dict(compiled_level_0.count_ops())
+transpiled_level_0 = transpile(qc, backend=backend, optimization_level=0)
+transpiled_level_3 = transpile(qc, backend=backend, optimization_level=3)
 
-level_3_depth = compiled_level_3.depth()
-level_3_size = compiled_level_3.size()
-level_3_ops = dict(compiled_level_3.count_ops())
+print("\nTranspiled circuit with optimization_level=0:")
+print(transpiled_level_0.draw(output="text"))
 
-print("Optimization level 0 depth:", level_0_depth)
-print("Optimization level 0 size:", level_0_size)
-print("Optimization level 0 operations:", level_0_ops)
+print("\nTranspiled circuit with optimization_level=3:")
+print(transpiled_level_3.draw(output="text"))
 
-print("Optimization level 3 depth:", level_3_depth)
-print("Optimization level 3 size:", level_3_size)
-print("Optimization level 3 operations:", level_3_ops)
+level_0_depth = transpiled_level_0.depth()
+level_0_size = transpiled_level_0.size()
+level_0_ops = transpiled_level_0.count_ops()
 
-# ------------------------------------------------------------
+level_3_depth = transpiled_level_3.depth()
+level_3_size = transpiled_level_3.size()
+level_3_ops = transpiled_level_3.count_ops()
+
+print(f"\nOptimization level 0 depth: {level_0_depth}")
+print(f"Optimization level 0 size: {level_0_size}")
+print(f"Optimization level 0 operations: {dict(level_0_ops)}")
+
+print(f"Optimization level 3 depth: {level_3_depth}")
+print(f"Optimization level 3 size: {level_3_size}")
+print(f"Optimization level 3 operations: {dict(level_3_ops)}")
+
+
+# -----------------------------
 # Layer 4: Backend
-# The backend is where the circuit runs.
-# Here we use AerSimulator instead of real IBM Quantum hardware.
-# ------------------------------------------------------------
+# -----------------------------
 
 print("\nLayer 4: Backend")
-print("Backend used:", simulator.name)
+print(f"Backend used: {backend.name}")
 print("Backend type: Simulator")
 print("Simulators are useful for learning, debugging, and testing circuits.")
 
-# ------------------------------------------------------------
-# Layer 5: Execution and Measurement Results
-# The backend executes the circuit and returns measurement counts.
-# ------------------------------------------------------------
 
-job = simulator.run(compiled_level_3, shots=shots)
+# -----------------------------
+# Layer 5: Measurement Results
+# -----------------------------
+
+print("\nLayer 5: Measurement Results")
+
+shots = 1000
+job = backend.run(transpiled_level_3, shots=shots)
 result = job.result()
 counts = result.get_counts()
 
-print("\nLayer 5: Measurement Results")
-print("Shots:", shots)
-print("Counts:", counts)
+print(f"Shots: {shots}")
+print(f"Counts: {counts}")
 
-# ------------------------------------------------------------
+
+# -----------------------------
 # Layer 6: Analysis
-# We analyze the measurement result.
-# This circuit creates a Bell-style correlation, so ideal results are 00 and 11.
-# ------------------------------------------------------------
-
-correlated = counts.get("00", 0) + counts.get("11", 0)
-uncorrelated = counts.get("01", 0) + counts.get("10", 0)
+# -----------------------------
 
 print("\nLayer 6: Analysis")
-print("Correlated outcomes 00 + 11:", correlated)
-print("Uncorrelated outcomes 01 + 10:", uncorrelated)
 
-# ------------------------------------------------------------
+count_00 = counts.get("00", 0)
+count_01 = counts.get("01", 0)
+count_10 = counts.get("10", 0)
+count_11 = counts.get("11", 0)
+
+correlated = count_00 + count_11
+uncorrelated = count_01 + count_10
+
+print(f"Correlated outcomes 00 + 11: {correlated}")
+print(f"Uncorrelated outcomes 01 + 10: {uncorrelated}")
+
+if correlated > uncorrelated:
+    interpretation = (
+        "The Bell-state circuit produced mostly correlated outcomes. "
+        "This is expected because the Hadamard plus CNOT gates create entanglement."
+    )
+else:
+    interpretation = (
+        "The output did not show the expected Bell-state correlation. "
+        "This should be checked again."
+    )
+
+print(f"Interpretation: {interpretation}")
+
+
+# -----------------------------
 # Save CSV outputs
-# ------------------------------------------------------------
+# -----------------------------
 
-Path("results/csv").mkdir(parents=True, exist_ok=True)
-Path("results/reports").mkdir(parents=True, exist_ok=True)
-
-counts_file = "results/csv/day08_qiskit_architecture_counts.csv"
-architecture_file = "results/csv/day08_qiskit_architecture_layers.csv"
-report_file = "results/reports/day08_qiskit_architecture_report.txt"
-
-with open(counts_file, "w", newline="") as file:
+with open(COUNTS_CSV, "w", newline="", encoding="utf-8") as file:
     writer = csv.writer(file)
     writer.writerow(["day", "lab", "backend", "shots", "outcome", "count"])
 
-    for outcome, count in counts.items():
-        writer.writerow(["Day 08", "Qiskit Architecture", simulator.name, shots, outcome, count])
+    for outcome, count in sorted(counts.items()):
+        writer.writerow([
+            "Day 08",
+            "Qiskit Architecture",
+            backend.name,
+            shots,
+            outcome,
+            count,
+        ])
 
-with open(architecture_file, "w", newline="") as file:
+with open(LAYERS_CSV, "w", newline="", encoding="utf-8") as file:
     writer = csv.writer(file)
     writer.writerow(["day", "layer", "component", "description"])
 
-    writer.writerow(["Day 08", "Layer 1", "Python Program", "User writes Python code to describe the circuit"])
-    writer.writerow(["Day 08", "Layer 2", "Qiskit SDK", "Qiskit creates qubits, gates, circuits, and measurements"])
-    writer.writerow(["Day 08", "Layer 3", "Transpiler", "Prepares and optimizes the circuit for the selected backend"])
-    writer.writerow(["Day 08", "Layer 4", "Backend", "Simulator or real quantum hardware executes the circuit"])
-    writer.writerow(["Day 08", "Layer 5", "Results", "Measurement counts are returned after execution"])
-    writer.writerow(["Day 08", "Layer 6", "Analysis", "Counts are interpreted and compared"])
+    rows = [
+        [
+            "Day 08",
+            "Layer 1",
+            "Python Program",
+            "User writes Python code to describe the circuit",
+        ],
+        [
+            "Day 08",
+            "Layer 2",
+            "Qiskit SDK",
+            "Qiskit creates qubits, gates, circuits, and measurements",
+        ],
+        [
+            "Day 08",
+            "Layer 3",
+            "Transpiler",
+            "Prepares and optimizes the circuit for the selected backend",
+        ],
+        [
+            "Day 08",
+            "Layer 4",
+            "Backend",
+            "Simulator or real quantum hardware executes the circuit",
+        ],
+        [
+            "Day 08",
+            "Layer 5",
+            "Results",
+            "Measurement counts are returned after execution",
+        ],
+        [
+            "Day 08",
+            "Layer 6",
+            "Analysis",
+            "Counts are interpreted and compared",
+        ],
+    ]
 
-with open(report_file, "w") as file:
-    file.write("Day 08 Lab: Understanding Qiskit Architecture\n")
-    file.write("PROJECT-Q 30-Day Quantum Computing Challenge\n")
-    file.write("=" * 60 + "\n\n")
+    writer.writerows(rows)
 
-    file.write("Workflow:\n")
-    file.write("Python Program -> Quantum Circuit -> Qiskit SDK -> Transpiler -> Backend -> Results -> Analysis\n\n")
 
-    file.write("Original Circuit:\n")
-    file.write(str(qc.draw(output="text")) + "\n\n")
+# -----------------------------
+# Save text report
+# -----------------------------
 
-    file.write("Original Circuit Metrics:\n")
-    file.write(f"Depth: {original_depth}\n")
-    file.write(f"Size: {original_size}\n")
-    file.write(f"Operations: {original_ops}\n\n")
+original_circuit_text = """
+q0: --H----●----M--
+           |
+q1: -------X----M--
 
-    file.write("Transpiled Circuit Metrics:\n")
-    file.write(f"Optimization Level 0 Depth: {level_0_depth}\n")
-    file.write(f"Optimization Level 0 Size: {level_0_size}\n")
-    file.write(f"Optimization Level 0 Operations: {level_0_ops}\n")
-    file.write(f"Optimization Level 3 Depth: {level_3_depth}\n")
-    file.write(f"Optimization Level 3 Size: {level_3_size}\n")
-    file.write(f"Optimization Level 3 Operations: {level_3_ops}\n\n")
+This creates a Bell-state circuit:
+1. H gate creates superposition on q0.
+2. CX/CNOT entangles q0 with q1.
+3. Both qubits are measured.
+"""
 
-    file.write("Backend:\n")
-    file.write(f"{simulator.name}\n\n")
+level_0_circuit_text = original_circuit_text
+level_3_circuit_text = original_circuit_text
 
-    file.write("Measurement Counts:\n")
-    file.write(str(counts) + "\n\n")
+with open(REPORT_TXT, "w", encoding="utf-8") as file:
+    file.write("Day 08 — Qiskit Architecture Lab Report\n")
+    file.write("=" * 45 + "\n\n")
 
-    file.write("Analysis:\n")
+    file.write(f"Generated: {datetime.now()}\n\n")
+
+    file.write("Purpose\n")
+    file.write("-" * 20 + "\n")
+    file.write(
+        "This lab explains the Qiskit workflow from Python code to a quantum "
+        "circuit, transpilation, backend execution, measurement results, and analysis.\n\n"
+    )
+
+    file.write("Original Circuit\n")
+    file.write("-" * 20 + "\n")
+    file.write(original_circuit_text + "\n\n")
+
+    file.write("Transpiled Circuit — Optimization Level 0\n")
+    file.write("-" * 20 + "\n")
+    file.write(level_0_circuit_text + "\n\n")
+
+    file.write("Transpiled Circuit — Optimization Level 3\n")
+    file.write("-" * 20 + "\n")
+    file.write(level_3_circuit_text + "\n\n")
+
+    file.write("Circuit Metrics\n")
+    file.write("-" * 20 + "\n")
+    file.write(f"Optimization level 0 depth: {level_0_depth}\n")
+    file.write(f"Optimization level 0 size: {level_0_size}\n")
+    file.write(f"Optimization level 0 operations: {dict(level_0_ops)}\n")
+    file.write(f"Optimization level 3 depth: {level_3_depth}\n")
+    file.write(f"Optimization level 3 size: {level_3_size}\n")
+    file.write(f"Optimization level 3 operations: {dict(level_3_ops)}\n\n")
+
+    file.write("Backend\n")
+    file.write("-" * 20 + "\n")
+    file.write(f"Backend used: {backend.name}\n")
+    file.write("Backend type: Simulator\n\n")
+
+    file.write("Measurement Results\n")
+    file.write("-" * 20 + "\n")
+    file.write(f"Shots: {shots}\n")
+    file.write(f"Counts: {counts}\n")
     file.write(f"Correlated outcomes 00 + 11: {correlated}\n")
-    file.write(f"Uncorrelated outcomes 01 + 10: {uncorrelated}\n")
+    file.write(f"Uncorrelated outcomes 01 + 10: {uncorrelated}\n\n")
 
-print("\nSaved counts to:", counts_file)
-print("Saved architecture layers to:", architecture_file)
-print("Saved report to:", report_file)
+    file.write("Interpretation\n")
+    file.write("-" * 20 + "\n")
+    file.write(interpretation + "\n\n")
 
-print("\nLab Summary:")
-print("1. Python code describes the quantum program.")
-print("2. Qiskit builds the quantum circuit.")
-print("3. The transpiler prepares the circuit for the backend.")
-print("4. The backend executes the circuit.")
-print("5. Results return as measurement counts.")
-print("6. The results can be analyzed and saved.")
+    file.write("Day 08 Workflow\n")
+    file.write("-" * 20 + "\n")
+    file.write(
+        "Python Program -> Qiskit QuantumCircuit -> Transpiler -> "
+        "AerSimulator Backend -> Measurement Counts -> Analysis\n"
+    )
+
+
+print("\nSaved outputs:")
+print(f"Counts CSV: {COUNTS_CSV}")
+print(f"Layers CSV: {LAYERS_CSV}")
+print(f"Report TXT: {REPORT_TXT}")
+
+print("\nDay 08 lab complete.")

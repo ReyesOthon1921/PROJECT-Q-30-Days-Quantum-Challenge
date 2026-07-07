@@ -1,8 +1,76 @@
-Day 08 Lab: Understanding Qiskit Architecture
-PROJECT-Q 30-Day Quantum Computing Challenge
-============================================================
+Day 08 — Qiskit Architecture Lab Report
+=============================================
 
-Workflow:
-Python Program -> Quantum Circuit -> Qiskit SDK -> Transpiler -> Backend -> Results -> Analysis
+Generated: 2026-07-06 18:20:40.893250
 
-Original Circuit:
+Purpose
+--------------------
+This lab explains the Qiskit workflow from Python code to a quantum circuit, transpilation, backend execution, measurement results, and analysis.
+
+Original Circuit
+--------------------
+
+q0: --H----●----M--
+           |
+q1: -------X----M--
+
+This creates a Bell-state circuit:
+1. H gate creates superposition on q0.
+2. CX/CNOT entangles q0 with q1.
+3. Both qubits are measured.
+
+
+Transpiled Circuit — Optimization Level 0
+--------------------
+
+q0: --H----●----M--
+           |
+q1: -------X----M--
+
+This creates a Bell-state circuit:
+1. H gate creates superposition on q0.
+2. CX/CNOT entangles q0 with q1.
+3. Both qubits are measured.
+
+
+Transpiled Circuit — Optimization Level 3
+--------------------
+
+q0: --H----●----M--
+           |
+q1: -------X----M--
+
+This creates a Bell-state circuit:
+1. H gate creates superposition on q0.
+2. CX/CNOT entangles q0 with q1.
+3. Both qubits are measured.
+
+
+Circuit Metrics
+--------------------
+Optimization level 0 depth: 3
+Optimization level 0 size: 4
+Optimization level 0 operations: {'measure': 2, 'h': 1, 'cx': 1}
+Optimization level 3 depth: 3
+Optimization level 3 size: 4
+Optimization level 3 operations: {'measure': 2, 'h': 1, 'cx': 1}
+
+Backend
+--------------------
+Backend used: aer_simulator
+Backend type: Simulator
+
+Measurement Results
+--------------------
+Shots: 1000
+Counts: {'11': 507, '00': 493}
+Correlated outcomes 00 + 11: 1000
+Uncorrelated outcomes 01 + 10: 0
+
+Interpretation
+--------------------
+The Bell-state circuit produced mostly correlated outcomes. This is expected because the Hadamard plus CNOT gates create entanglement.
+
+Day 08 Workflow
+--------------------
+Python Program -> Qiskit QuantumCircuit -> Transpiler -> AerSimulator Backend -> Measurement Counts -> Analysis
