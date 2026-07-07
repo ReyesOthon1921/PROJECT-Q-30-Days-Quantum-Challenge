@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ result.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <a class="back-link" href="/">← Back to Dashboard</a>
+
+        <h1>{{ result.title }}</h1>
+
+        <p>{{ result.description }}</p>
+
+        <h2>Quantum Circuit</h2>
+        <pre>{{ result.circuit_text }}</pre>
+
+        <h2>Measurement Counts</h2>
+        <pre>{{ result.counts }}</pre>
+
+        <h2>Histogram</h2>
+        <img class="histogram" src="{{ url_for('static', filename=result.image_path) }}" alt="Measurement histogram">
+
+        <h2>Analysis</h2>
+        <p>{{ result.analysis }}</p>
+    </div>
+</body>
+</html>

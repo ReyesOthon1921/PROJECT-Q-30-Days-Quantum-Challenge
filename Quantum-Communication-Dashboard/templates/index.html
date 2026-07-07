@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quantum Communication Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Quantum Communication Dashboard</h1>
+            <p>
+                Learn Bell States, Quantum Entanglement, and Quantum Teleportation
+                using Flask and Qiskit.
+            </p>
+        </header>
+
+        <section class="cards">
+            <div class="card">
+                <h2>Bell States</h2>
+                <p>Create a Bell State circuit and view measurement results.</p>
+                <a href="/bell">Run Bell State</a>
+            </div>
+
+            <div class="card">
+                <h2>Entanglement</h2>
+                <p>See how two qubits become correlated through entanglement.</p>
+                <a href="/entanglement">Run Entanglement Demo</a>
+            </div>
+
+            <div class="card">
+                <h2>Teleportation</h2>
+                <p>Simulate the transfer of quantum information between qubits.</p>
+                <a href="/teleportation">Run Teleportation Demo</a>
+            </div>
+        </section>
+
+        <button onclick="showMessage()">Start Learning</button>
+        <p id="message"></p>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
