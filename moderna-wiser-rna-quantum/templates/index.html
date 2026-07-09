@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum RNA Folding Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <main class="container">
+        <section class="hero">
+            <p class="eyebrow">Moderna / WISER RNA Quantum Optimization Project</p>
+            <h1>Classical-to-Quantum RNA Folding Dashboard</h1>
+            <p>Phase 1 connects your dot-bracket parser, base-pair extractor, and structure validator to a browser dashboard.</p>
+        </section>
+
+        <section class="card">
+            <h2>Validate RNA Structure</h2>
+
+            <label for="sequence">RNA Sequence</label>
+            <textarea id="sequence" rows="4">GGAGCAAAACUUGUCGAUUGAGAACAAAAUACAGAAUUUGCUUG</textarea>
+
+            <label for="structure">Dot-Bracket Structure</label>
+            <textarea id="structure" rows="4">.................(((....))).................</textarea>
+
+            <button onclick="validateStructure()">Validate Structure</button>
+        </section>
+
+        <section class="card">
+            <h2>Results</h2>
+            <pre id="results">Waiting for input...</pre>
+        </section>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

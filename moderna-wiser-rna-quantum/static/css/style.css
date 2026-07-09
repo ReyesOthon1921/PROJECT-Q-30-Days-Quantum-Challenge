@@ -1,0 +1,79 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #e5e7eb;
+}
+
+.container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 40px auto;
+}
+
+.hero {
+    margin-bottom: 24px;
+}
+
+.eyebrow {
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 13px;
+}
+
+.hero h1 {
+    color: #38bdf8;
+    margin-bottom: 10px;
+}
+
+.card {
+    background: #111827;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #475569;
+    background: #020617;
+    color: #e5e7eb;
+    font-family: Consolas, monospace;
+    font-size: 15px;
+}
+
+button {
+    margin-top: 18px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #38bdf8;
+    color: #020617;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #7dd3fc;
+}
+
+pre {
+    white-space: pre-wrap;
+    background: #020617;
+    border: 1px solid #334155;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+}
