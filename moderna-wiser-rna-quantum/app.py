@@ -10,7 +10,7 @@ from src.classical.sequence_tools import summarize_sequence
 from src.classical.vienna_benchmark import run_vienna_benchmark
 from src.qubo.candidate_pairs import summarize_candidate_pairs
 from src.qubo.candidate_stems import summarize_candidate_stems
-
+from src.qubo.build_qubo import build_stem_qubo
 
 app = Flask(__name__)
 
@@ -71,6 +71,17 @@ def candidate_stems():
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
 
+@app.route("/api/build-qubo", methods=["POST"])
+def build_qubo():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        qubo = build_stem_qubo(sequence)
+        return jsonify({"success": True, "qubo": qubo})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
 
 @app.route("/api/validate-structure", methods=["POST"])
 def validate_structure():
