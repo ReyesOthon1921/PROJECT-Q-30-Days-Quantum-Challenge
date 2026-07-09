@@ -7,6 +7,7 @@ from src.classical.dotbracket import (
 )
 
 from src.classical.sequence_tools import summarize_sequence
+from src.classical.vienna_benchmark import run_vienna_benchmark
 
 
 app = Flask(__name__)
@@ -31,6 +32,24 @@ def validate_sequence():
                 "summary": summary,
             }
         )
+
+    except Exception as error:
+        return jsonify(
+            {
+                "success": False,
+                "error": str(error),
+            }
+        ), 500
+
+
+@app.route("/api/run-vienna", methods=["POST"])
+def run_vienna():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_vienna_benchmark(sequence)
+        return jsonify(result)
 
     except Exception as error:
         return jsonify(
