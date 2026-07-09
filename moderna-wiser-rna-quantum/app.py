@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from src.solvers.greedy_solver import solve_stem_qubo_greedy
+from src.evaluation.metrics import evaluate_greedy_against_vienna
 
 from src.classical.dotbracket import (
     validate_dotbracket,
@@ -92,6 +93,18 @@ def solve_greedy():
     try:
         result = solve_stem_qubo_greedy(sequence)
         return jsonify({"success": True, "result": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+@app.route("/api/evaluate-greedy", methods=["POST"])
+def evaluate_greedy():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = evaluate_greedy_against_vienna(sequence)
+        return jsonify({"success": True, "evaluation": result})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
