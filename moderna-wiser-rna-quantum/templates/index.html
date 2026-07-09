@@ -11,7 +11,7 @@
         <section class="hero">
             <p class="eyebrow">Moderna / WISER RNA Quantum Optimization Project</p>
             <h1>Classical-to-Quantum RNA Folding Dashboard</h1>
-            <p>RNA preprocessing, dot-bracket validation, and classical benchmark preparation for the quantum optimization pipeline.</p>
+            <p>RNA preprocessing, ViennaRNA benchmarking, and QUBO-ready candidate generation.</p>
         </section>
 
         <section class="card">
@@ -22,6 +22,14 @@
 
             <button onclick="analyzeSequence()">Analyze Sequence</button>
             <button onclick="runViennaBenchmark()">Run Classical Benchmark</button>
+        </section>
+
+        <section class="card">
+            <h2>Phase 5: QUBO Candidate Generation</h2>
+            <p>Generate base-pair variables or stem variables before building the QUBO objective.</p>
+
+            <button onclick="generateCandidatePairs()">Generate Candidate Pairs</button>
+            <button onclick="generateCandidateStems()">Generate Candidate Stems</button>
         </section>
 
         <section class="card">

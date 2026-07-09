@@ -10,9 +10,7 @@ async function analyzeSequence() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                sequence: sequence
-            })
+            body: JSON.stringify({ sequence: sequence })
         });
 
         const data = await response.json();
@@ -35,9 +33,53 @@ async function runViennaBenchmark() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                sequence: sequence
-            })
+            body: JSON.stringify({ sequence: sequence })
+        });
+
+        const data = await response.json();
+        resultsBox.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+        resultsBox.textContent = "Frontend error: " + error;
+    }
+}
+
+
+async function generateCandidatePairs() {
+    const sequence = document.getElementById("sequence").value;
+    const resultsBox = document.getElementById("results");
+
+    resultsBox.textContent = "Generating candidate base-pair variables...";
+
+    try {
+        const response = await fetch("/api/candidate-pairs", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ sequence: sequence })
+        });
+
+        const data = await response.json();
+        resultsBox.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+        resultsBox.textContent = "Frontend error: " + error;
+    }
+}
+
+
+async function generateCandidateStems() {
+    const sequence = document.getElementById("sequence").value;
+    const resultsBox = document.getElementById("results");
+
+    resultsBox.textContent = "Generating candidate stem variables...";
+
+    try {
+        const response = await fetch("/api/candidate-stems", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ sequence: sequence })
         });
 
         const data = await response.json();

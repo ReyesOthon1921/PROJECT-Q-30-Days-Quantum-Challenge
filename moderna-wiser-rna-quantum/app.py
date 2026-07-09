@@ -8,6 +8,8 @@ from src.classical.dotbracket import (
 
 from src.classical.sequence_tools import summarize_sequence
 from src.classical.vienna_benchmark import run_vienna_benchmark
+from src.qubo.candidate_pairs import summarize_candidate_pairs
+from src.qubo.candidate_stems import summarize_candidate_stems
 
 
 app = Flask(__name__)
@@ -25,21 +27,10 @@ def validate_sequence():
 
     try:
         summary = summarize_sequence(sequence)
-
-        return jsonify(
-            {
-                "success": True,
-                "summary": summary,
-            }
-        )
+        return jsonify({"success": True, "summary": summary})
 
     except Exception as error:
-        return jsonify(
-            {
-                "success": False,
-                "error": str(error),
-            }
-        ), 500
+        return jsonify({"success": False, "error": str(error)}), 500
 
 
 @app.route("/api/run-vienna", methods=["POST"])
@@ -52,12 +43,33 @@ def run_vienna():
         return jsonify(result)
 
     except Exception as error:
-        return jsonify(
-            {
-                "success": False,
-                "error": str(error),
-            }
-        ), 500
+        return jsonify({"success": False, "error": str(error)}), 500
+
+
+@app.route("/api/candidate-pairs", methods=["POST"])
+def candidate_pairs():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        summary = summarize_candidate_pairs(sequence)
+        return jsonify({"success": True, "summary": summary})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+
+@app.route("/api/candidate-stems", methods=["POST"])
+def candidate_stems():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        summary = summarize_candidate_stems(sequence)
+        return jsonify({"success": True, "summary": summary})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
 
 
 @app.route("/api/validate-structure", methods=["POST"])
@@ -95,21 +107,10 @@ def validate_structure():
             ), 400
 
         summary = summarize_structure(sequence, structure)
-
-        return jsonify(
-            {
-                "success": True,
-                "summary": summary,
-            }
-        )
+        return jsonify({"success": True, "summary": summary})
 
     except Exception as error:
-        return jsonify(
-            {
-                "success": False,
-                "error": str(error),
-            }
-        ), 500
+        return jsonify({"success": False, "error": str(error)}), 500
 
 
 @app.route("/api/pairs", methods=["POST"])
@@ -119,7 +120,6 @@ def get_pairs():
 
     try:
         pairs = dotbracket_to_pairs(structure)
-
         return jsonify(
             {
                 "success": True,
@@ -129,12 +129,7 @@ def get_pairs():
         )
 
     except Exception as error:
-        return jsonify(
-            {
-                "success": False,
-                "error": str(error),
-            }
-        ), 400
+        return jsonify({"success": False, "error": str(error)}), 400
 
 
 if __name__ == "__main__":
