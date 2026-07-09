@@ -11,14 +11,20 @@
         <section class="hero">
             <p class="eyebrow">Moderna / WISER RNA Quantum Optimization Project</p>
             <h1>Classical-to-Quantum RNA Folding Dashboard</h1>
-            <p>Phase 1 connects your dot-bracket parser, base-pair extractor, and structure validator to a browser dashboard.</p>
+            <p>Phase 1 and Phase 3 connect RNA structure parsing and sequence preprocessing to a browser dashboard.</p>
+        </section>
+
+        <section class="card">
+            <h2>RNA Sequence Preprocessing</h2>
+
+            <label for="sequence">RNA Sequence</label>
+            <textarea id="sequence" rows="4">GGAGCAAAACUUGUCGAUUGAGAACAAAAUACAGAAUUUGCUUG</textarea>
+
+            <button onclick="analyzeSequence()">Analyze Sequence</button>
         </section>
 
         <section class="card">
             <h2>Validate RNA Structure</h2>
-
-            <label for="sequence">RNA Sequence</label>
-            <textarea id="sequence" rows="4">GGAGCAAAACUUGUCGAUUGAGAACAAAAUACAGAAUUUGCUUG</textarea>
 
             <label for="structure">Dot-Bracket Structure</label>
             <textarea id="structure" rows="4">.................(((....))).................</textarea>
