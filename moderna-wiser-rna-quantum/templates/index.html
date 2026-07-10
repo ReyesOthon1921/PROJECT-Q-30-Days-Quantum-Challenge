@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quantum RNA Folding Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=19a">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=19c">
 </head>
 <body>
     <main class="app-shell">
@@ -21,13 +21,14 @@
                 <button onclick="scrollToSection('input-panel')">Input</button>
                 <button onclick="scrollToSection('qubo-panel')">QUBO</button>
                 <button onclick="scrollToSection('simulation-panel')">Simulation</button>
+                <button onclick="scrollToSection('summary-panel')">Summary</button>
+                <button onclick="scrollToSection('graphs-panel')">Graphs</button>
                 <button onclick="scrollToSection('results-panel')">Results</button>
-		<button onclick="scrollToSection('graphs-panel')">Graphs</button>
             </nav>
 
             <div class="phase-chip">
                 <span>Current</span>
-                <strong>Phase 19A Graph Dashboard</strong>
+                <strong>Phase 19C Visualization Layer</strong>
             </div>
         </aside>
 
@@ -37,7 +38,8 @@
                 <h2>Classical-to-Quantum RNA Folding Dashboard</h2>
                 <p>
                     RNA preprocessing, ViennaRNA benchmarking, QUBO construction,
-                    baseline solvers, simulated annealing, solver comparison, and scaling analysis.
+                    baseline solvers, simulated annealing, solver comparison, scaling analysis,
+                    QAOA/VQE readiness, and professional visualization.
                 </p>
             </header>
 
@@ -74,19 +76,18 @@
                 </p>
 
                 <div class="button-grid">
-
-	    <button onclick="generateCandidatePairs()">Generate Candidate Pairs</button>
-	    <button onclick="generateCandidateStems()">Generate Candidate Stems</button>
-	    <button onclick="buildQubo()">Build Stem QUBO</button>
-	    <button onclick="runGreedySolver()">Run Greedy Solver</button>
-	    <button onclick="runAnnealingSolver()">Run Simulated Annealing</button>
-	    <button onclick="runQaoaReadiness()">Run QAOA Readiness</button>
-	    <button onclick="runVqeReadiness()">Run VQE Readiness</button>
-	    <button onclick="evaluateGreedy()">Evaluate Greedy vs ViennaRNA</button>
-	    <button onclick="compareSolvers()">Compare Solvers</button>
-	    <button onclick="runScalingAnalysis()">Run Scaling Analysis</button>
-	    <button onclick="generateScalingGraphs()">Generate Scaling Graphs</button>
-
+                    <button onclick="generateCandidatePairs()">Generate Candidate Pairs</button>
+                    <button onclick="generateCandidateStems()">Generate Candidate Stems</button>
+                    <button onclick="buildQubo()">Build Stem QUBO</button>
+                    <button onclick="runGreedySolver()">Run Greedy Solver</button>
+                    <button onclick="runAnnealingSolver()">Run Simulated Annealing</button>
+                    <button onclick="runQaoaReadiness()">Run QAOA Readiness</button>
+                    <button onclick="runVqeReadiness()">Run VQE Readiness</button>
+                    <button onclick="evaluateGreedy()">Evaluate Greedy vs ViennaRNA</button>
+                    <button onclick="compareSolvers()">Compare Solvers</button>
+                    <button onclick="runScalingAnalysis()">Run Scaling Analysis</button>
+                    <button onclick="generateScalingGraphs()">Generate Scaling Graphs</button>
+                </div>
             </section>
 
             <section id="simulation-panel" class="card simulation-card">
@@ -122,89 +123,89 @@
                 </div>
             </section>
 
-	    <section id="summary-panel" class="card">
-    <div class="card-header">
-        <div>
-            <p class="eyebrow">Dashboard Summary</p>
-            <h3>Key Metrics</h3>
-        </div>
-        <span class="status-pill hot">Demo Ready</span>
-    </div>
+            <section id="summary-panel" class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Dashboard Summary</p>
+                        <h3>Key Metrics</h3>
+                    </div>
+                    <span class="status-pill hot">Demo Ready</span>
+                </div>
 
-    <div class="summary-grid">
-        <div class="metric-card">
-            <span>ViennaRNA MFE</span>
-            <strong id="metric-mfe">—</strong>
-        </div>
+                <div class="summary-grid">
+                    <div class="metric-card">
+                        <span>ViennaRNA MFE</span>
+                        <strong id="metric-mfe">—</strong>
+                    </div>
 
-        <div class="metric-card">
-            <span>QUBO Variables</span>
-            <strong id="metric-variables">—</strong>
-        </div>
+                    <div class="metric-card">
+                        <span>QUBO Variables</span>
+                        <strong id="metric-variables">—</strong>
+                    </div>
 
-        <div class="metric-card">
-            <span>Estimated Qubits</span>
-            <strong id="metric-qubits">—</strong>
-        </div>
+                    <div class="metric-card">
+                        <span>Estimated Qubits</span>
+                        <strong id="metric-qubits">—</strong>
+                    </div>
 
-        <div class="metric-card">
-            <span>Greedy F1</span>
-            <strong id="metric-greedy-f1">—</strong>
-        </div>
+                    <div class="metric-card">
+                        <span>Greedy F1</span>
+                        <strong id="metric-greedy-f1">—</strong>
+                    </div>
 
-        <div class="metric-card">
-            <span>Annealing F1</span>
-            <strong id="metric-annealing-f1">—</strong>
-        </div>
+                    <div class="metric-card">
+                        <span>Annealing F1</span>
+                        <strong id="metric-annealing-f1">—</strong>
+                    </div>
 
-        <div class="metric-card">
-            <span>Best Solver</span>
-            <strong id="metric-best-solver">—</strong>
-        </div>
-    </div>
-</section>
+                    <div class="metric-card">
+                        <span>Best Solver</span>
+                        <strong id="metric-best-solver">—</strong>
+                    </div>
+                </div>
+            </section>
 
-<section class="card limitation-card">
-    <div class="card-header">
-        <div>
-            <p class="eyebrow">Paper-Informed Research Note</p>
-            <h3>QUBO Scaling Limitations</h3>
-        </div>
-        <span class="status-pill hot">New Paper Added</span>
-    </div>
+            <section class="card limitation-card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Paper-Informed Research Note</p>
+                        <h3>QUBO Scaling Limitations</h3>
+                    </div>
+                    <span class="status-pill hot">New Paper Added</span>
+                </div>
 
-    <p class="helper-text">
-        After reviewing the paper on modern quantum annealers and RNA structure prediction,
-        this dashboard now includes scaling plots to make the limitations visible.
-        The paper argues that QUBO-based RNA folding can struggle as sequence length grows
-        because of deep local minima, two-body interaction limits, overprediction of stems/base pairs,
-        and missing higher-order RNA structural constraints.
-    </p>
+                <p class="helper-text">
+                    After reviewing the paper on modern quantum annealers and RNA structure prediction,
+                    this dashboard now includes scaling plots to make the limitations visible.
+                    The paper argues that QUBO-based RNA folding can struggle as sequence length grows
+                    because of deep local minima, two-body interaction limits, overprediction of stems/base pairs,
+                    and missing higher-order RNA structural constraints.
+                </p>
 
-    <p class="helper-text">
-        This project does not claim quantum advantage. The goal is to build a transparent
-        research prototype that shows both the potential and the limits of QUBO, simulated annealing,
-        QAOA readiness, and VQE readiness for RNA/mRNA secondary-structure prediction.
-    </p>
-</section>
+                <p class="helper-text">
+                    This project does not claim quantum advantage. The goal is to build a transparent
+                    research prototype that shows both the potential and the limits of QUBO, simulated annealing,
+                    QAOA readiness, and VQE readiness for RNA/mRNA secondary-structure prediction.
+                </p>
+            </section>
 
-<section id="graphs-panel" class="card">
-    <div class="card-header">
-        <div>
-            <p class="eyebrow">Plot Graphs</p>
-            <h3>Scaling Analysis Visuals</h3>
-        </div>
-        <span class="status-pill">Generated PNGs</span>
-    </div>
+            <section id="graphs-panel" class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Plot Graphs</p>
+                        <h3>Scaling Analysis Visuals</h3>
+                    </div>
+                    <span class="status-pill">Generated PNGs</span>
+                </div>
 
-    <p class="helper-text">
-        Click “Generate Scaling Graphs” to create visual plots from the current scaling CSV.
-    </p>
+                <p class="helper-text">
+                    Click “Generate Scaling Graphs” to create visual plots from the current scaling CSV.
+                </p>
 
-    <div id="graphsContainer" class="graph-grid">
-        <p class="helper-text">No graphs generated yet.</p>
-    </div>
-</section>
+                <div id="graphsContainer" class="graph-grid">
+                    <p class="helper-text">No graphs generated yet.</p>
+                </div>
+            </section>
 
             <section id="results-panel" class="card results-card">
                 <div class="card-header">
@@ -212,14 +213,47 @@
                         <p class="eyebrow">Output</p>
                         <h3>Results</h3>
                     </div>
-                    <span class="status-pill">JSON</span>
+                    <span class="status-pill">Professional View</span>
                 </div>
 
-                <pre id="results">Waiting for input...</pre>
+                <div id="professionalResults" class="professional-results">
+                    <p class="helper-text">
+                        Run a dashboard action to see a professional summary here.
+                    </p>
+                </div>
+
+                <div class="visual-results-grid">
+                    <section class="result-visual-card">
+                        <div class="mini-card-header">
+                            <div>
+                                <p class="eyebrow">Visual Render</p>
+                                <h4>QUBO / Solver State Simulation</h4>
+                            </div>
+                            <span class="status-pill">2.5D</span>
+                        </div>
+                        <canvas id="result3dCanvas" width="1000" height="420"></canvas>
+                    </section>
+
+                    <section class="result-visual-card">
+                        <div class="mini-card-header">
+                            <div>
+                                <p class="eyebrow">Metric Graph</p>
+                                <h4>Result Metrics Chart</h4>
+                            </div>
+                            <span class="status-pill hot">Live Data</span>
+                        </div>
+                        <canvas id="metricChartCanvas" width="1000" height="360"></canvas>
+                    </section>
+                </div>
+
+                <details class="raw-json-wrapper">
+                    <summary>View Raw JSON</summary>
+                    <pre id="results">Waiting for input...</pre>
+                </details>
             </section>
         </section>
     </main>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}?v=19a"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=19c"></script>
 </body>
 </html>
