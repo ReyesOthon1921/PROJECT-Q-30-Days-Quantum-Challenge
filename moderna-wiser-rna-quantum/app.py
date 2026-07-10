@@ -1,6 +1,4 @@
 from flask import Flask, render_template, request, jsonify
-from src.solvers.greedy_solver import solve_stem_qubo_greedy
-from src.evaluation.metrics import evaluate_greedy_against_vienna
 
 from src.classical.dotbracket import (
     validate_dotbracket,
@@ -10,9 +8,16 @@ from src.classical.dotbracket import (
 
 from src.classical.sequence_tools import summarize_sequence
 from src.classical.vienna_benchmark import run_vienna_benchmark
+
 from src.qubo.candidate_pairs import summarize_candidate_pairs
 from src.qubo.candidate_stems import summarize_candidate_stems
 from src.qubo.build_qubo import build_stem_qubo
+
+from src.solvers.greedy_solver import solve_stem_qubo_greedy
+
+from src.evaluation.metrics import evaluate_greedy_against_vienna
+from src.evaluation.scaling import run_and_save_scaling_experiment
+
 
 app = Flask(__name__)
 
@@ -73,6 +78,7 @@ def candidate_stems():
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
 
+
 @app.route("/api/build-qubo", methods=["POST"])
 def build_qubo():
     data = request.get_json() or {}
@@ -84,6 +90,7 @@ def build_qubo():
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
+
 
 @app.route("/api/solve-greedy", methods=["POST"])
 def solve_greedy():
@@ -97,6 +104,7 @@ def solve_greedy():
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
 
+
 @app.route("/api/evaluate-greedy", methods=["POST"])
 def evaluate_greedy():
     data = request.get_json() or {}
@@ -108,6 +116,17 @@ def evaluate_greedy():
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
+
+
+@app.route("/api/run-scaling", methods=["POST"])
+def run_scaling():
+    try:
+        result = run_and_save_scaling_experiment()
+        return jsonify(result)
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
 
 @app.route("/api/validate-structure", methods=["POST"])
 def validate_structure():
