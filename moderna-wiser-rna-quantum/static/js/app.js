@@ -105,6 +105,44 @@ function showResults(data) {
     renderFromResponse(data);
 }
 
+function renderGraphImages(data) {
+    const container = document.getElementById("graphsContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const graphs =
+        data?.graphs?.generated_graphs ||
+        data?.generated_graphs ||
+        [];
+
+    if (!graphs.length) {
+        return;
+    }
+
+    const timestamp = Date.now();
+
+    container.innerHTML = graphs
+        .map((graph) => {
+            return `
+                <article class="graph-card">
+                    <h4>${graph.title}</h4>
+                    <img src="${graph.static_path}?v=${timestamp}" alt="${graph.title}">
+                </article>
+            `;
+        })
+        .join("");
+}
+
+async function generateScalingGraphs() {
+    await postJson(
+        "/api/generate-graphs",
+        {},
+        "Generating scaling plots from results/scaling_results.csv..."
+    );
+}
+
 async function postJson(url, payload, loadingMessage) {
     const resultsBox = document.getElementById("results");
     resultsBox.textContent = loadingMessage;

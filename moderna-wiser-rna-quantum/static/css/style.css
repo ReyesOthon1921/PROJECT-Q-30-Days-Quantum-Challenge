@@ -313,3 +313,37 @@ pre {
     font-size: 24px;
     line-height: 1.2;
 }
+
+.limitation-card {
+    background:
+        linear-gradient(135deg, rgba(42, 0, 72, 0.92), rgba(213, 0, 72, 0.32)),
+        radial-gradient(circle at top right, rgba(255, 0, 0, 0.2), transparent 35%);
+}
+
+.graph-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.graph-card {
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--border);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+}
+
+.graph-card h4 {
+    margin: 0 0 12px;
+    color: #ffffff;
+    font-size: 17px;
+}
+
+.graph-card img {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: #ffffff;
+}

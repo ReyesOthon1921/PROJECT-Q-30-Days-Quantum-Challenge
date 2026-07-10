@@ -5,6 +5,8 @@ from src.classical.dotbracket import (
     dotbracket_to_pairs,
     summarize_structure,
 )
+
+from src.evaluation.plot_graphs import run_plot_generation
 from src.solvers.vqe_prototype import run_vqe_readiness_demo
 from src.solvers.qaoa_prototype import run_qaoa_readiness_demo
 from src.evaluation.solver_comparison import compare_solvers
@@ -242,6 +244,15 @@ def vqe_readiness():
 @app.route("/favicon.ico")
 def favicon():
     return "", 204
+
+@app.route("/api/generate-graphs", methods=["POST"])
+def generate_graphs():
+    try:
+        result = run_plot_generation()
+        return jsonify({"success": True, "graphs": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
 
 
 if __name__ == "__main__":
