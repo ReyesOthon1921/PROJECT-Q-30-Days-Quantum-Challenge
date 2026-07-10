@@ -347,3 +347,214 @@ pre {
     border: 1px solid var(--border);
     background: #ffffff;
 }
+
+.professional-results {
+    display: grid;
+    gap: 18px;
+}
+
+.result-hero {
+    padding: 20px;
+    border-radius: 20px;
+    background:
+        linear-gradient(135deg, rgba(86, 0, 114, 0.72), rgba(213, 0, 72, 0.32));
+    border: 1px solid var(--border);
+}
+
+.result-hero h4 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    color: #ffffff;
+}
+
+.result-hero p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+.result-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+    gap: 14px;
+}
+
+.result-metric-card {
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--border);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+}
+
+.result-metric-card span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+}
+
+.result-metric-card strong {
+    display: block;
+    color: #ffffff;
+    font-size: 22px;
+    overflow-wrap: anywhere;
+}
+
+.result-detail-card {
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.42);
+    border: 1px solid var(--border);
+}
+
+.result-detail-card h4 {
+    margin: 0 0 12px;
+    color: #ffffff;
+    font-size: 18px;
+}
+
+.result-detail-card p {
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+.result-table {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: hidden;
+    border-radius: 14px;
+}
+
+.result-table th,
+.result-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    color: #ffffff;
+}
+
+.result-table th {
+    color: #ffb4d0;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.structure-line {
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.62);
+    color: #fff3f7;
+    font-family: Consolas, monospace;
+    overflow-x: auto;
+    white-space: pre;
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-list span {
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--violet), var(--magenta));
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.raw-json-wrapper {
+    margin-top: 16px;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.raw-json-wrapper summary {
+    cursor: pointer;
+    padding: 14px 18px;
+    font-weight: 800;
+    color: #ffb4d0;
+}
+
+.raw-json-wrapper pre {
+    margin: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+}
+
+.visual-results-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.result-visual-card {
+    padding: 18px;
+    border-radius: 20px;
+    background:
+        linear-gradient(135deg, rgba(0, 0, 0, 0.62), rgba(86, 0, 114, 0.45)),
+        radial-gradient(circle at top right, rgba(213, 0, 72, 0.18), transparent 35%);
+    border: 1px solid var(--border);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+}
+
+.mini-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.mini-card-header h4 {
+    margin: 0;
+    font-size: 21px;
+    color: #ffffff;
+}
+
+#result3dCanvas,
+#metricChartCanvas {
+    width: 100%;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background:
+        radial-gradient(circle at 50% 40%, rgba(213, 0, 72, 0.26), transparent 32%),
+        linear-gradient(135deg, rgba(0, 0, 0, 0.96), rgba(42, 0, 72, 0.86));
+}
+
+.context-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.context-card {
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.42);
+    border: 1px solid var(--border);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+}
+
+.context-card h4 {
+    margin: 0 0 10px;
+    color: #ffffff;
+    font-size: 18px;
+}
+
+.context-card p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.55;
+}
+

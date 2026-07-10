@@ -1,27 +1,23 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, jsonify, render_template, request
 
 from src.classical.dotbracket import (
-    validate_dotbracket,
-    dotbracket_to_pairs,
     summarize_structure,
+    validate_dotbracket,
 )
-
-from src.evaluation.plot_graphs import run_plot_generation
-from src.solvers.vqe_prototype import run_vqe_readiness_demo
-from src.solvers.qaoa_prototype import run_qaoa_readiness_demo
-from src.evaluation.solver_comparison import compare_solvers
 from src.classical.sequence_tools import summarize_sequence
 from src.classical.vienna_benchmark import run_vienna_benchmark
-
 from src.qubo.candidate_pairs import summarize_candidate_pairs
 from src.qubo.candidate_stems import summarize_candidate_stems
 from src.qubo.build_qubo import build_stem_qubo
-
 from src.solvers.greedy_solver import solve_stem_qubo_greedy
 from src.solvers.simulated_annealing import solve_stem_qubo_simulated_annealing
-
+from src.solvers.qaoa_prototype import run_qaoa_readiness_demo
+from src.solvers.vqe_prototype import run_vqe_readiness_demo
 from src.evaluation.metrics import evaluate_greedy_against_vienna
 from src.evaluation.scaling import run_and_save_scaling_experiment
+from src.evaluation.solver_comparison import compare_solvers
+from src.evaluation.plot_graphs import run_plot_generation
+from src.evaluation.algorithm_comparison_graphs import run_algorithm_comparison_graphs
 
 
 app = Flask(__name__)
@@ -30,6 +26,11 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return "", 204
 
 
 @app.route("/api/validate-sequence", methods=["POST"])
@@ -45,6 +46,26 @@ def validate_sequence():
         return jsonify({"success": False, "error": str(error)}), 500
 
 
+@app.route("/api/validate-structure", methods=["POST"])
+def validate_structure():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+    structure = data.get("structure", "")
+
+    try:
+        is_valid = validate_dotbracket(structure)
+        summary = summarize_structure(sequence, structure)
+
+        return jsonify({
+            "success": True,
+            "is_valid_dotbracket": is_valid,
+            "summary": summary,
+        })
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+
 @app.route("/api/run-vienna", methods=["POST"])
 def run_vienna():
     data = request.get_json() or {}
@@ -52,7 +73,7 @@ def run_vienna():
 
     try:
         result = run_vienna_benchmark(sequence)
-        return jsonify(result)
+        return jsonify({"success": True, **result})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
@@ -129,81 +150,12 @@ def evaluate_greedy():
     sequence = data.get("sequence", "")
 
     try:
-        result = evaluate_greedy_against_vienna(sequence)
-        return jsonify({"success": True, "evaluation": result})
+        evaluation = evaluate_greedy_against_vienna(sequence)
+        return jsonify({"success": True, "evaluation": evaluation})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
 
-
-@app.route("/api/run-scaling", methods=["POST"])
-def run_scaling():
-    try:
-        result = run_and_save_scaling_experiment()
-        return jsonify(result)
-
-    except Exception as error:
-        return jsonify({"success": False, "error": str(error)}), 500
-
-
-@app.route("/api/validate-structure", methods=["POST"])
-def validate_structure():
-    data = request.get_json() or {}
-
-    sequence = data.get("sequence", "").strip().upper()
-    structure = data.get("structure", "").strip()
-
-    if not sequence or not structure:
-        return jsonify(
-            {
-                "success": False,
-                "error": "Please enter both an RNA sequence and a dot-bracket structure.",
-            }
-        ), 400
-
-    if len(sequence) != len(structure):
-        return jsonify(
-            {
-                "success": False,
-                "error": "Sequence and structure must have the same length.",
-                "sequence_length": len(sequence),
-                "structure_length": len(structure),
-            }
-        ), 400
-
-    try:
-        if not validate_dotbracket(structure):
-            return jsonify(
-                {
-                    "success": False,
-                    "error": "Invalid dot-bracket structure. Use only dots and balanced parentheses.",
-                }
-            ), 400
-
-        summary = summarize_structure(sequence, structure)
-        return jsonify({"success": True, "summary": summary})
-
-    except Exception as error:
-        return jsonify({"success": False, "error": str(error)}), 500
-
-
-@app.route("/api/pairs", methods=["POST"])
-def get_pairs():
-    data = request.get_json() or {}
-    structure = data.get("structure", "").strip()
-
-    try:
-        pairs = dotbracket_to_pairs(structure)
-        return jsonify(
-            {
-                "success": True,
-                "pairs": pairs,
-                "num_pairs": len(pairs),
-            }
-        )
-
-    except Exception as error:
-        return jsonify({"success": False, "error": str(error)}), 400
 
 @app.route("/api/compare-solvers", methods=["POST"])
 def compare_solver_results():
@@ -217,6 +169,17 @@ def compare_solver_results():
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
 
+
+@app.route("/api/run-scaling", methods=["POST"])
+def run_scaling():
+    try:
+        result = run_and_save_scaling_experiment()
+        return jsonify({"success": True, "scaling": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+
 @app.route("/api/qaoa-readiness", methods=["POST"])
 def qaoa_readiness():
     data = request.get_json() or {}
@@ -228,6 +191,7 @@ def qaoa_readiness():
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
+
 
 @app.route("/api/vqe-readiness", methods=["POST"])
 def vqe_readiness():
@@ -241,15 +205,25 @@ def vqe_readiness():
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
 
-@app.route("/favicon.ico")
-def favicon():
-    return "", 204
 
 @app.route("/api/generate-graphs", methods=["POST"])
 def generate_graphs():
     try:
         result = run_plot_generation()
         return jsonify({"success": True, "graphs": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+
+@app.route("/api/algorithm-comparison-graphs", methods=["POST"])
+def algorithm_comparison_graphs():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_algorithm_comparison_graphs(sequence)
+        return jsonify({"success": True, "algorithm_graphs": result})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500

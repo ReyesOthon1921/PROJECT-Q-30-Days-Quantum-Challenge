@@ -111,6 +111,7 @@ function showResults(data) {
     renderGraphImages(data);
     renderProfessionalResults(data);
     renderDataVisuals(data);
+    renderAlgorithmGraphImages(data);
 }
 
 
@@ -295,6 +296,15 @@ async function validateStructure() {
         "Validating dot-bracket RNA structure..."
     );
 }
+
+async function generateAlgorithmComparisonGraphs() {
+    await postJson(
+        "/api/algorithm-comparison-graphs",
+        { sequence: getSequence() },
+        "Generating all-algorithm comparison graphs..."
+    );
+}
+
 
 function dotBracketToPairs(structure) {
     const stack = [];
@@ -606,6 +616,36 @@ function renderVariableTags(data) {
             </div>
         </div>
     `;
+}
+
+function renderAlgorithmGraphImages(data) {
+    const container = document.getElementById("algorithmGraphsContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const graphs =
+        data?.algorithm_graphs?.generated_graphs ||
+        data?.algorithm_graphs?.algorithm_graphs?.generated_graphs ||
+        [];
+
+    if (!graphs.length) {
+        return;
+    }
+
+    const timestamp = Date.now();
+
+    container.innerHTML = graphs
+        .map((graph) => {
+            return `
+                <article class="graph-card">
+                    <h4>${graph.title}</h4>
+                    <img src="${graph.static_path}?v=${timestamp}" alt="${graph.title}">
+                </article>
+            `;
+        })
+        .join("");
 }
 
 function renderGraphSummary(data) {

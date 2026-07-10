@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quantum RNA Folding Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=19c">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20">
 </head>
 <body>
     <main class="app-shell">
@@ -22,13 +22,15 @@
                 <button onclick="scrollToSection('qubo-panel')">QUBO</button>
                 <button onclick="scrollToSection('simulation-panel')">Simulation</button>
                 <button onclick="scrollToSection('summary-panel')">Summary</button>
+                <button onclick="scrollToSection('context-panel')">Context</button>
                 <button onclick="scrollToSection('graphs-panel')">Graphs</button>
+                <button onclick="scrollToSection('algorithm-panel')">Algorithms</button>
                 <button onclick="scrollToSection('results-panel')">Results</button>
             </nav>
 
             <div class="phase-chip">
                 <span>Current</span>
-                <strong>Phase 19C Visualization Layer</strong>
+                <strong>Phase 20 Algorithm Graphs</strong>
             </div>
         </aside>
 
@@ -38,8 +40,8 @@
                 <h2>Classical-to-Quantum RNA Folding Dashboard</h2>
                 <p>
                     RNA preprocessing, ViennaRNA benchmarking, QUBO construction,
-                    baseline solvers, simulated annealing, solver comparison, scaling analysis,
-                    QAOA/VQE readiness, and professional visualization.
+                    baseline solvers, simulated annealing, QAOA/VQE readiness,
+                    scaling analysis, algorithm comparison graphs, and research-context visualization.
                 </p>
             </header>
 
@@ -87,6 +89,7 @@
                     <button onclick="compareSolvers()">Compare Solvers</button>
                     <button onclick="runScalingAnalysis()">Run Scaling Analysis</button>
                     <button onclick="generateScalingGraphs()">Generate Scaling Graphs</button>
+                    <button onclick="generateAlgorithmComparisonGraphs()">Generate Algorithm Comparison Graphs</button>
                 </div>
             </section>
 
@@ -137,27 +140,22 @@
                         <span>ViennaRNA MFE</span>
                         <strong id="metric-mfe">—</strong>
                     </div>
-
                     <div class="metric-card">
                         <span>QUBO Variables</span>
                         <strong id="metric-variables">—</strong>
                     </div>
-
                     <div class="metric-card">
                         <span>Estimated Qubits</span>
                         <strong id="metric-qubits">—</strong>
                     </div>
-
                     <div class="metric-card">
                         <span>Greedy F1</span>
                         <strong id="metric-greedy-f1">—</strong>
                     </div>
-
                     <div class="metric-card">
                         <span>Annealing F1</span>
                         <strong id="metric-annealing-f1">—</strong>
                     </div>
-
                     <div class="metric-card">
                         <span>Best Solver</span>
                         <strong id="metric-best-solver">—</strong>
@@ -165,28 +163,44 @@
                 </div>
             </section>
 
-            <section class="card limitation-card">
+            <section id="context-panel" class="card limitation-card">
                 <div class="card-header">
                     <div>
-                        <p class="eyebrow">Paper-Informed Research Note</p>
-                        <h3>QUBO Scaling Limitations</h3>
+                        <p class="eyebrow">Research Context</p>
+                        <h3>Therapeutic Motivation + QUBO Limits</h3>
                     </div>
-                    <span class="status-pill hot">New Paper Added</span>
+                    <span class="status-pill hot">Updated Context</span>
                 </div>
 
-                <p class="helper-text">
-                    After reviewing the paper on modern quantum annealers and RNA structure prediction,
-                    this dashboard now includes scaling plots to make the limitations visible.
-                    The paper argues that QUBO-based RNA folding can struggle as sequence length grows
-                    because of deep local minima, two-body interaction limits, overprediction of stems/base pairs,
-                    and missing higher-order RNA structural constraints.
-                </p>
+                <div class="context-grid">
+                    <article class="context-card">
+                        <h4>RNA Therapeutics Context</h4>
+                        <p>
+                            RNA therapeutics and mRNA vaccines make RNA sequence design,
+                            stability, translation, and structure prediction important research problems.
+                            This dashboard uses RNA secondary-structure prediction as the computational
+                            bridge between biological motivation and optimization modeling.
+                        </p>
+                    </article>
 
-                <p class="helper-text">
-                    This project does not claim quantum advantage. The goal is to build a transparent
-                    research prototype that shows both the potential and the limits of QUBO, simulated annealing,
-                    QAOA readiness, and VQE readiness for RNA/mRNA secondary-structure prediction.
-                </p>
+                    <article class="context-card">
+                        <h4>Quantum Annealer / QUBO Limitation</h4>
+                        <p>
+                            Recent RNA/QUBO work warns that QUBO-based RNA folding can struggle
+                            as sequence length grows because of deep local minima, two-body interaction limits,
+                            overprediction of stems/base pairs, and missing higher-order RNA constraints.
+                        </p>
+                    </article>
+
+                    <article class="context-card">
+                        <h4>Research Position</h4>
+                        <p>
+                            This project does not claim quantum advantage. It compares classical benchmarks,
+                            QUBO baselines, simulated annealing, QAOA readiness, and VQE readiness as a
+                            transparent research prototype.
+                        </p>
+                    </article>
+                </div>
             </section>
 
             <section id="graphs-panel" class="card">
@@ -203,7 +217,26 @@
                 </p>
 
                 <div id="graphsContainer" class="graph-grid">
-                    <p class="helper-text">No graphs generated yet.</p>
+                    <p class="helper-text">No scaling graphs generated yet.</p>
+                </div>
+            </section>
+
+            <section id="algorithm-panel" class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">All Algorithms</p>
+                        <h3>Algorithm Comparison Graphs</h3>
+                    </div>
+                    <span class="status-pill hot">New</span>
+                </div>
+
+                <p class="helper-text">
+                    Compare ViennaRNA, greedy stem-QUBO, simulated annealing, QAOA readiness,
+                    and VQE readiness. QAOA and VQE are shown as readiness prototypes, not final quantum advantage claims.
+                </p>
+
+                <div id="algorithmGraphsContainer" class="graph-grid">
+                    <p class="helper-text">No algorithm comparison graphs generated yet.</p>
                 </div>
             </section>
 
@@ -254,6 +287,6 @@
         </section>
     </main>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}?v=19c"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=20"></script>
 </body>
 </html>
