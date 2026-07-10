@@ -10,9 +10,96 @@ function getStructure() {
     return document.getElementById("structure").value.trim();
 }
 
+function setMetric(id, value) {
+    const element = document.getElementById(id);
+
+    if (!element) {
+        return;
+    }
+
+    if (value === undefined || value === null || value === "") {
+        element.textContent = "—";
+    } else {
+        element.textContent = value;
+    }
+}
+
+function findSolverRow(comparisonRows, keyword) {
+    if (!comparisonRows) {
+        return null;
+    }
+
+    return comparisonRows.find((row) =>
+        row.solver && row.solver.toLowerCase().includes(keyword)
+    );
+}
+
+function updateSummaryCards(data) {
+    const mfe =
+        data?.mfe_energy ??
+        data?.comparison?.vienna_mfe_energy ??
+        data?.evaluation?.vienna_mfe_energy ??
+        null;
+
+    const quboVariables =
+        data?.qubo?.num_variables ??
+        data?.qubo?.estimated_qubits ??
+        data?.result?.total_qubo_variables ??
+        data?.summary?.estimated_binary_variables ??
+        data?.summary?.candidate_stem_count ??
+        null;
+
+    const estimatedQubits =
+        data?.qubo?.estimated_qubits ??
+        data?.result?.total_qubo_variables ??
+        data?.summary?.estimated_qubits ??
+        null;
+
+    const greedyF1 =
+        data?.evaluation?.metrics?.f1_score ??
+        data?.comparison?.greedy_evaluation?.metrics?.f1_score ??
+        findSolverRow(data?.comparison?.comparison_rows, "greedy")?.f1_score ??
+        null;
+
+    const annealingF1 =
+        data?.comparison?.annealing_evaluation?.metrics?.f1_score ??
+        findSolverRow(data?.comparison?.comparison_rows, "annealing")?.f1_score ??
+        null;
+
+    const bestSolver =
+        data?.comparison?.best_solver_by_f1?.solver ??
+        null;
+
+    if (mfe !== null) {
+        setMetric("metric-mfe", Number(mfe).toFixed(3));
+    }
+
+    if (quboVariables !== null) {
+        setMetric("metric-variables", quboVariables);
+    }
+
+    if (estimatedQubits !== null) {
+        setMetric("metric-qubits", estimatedQubits);
+    }
+
+    if (greedyF1 !== null) {
+        setMetric("metric-greedy-f1", greedyF1);
+    }
+
+    if (annealingF1 !== null) {
+        setMetric("metric-annealing-f1", annealingF1);
+    }
+
+    if (bestSolver !== null) {
+        setMetric("metric-best-solver", bestSolver.replace(" stem-QUBO baseline", ""));
+    }
+}
+
 function showResults(data) {
     const resultsBox = document.getElementById("results");
     resultsBox.textContent = JSON.stringify(data, null, 2);
+
+    updateSummaryCards(data);
     renderFromResponse(data);
 }
 
@@ -37,43 +124,83 @@ async function postJson(url, payload, loadingMessage) {
 }
 
 async function analyzeSequence() {
-    await postJson("/api/validate-sequence", { sequence: getSequence() }, "Analyzing RNA sequence...");
+    await postJson(
+        "/api/validate-sequence",
+        { sequence: getSequence() },
+        "Analyzing RNA sequence..."
+    );
 }
 
 async function runViennaBenchmark() {
-    await postJson("/api/run-vienna", { sequence: getSequence() }, "Running ViennaRNA benchmark...");
+    await postJson(
+        "/api/run-vienna",
+        { sequence: getSequence() },
+        "Running ViennaRNA benchmark..."
+    );
 }
 
 async function generateCandidatePairs() {
-    await postJson("/api/candidate-pairs", { sequence: getSequence() }, "Generating candidate base-pair variables...");
+    await postJson(
+        "/api/candidate-pairs",
+        { sequence: getSequence() },
+        "Generating candidate base-pair variables..."
+    );
 }
 
 async function generateCandidateStems() {
-    await postJson("/api/candidate-stems", { sequence: getSequence() }, "Generating candidate stem variables...");
+    await postJson(
+        "/api/candidate-stems",
+        { sequence: getSequence() },
+        "Generating candidate stem variables..."
+    );
 }
 
 async function buildQubo() {
-    await postJson("/api/build-qubo", { sequence: getSequence() }, "Building stem-based QUBO...");
+    await postJson(
+        "/api/build-qubo",
+        { sequence: getSequence() },
+        "Building stem-based QUBO..."
+    );
 }
 
 async function runGreedySolver() {
-    await postJson("/api/solve-greedy", { sequence: getSequence() }, "Running greedy stem-QUBO solver...");
+    await postJson(
+        "/api/solve-greedy",
+        { sequence: getSequence() },
+        "Running greedy stem-QUBO solver..."
+    );
 }
 
 async function runAnnealingSolver() {
-    await postJson("/api/solve-annealing", { sequence: getSequence() }, "Running simulated annealing stem-QUBO solver...");
+    await postJson(
+        "/api/solve-annealing",
+        { sequence: getSequence() },
+        "Running simulated annealing stem-QUBO solver..."
+    );
 }
 
 async function evaluateGreedy() {
-    await postJson("/api/evaluate-greedy", { sequence: getSequence() }, "Evaluating greedy solver against ViennaRNA...");
+    await postJson(
+        "/api/evaluate-greedy",
+        { sequence: getSequence() },
+        "Evaluating greedy solver against ViennaRNA..."
+    );
 }
 
 async function compareSolvers() {
-    await postJson("/api/compare-solvers", { sequence: getSequence() }, "Comparing solvers against ViennaRNA...");
+    await postJson(
+        "/api/compare-solvers",
+        { sequence: getSequence() },
+        "Comparing solvers against ViennaRNA..."
+    );
 }
 
 async function runScalingAnalysis() {
-    await postJson("/api/run-scaling", {}, "Running scaling analysis...");
+    await postJson(
+        "/api/run-scaling",
+        {},
+        "Running scaling analysis..."
+    );
 }
 
 async function validateStructure() {
@@ -136,6 +263,11 @@ function drawCurrentInput() {
 
 function drawRnaSimulation(sequence, structure) {
     const canvas = document.getElementById("rnaCanvas");
+
+    if (!canvas) {
+        return;
+    }
+
     const ctx = canvas.getContext("2d");
 
     const width = canvas.width;
@@ -177,10 +309,10 @@ function drawRnaSimulation(sequence, structure) {
         positions.push({ x, y });
     }
 
-    ctx.lineWidth = 2;
-
     for (const [i, j] of pairs) {
-        if (!positions[i] || !positions[j]) continue;
+        if (!positions[i] || !positions[j]) {
+            continue;
+        }
 
         const start = positions[i];
         const end = positions[j];
@@ -191,6 +323,7 @@ function drawRnaSimulation(sequence, structure) {
         ctx.moveTo(start.x, start.y);
         ctx.quadraticCurveTo(midX, centerY - arcHeight, end.x, end.y);
         ctx.strokeStyle = "rgba(255, 120, 180, 0.75)";
+        ctx.lineWidth = 2;
         ctx.stroke();
     }
 
@@ -214,7 +347,15 @@ function drawRnaSimulation(sequence, structure) {
         const point = positions[i];
         const base = cleanSequence[i];
 
-        const nodeGradient = ctx.createRadialGradient(point.x - 4, point.y - 5, 2, point.x, point.y, 14);
+        const nodeGradient = ctx.createRadialGradient(
+            point.x - 4,
+            point.y - 5,
+            2,
+            point.x,
+            point.y,
+            14
+        );
+
         nodeGradient.addColorStop(0, "#ffffff");
         nodeGradient.addColorStop(0.45, "#D50048");
         nodeGradient.addColorStop(1, "#560072");
