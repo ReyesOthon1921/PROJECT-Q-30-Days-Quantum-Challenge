@@ -10,25 +10,25 @@ The project currently has a working end-to-end MVP pipeline:
 
 
 
-RNA input  
+RNA input
 
-→ preprocessing  
+→ preprocessing
 
-→ ViennaRNA benchmark  
+→ ViennaRNA benchmark
 
-→ candidate pair/stem generation  
+→ candidate pair/stem generation
 
-→ stem-based QUBO  
+→ stem-based QUBO
 
-→ greedy solver  
+→ greedy solver
 
-→ simulated annealing solver  
+→ simulated annealing solver
 
-→ evaluation metrics  
+→ evaluation metrics
 
-→ solver comparison  
+→ solver comparison
 
-→ scaling analysis  
+→ scaling analysis
 
 
 
