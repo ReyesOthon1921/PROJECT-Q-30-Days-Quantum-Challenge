@@ -261,6 +261,14 @@ function drawCurrentInput() {
     drawRnaSimulation(getSequence(), getStructure());
 }
 
+async function runQaoaReadiness() {
+    await postJson(
+        "/api/qaoa-readiness",
+        { sequence: getSequence() },
+        "Preparing QAOA-ready small QUBO subset..."
+    );
+}
+
 function drawRnaSimulation(sequence, structure) {
     const canvas = document.getElementById("rnaCanvas");
 

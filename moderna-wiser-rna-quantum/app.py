@@ -5,6 +5,8 @@ from src.classical.dotbracket import (
     dotbracket_to_pairs,
     summarize_structure,
 )
+
+from src.solvers.qaoa_prototype import run_qaoa_readiness_demo
 from src.evaluation.solver_comparison import compare_solvers
 from src.classical.sequence_tools import summarize_sequence
 from src.classical.vienna_benchmark import run_vienna_benchmark
@@ -209,6 +211,18 @@ def compare_solver_results():
     try:
         result = compare_solvers(sequence)
         return jsonify({"success": True, "comparison": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+@app.route("/api/qaoa-readiness", methods=["POST"])
+def qaoa_readiness():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_qaoa_readiness_demo(sequence)
+        return jsonify({"success": True, "qaoa_readiness": result})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
