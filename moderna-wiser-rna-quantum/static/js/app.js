@@ -369,6 +369,14 @@ async function runQaoaReadiness() {
     );
 }
 
+async function generateAlgorithmComparisonGraphs() {
+    await postJson(
+        "/api/algorithm-comparison-graphs",
+        { sequence: getSequence() },
+        "Generating all-algorithm comparison graphs..."
+    );
+}
+
 
 function escapeHtml(value) {
     return String(value)
