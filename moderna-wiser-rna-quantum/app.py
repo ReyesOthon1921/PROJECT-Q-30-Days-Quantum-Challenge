@@ -14,6 +14,7 @@ from src.qubo.candidate_stems import summarize_candidate_stems
 from src.qubo.build_qubo import build_stem_qubo
 
 from src.solvers.greedy_solver import solve_stem_qubo_greedy
+from src.solvers.simulated_annealing import solve_stem_qubo_simulated_annealing
 
 from src.evaluation.metrics import evaluate_greedy_against_vienna
 from src.evaluation.scaling import run_and_save_scaling_experiment
@@ -99,6 +100,19 @@ def solve_greedy():
 
     try:
         result = solve_stem_qubo_greedy(sequence)
+        return jsonify({"success": True, "result": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+
+@app.route("/api/solve-annealing", methods=["POST"])
+def solve_annealing():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = solve_stem_qubo_simulated_annealing(sequence)
         return jsonify({"success": True, "result": result})
 
     except Exception as error:

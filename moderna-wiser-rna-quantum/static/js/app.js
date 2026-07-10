@@ -134,6 +134,28 @@ async function runGreedySolver() {
     }
 }
 
+async function runAnnealingSolver() {
+    const sequence = document.getElementById("sequence").value;
+    const resultsBox = document.getElementById("results");
+
+    resultsBox.textContent = "Running simulated annealing stem-QUBO solver...";
+
+    try {
+        const response = await fetch("/api/solve-annealing", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ sequence: sequence })
+        });
+
+        const data = await response.json();
+        resultsBox.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+        resultsBox.textContent = "Frontend error: " + error;
+    }
+}
+
 async function evaluateGreedy() {
     const sequence = document.getElementById("sequence").value;
     const resultsBox = document.getElementById("results");
