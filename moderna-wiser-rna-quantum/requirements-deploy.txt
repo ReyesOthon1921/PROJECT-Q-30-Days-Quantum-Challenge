@@ -1,0 +1,8 @@
+Flask==3.1.3
+gunicorn
+ViennaRNA==2.7.2
+numpy
+pandas
+networkx
+matplotlib
+scipy
