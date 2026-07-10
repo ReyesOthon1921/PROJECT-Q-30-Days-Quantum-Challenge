@@ -7,50 +7,127 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <main class="container">
-        <section class="hero">
-            <p class="eyebrow">Moderna / WISER RNA Quantum Optimization Project</p>
-            <h1>Classical-to-Quantum RNA Folding Dashboard</h1>
-            <p>RNA preprocessing, ViennaRNA benchmarking, and QUBO-ready candidate generation.</p>
-        </section>
+    <main class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">Q</div>
+                <div>
+                    <h1>RNA-QUBO</h1>
+                    <p>Classical → Quantum Pipeline</p>
+                </div>
+            </div>
 
-        <section class="card">
-            <h2>RNA Sequence Input</h2>
+            <nav class="nav-stack">
+                <button onclick="scrollToSection('input-panel')">Input</button>
+                <button onclick="scrollToSection('qubo-panel')">QUBO</button>
+                <button onclick="scrollToSection('simulation-panel')">Simulation</button>
+                <button onclick="scrollToSection('results-panel')">Results</button>
+            </nav>
 
-            <label for="sequence">RNA Sequence</label>
-            <textarea id="sequence" rows="4">GGAGCAAAACUUGUCGAUUGAGAACAAAAUACAGAAUUUGCUUG</textarea>
+            <div class="phase-chip">
+                <span>Current</span>
+                <strong>Phase 14 UI Polish</strong>
+            </div>
+        </aside>
 
-            <button onclick="analyzeSequence()">Analyze Sequence</button>
-            <button onclick="runViennaBenchmark()">Run Classical Benchmark</button>
-        </section>
+        <section class="dashboard">
+            <header class="hero">
+                <p class="eyebrow">Moderna / WISER RNA Quantum Optimization Project</p>
+                <h2>Classical-to-Quantum RNA Folding Dashboard</h2>
+                <p>
+                    RNA preprocessing, ViennaRNA benchmarking, QUBO construction,
+                    baseline solvers, simulated annealing, solver comparison, and scaling analysis.
+                </p>
+            </header>
 
-        <section class="card">
-            <h2>Phase 5: QUBO Candidate Generation</h2>
-            <p>Generate base-pair variables or stem variables before building the QUBO objective.</p>
+            <section id="input-panel" class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Step 1</p>
+                        <h3>RNA Sequence Input</h3>
+                    </div>
+                    <span class="status-pill">Live Flask App</span>
+                </div>
 
-           <button onclick="generateCandidatePairs()">Generate Candidate Pairs</button>
-	   <button onclick="generateCandidateStems()">Generate Candidate Stems</button>
-	   <button onclick="buildQubo()">Build Stem QUBO</button>
-	   <button onclick="runGreedySolver()">Run Greedy Solver</button>
-	   <button onclick="runAnnealingSolver()">Run Simulated Annealing</button>
-	   <button onclick="evaluateGreedy()">Evaluate Greedy vs ViennaRNA</button>
-	   <button onclick="compareSolvers()">Compare Solvers</button>
-	   <button onclick="runScalingAnalysis()">Run Scaling Analysis</button>
-	    
-        </section>
+                <label for="sequence">RNA Sequence</label>
+                <textarea id="sequence" rows="4">GGAGCAAAACUUGUCGAUUGAGAACAAAAUACAGAAUUUGCUUG</textarea>
 
-        <section class="card">
-            <h2>Validate RNA Structure</h2>
+                <div class="button-row">
+                    <button onclick="analyzeSequence()">Analyze Sequence</button>
+                    <button onclick="runViennaBenchmark()">Run Classical Benchmark</button>
+                </div>
+            </section>
 
-            <label for="structure">Dot-Bracket Structure</label>
-            <textarea id="structure" rows="4">.................(((....))).................</textarea>
+            <section id="qubo-panel" class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Step 2</p>
+                        <h3>QUBO + Solver Pipeline</h3>
+                    </div>
+                    <span class="status-pill hot">Optimization Layer</span>
+                </div>
 
-            <button onclick="validateStructure()">Validate Structure</button>
-        </section>
+                <p class="helper-text">
+                    Generate candidate variables, build a stem-based QUBO, run baseline solvers,
+                    compare against ViennaRNA, and test scaling.
+                </p>
 
-        <section class="card">
-            <h2>Results</h2>
-            <pre id="results">Waiting for input...</pre>
+                <div class="button-grid">
+                    <button onclick="generateCandidatePairs()">Generate Candidate Pairs</button>
+                    <button onclick="generateCandidateStems()">Generate Candidate Stems</button>
+                    <button onclick="buildQubo()">Build Stem QUBO</button>
+                    <button onclick="runGreedySolver()">Run Greedy Solver</button>
+                    <button onclick="runAnnealingSolver()">Run Simulated Annealing</button>
+                    <button onclick="evaluateGreedy()">Evaluate Greedy vs ViennaRNA</button>
+                    <button onclick="compareSolvers()">Compare Solvers</button>
+                    <button onclick="runScalingAnalysis()">Run Scaling Analysis</button>
+                </div>
+            </section>
+
+            <section id="simulation-panel" class="card simulation-card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Step 3</p>
+                        <h3>RNA Structure Simulation View</h3>
+                    </div>
+                    <span class="status-pill">2.5D Canvas</span>
+                </div>
+
+                <canvas id="rnaCanvas" width="1000" height="420"></canvas>
+                <p class="helper-text">
+                    The visualization updates from the sequence and the most recent structure/solver output.
+                </p>
+            </section>
+
+            <section class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Step 4</p>
+                        <h3>Validate RNA Structure</h3>
+                    </div>
+                    <span class="status-pill">Dot-Bracket</span>
+                </div>
+
+                <label for="structure">Dot-Bracket Structure</label>
+                <textarea id="structure" rows="4">.................(((....))).................</textarea>
+
+                <div class="button-row">
+                    <button onclick="validateStructure()">Validate Structure</button>
+                    <button onclick="drawCurrentInput()">Visualize Current Input</button>
+                </div>
+            </section>
+
+            <section id="results-panel" class="card results-card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Output</p>
+                        <h3>Results</h3>
+                    </div>
+                    <span class="status-pill">JSON</span>
+                </div>
+
+                <pre id="results">Waiting for input...</pre>
+            </section>
         </section>
     </main>
 
