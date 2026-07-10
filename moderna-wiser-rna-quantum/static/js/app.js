@@ -50,10 +50,12 @@ function updateSummaryCards(data) {
         null;
 
     const estimatedQubits =
-        data?.qubo?.estimated_qubits ??
-        data?.result?.total_qubo_variables ??
-        data?.summary?.estimated_qubits ??
-        null;
+    	 data?.qubo?.estimated_qubits ??
+    	 data?.result?.total_qubo_variables ??
+   	 data?.summary?.estimated_qubits ??
+   	 data?.qaoa_readiness?.problem?.estimated_qaoa_qubits ??
+   	 data?.vqe_readiness?.problem?.estimated_vqe_qubits ??
+   	 null;
 
     const greedyF1 =
         data?.evaluation?.metrics?.f1_score ??
@@ -259,6 +261,14 @@ function renderFromResponse(data) {
 
 function drawCurrentInput() {
     drawRnaSimulation(getSequence(), getStructure());
+}
+
+async function runVqeReadiness() {
+    await postJson(
+        "/api/vqe-readiness",
+        { sequence: getSequence() },
+        "Preparing VQE-ready Hamiltonian subset..."
+    );
 }
 
 async function runQaoaReadiness() {

@@ -5,7 +5,7 @@ from src.classical.dotbracket import (
     dotbracket_to_pairs,
     summarize_structure,
 )
-
+from src.solvers.vqe_prototype import run_vqe_readiness_demo
 from src.solvers.qaoa_prototype import run_qaoa_readiness_demo
 from src.evaluation.solver_comparison import compare_solvers
 from src.classical.sequence_tools import summarize_sequence
@@ -223,6 +223,18 @@ def qaoa_readiness():
     try:
         result = run_qaoa_readiness_demo(sequence)
         return jsonify({"success": True, "qaoa_readiness": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+@app.route("/api/vqe-readiness", methods=["POST"])
+def vqe_readiness():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_vqe_readiness_demo(sequence)
+        return jsonify({"success": True, "vqe_readiness": result})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
