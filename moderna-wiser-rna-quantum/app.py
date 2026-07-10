@@ -5,7 +5,7 @@ from src.classical.dotbracket import (
     dotbracket_to_pairs,
     summarize_structure,
 )
-
+from src.evaluation.solver_comparison import compare_solvers
 from src.classical.sequence_tools import summarize_sequence
 from src.classical.vienna_benchmark import run_vienna_benchmark
 
@@ -200,6 +200,18 @@ def get_pairs():
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 400
+
+@app.route("/api/compare-solvers", methods=["POST"])
+def compare_solver_results():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = compare_solvers(sequence)
+        return jsonify({"success": True, "comparison": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
 
 
 if __name__ == "__main__":
