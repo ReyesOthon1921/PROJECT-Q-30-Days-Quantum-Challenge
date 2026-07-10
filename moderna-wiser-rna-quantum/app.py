@@ -239,6 +239,10 @@ def vqe_readiness():
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
 
+@app.route("/favicon.ico")
+def favicon():
+    return "", 204
+
 
 if __name__ == "__main__":
     app.run(debug=True)
