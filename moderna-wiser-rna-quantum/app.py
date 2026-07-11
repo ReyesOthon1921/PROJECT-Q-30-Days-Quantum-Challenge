@@ -4,6 +4,8 @@ from src.classical.dotbracket import (
     summarize_structure,
     validate_dotbracket,
 )
+
+from src.evaluation.bioinformatics_metrics import run_bioinformatics_metrics
 from src.classical.sequence_tools import summarize_sequence
 from src.classical.vienna_benchmark import run_vienna_benchmark
 from src.qubo.candidate_pairs import summarize_candidate_pairs
@@ -224,6 +226,18 @@ def algorithm_comparison_graphs():
     try:
         result = run_algorithm_comparison_graphs(sequence)
         return jsonify({"success": True, "algorithm_graphs": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+@app.route("/api/bioinformatics-metrics", methods=["POST"])
+def bioinformatics_metrics():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_bioinformatics_metrics(sequence)
+        return jsonify({"success": True, "bioinformatics_metrics": result})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500

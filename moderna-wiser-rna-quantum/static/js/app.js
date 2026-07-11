@@ -110,6 +110,7 @@ function showResults(data) {
     renderFromResponse(data);
     renderGraphImages(data);
     renderProfessionalResults(data);
+    renderBioinformaticsMetrics(data);
     renderDataVisuals(data);
     renderAlgorithmGraphImages(data);
 }
@@ -144,6 +145,14 @@ function renderGraphImages(data) {
             `;
         })
         .join("");
+}
+
+async function runBioinformaticsMetrics() {
+    await postJson(
+        "/api/bioinformatics-metrics",
+        { sequence: getSequence() },
+        "Running expanded bioinformatics metrics..."
+    );
 }
 
 async function generateScalingGraphs() {
@@ -777,6 +786,57 @@ function drawRoundedRect(ctx, x, y, width, height, radius) {
     ctx.lineTo(x, y + radius);
     ctx.quadraticCurveTo(x, y, x + radius, y);
     ctx.closePath();
+}
+
+function renderBioinformaticsMetrics(data) {
+    const container = document.getElementById("bioinformaticsMetricsGrid");
+
+    if (!container) {
+        return;
+    }
+
+    const metrics = data?.bioinformatics_metrics?.metrics;
+
+    if (!metrics) {
+        return;
+    }
+
+    const metricOrder = [
+        ["Sequence Length", metrics.sequence_length],
+        ["GC %", metrics.gc_percent],
+        ["Stem Count", metrics.stem_count],
+        ["Loop Count", metrics.loop_count],
+        ["Candidate Pairs", metrics.candidate_pairs],
+        ["Candidate Stems", metrics.candidate_stems],
+        ["QUBO Variables", metrics.qubo_variables],
+        ["Quadratic Terms", metrics.quadratic_terms],
+        ["Estimated Qubits", metrics.estimated_qubits],
+        ["Circuit Depth", metrics.circuit_depth_estimate],
+        ["Approximation Ratio", metrics.approximation_ratio],
+        ["ViennaRNA Energy", metrics.vienna_mfe_energy],
+        ["Runtime", `${metrics.runtime_seconds} s`],
+        ["Memory Estimate", `${metrics.memory_estimate_mb} MB`],
+        ["Greedy F1", metrics.greedy_f1],
+        ["Annealing F1", metrics.annealing_f1],
+        ["Greedy MCC", metrics.greedy_mcc],
+        ["Annealing MCC", metrics.annealing_mcc],
+        ["Sensitivity", metrics.greedy_sensitivity],
+        ["Specificity", metrics.greedy_specificity],
+        ["QAOA Readiness", `${metrics.qaoa_readiness_percent}%`],
+        ["VQE Readiness", `${metrics.vqe_readiness_percent}%`],
+        ["Best Solver", metrics.best_solver],
+    ];
+
+    container.innerHTML = metricOrder
+        .map(([label, value]) => {
+            return `
+                <article class="bio-metric-card">
+                    <span>${escapeHtml(label)}</span>
+                    <strong>${escapeHtml(value)}</strong>
+                </article>
+            `;
+        })
+        .join("");
 }
 
 function drawResult3dSimulation(data) {

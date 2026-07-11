@@ -90,6 +90,7 @@
                     <button onclick="runScalingAnalysis()">Run Scaling Analysis</button>
                     <button onclick="generateScalingGraphs()">Generate Scaling Graphs</button>
                     <button onclick="generateAlgorithmComparisonGraphs()">Generate Algorithm Comparison Graphs</button>
+		    <button onclick="runBioinformaticsMetrics()">Run Bioinformatics Metrics</button>
                 </div>
             </section>
 
@@ -230,6 +231,8 @@
                     <span class="status-pill hot">New</span>
                 </div>
 
+	 
+
                 <p class="helper-text">
                     Compare ViennaRNA, greedy stem-QUBO, simulated annealing, QAOA readiness,
                     and VQE readiness. QAOA and VQE are shown as readiness prototypes, not final quantum advantage claims.
@@ -239,6 +242,58 @@
                     <p class="helper-text">No algorithm comparison graphs generated yet.</p>
                 </div>
             </section>
+
+	   <section id="algorithm-panel" class="card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">All Algorithms</p>
+            <h3>Algorithm Comparison Graphs</h3>
+        </div>
+        <span class="status-pill hot">New</span>
+    </div>
+
+    <p class="helper-text">
+        Compare ViennaRNA, greedy stem-QUBO, simulated annealing, QAOA readiness,
+        and VQE readiness. QAOA and VQE are shown as readiness prototypes, not final quantum advantage claims.
+    </p>
+
+    <div id="algorithmGraphsContainer" class="graph-grid">
+        <p class="helper-text">No algorithm comparison graphs generated yet.</p>
+    </div>
+</section>
+
+<section id="bioinformatics-panel" class="card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Bioinformatics Layer</p>
+            <h3>Expanded RNA / QUBO Metrics</h3>
+        </div>
+        <span class="status-pill hot">BLAST + RCSB</span>
+    </div>
+
+    <p class="helper-text">
+        This section connects the RNA/QUBO pipeline to external bioinformatics resources.
+        BLAST supports sequence-similarity exploration, while RCSB PDB supports structure-level exploration.
+    </p>
+
+    <div id="bioinformaticsMetricsGrid" class="bio-metric-grid">
+        <p class="helper-text">Run “Bioinformatics Metrics” to generate expanded metrics.</p>
+    </div>
+
+    <div class="external-resource-grid">
+        <a class="resource-card" href="https://blast.ncbi.nlm.nih.gov/Blast.cgi" target="_blank">
+            <h4>NCBI BLAST</h4>
+            <p>Search sequence similarity against biological databases.</p>
+        </a>
+
+        <a class="resource-card" href="https://www.rcsb.org/search?request=%7B%22query%22%3A%7B%22type%22%3A%22group%22%2C%22logical_operator%22%3A%22and%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22group%22%2C%22label%22%3A%22text%22%2C%22logical_operator%22%3A%22and%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22terminal%22%2C%22service%22%3A%22full_text%22%2C%22parameters%22%3A%7B%22value%22%3A%22RNA%22%7D%7D%5D%7D%5D%7D%2C%22return_type%22%3A%22entry%22%2C%22request_options%22%3A%7B%22paginate%22%3A%7B%22start%22%3A0%2C%22rows%22%3A25%7D%2C%22results_content_type%22%3A%5B%22experimental%22%5D%2C%22sort%22%3A%5B%7B%22sort_by%22%3A%22score%22%2C%22direction%22%3A%22desc%22%7D%5D%2C%22scoring_strategy%22%3A%22combined%22%7D%2C%22request_info%22%3A%7B%22query_id%22%3A%22c787e5af61336090ded9881e2c693a23%22%7D%7D" target="_blank">
+            <h4>RCSB PDB RNA Search</h4>
+            <p>Explore experimentally determined RNA-related structures.</p>
+        </a>
+    </div>
+</section>
+
+<section id="results-panel" class="card results-card">
 
             <section id="results-panel" class="card results-card">
                 <div class="card-header">
