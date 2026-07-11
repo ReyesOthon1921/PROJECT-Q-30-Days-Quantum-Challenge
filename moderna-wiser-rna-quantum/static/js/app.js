@@ -119,6 +119,8 @@ function showResults(data) {
     renderVqeCircuitResults(data);
     renderCircuitComparison(data);
     renderCircuitComparisonGraphs(data);
+    renderQaoaParameterSweep(data);
+    renderQaoaParameterSweepGraphs(data);
 }
 
 
@@ -321,6 +323,83 @@ async function generateAlgorithmComparisonGraphs() {
 }
 
 
+
+function renderQaoaParameterSweep(data) {
+    const container = document.getElementById("qaoaSweepGrid");
+
+    if (!container) {
+        return;
+    }
+
+    const result = data?.qaoa_parameter_sweep;
+
+    if (!result || !result.best_result) {
+        return;
+    }
+
+    const best = result.best_result;
+
+    const metricOrder = [
+        ["Phase", result.phase],
+        ["Parameter Count", result.parameter_count],
+        ["Shots", result.shots],
+        ["Best Gamma", best.gamma],
+        ["Best Beta", best.beta],
+        ["Best Top Bitstring", best.top_bitstring],
+        ["Best Top Count", best.top_count],
+        ["Best Top Probability", best.top_probability],
+        ["Best Estimated QUBO Energy", best.top_energy],
+        ["Qubits", best.num_qubits],
+        ["Linear Terms", best.linear_term_count],
+        ["Quadratic Terms", best.quadratic_term_count],
+        ["Circuit Depth", best.circuit_depth],
+        ["Transpiled Depth", best.transpiled_depth],
+        ["Circuit Size", best.circuit_size],
+        ["Best Runtime", `${best.runtime_seconds} s`],
+        ["Total Runtime", `${result.total_runtime_seconds} s`],
+    ];
+
+    container.innerHTML = metricOrder
+        .map(([label, value]) => {
+            return `
+                <article class="bio-metric-card">
+                    <span>${escapeHtml(label)}</span>
+                    <strong>${escapeHtml(value)}</strong>
+                </article>
+            `;
+        })
+        .join("");
+}
+
+function renderQaoaParameterSweepGraphs(data) {
+    const container = document.getElementById("qaoaSweepGraphsContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const graphs = data?.qaoa_parameter_sweep?.generated_graphs || [];
+
+    if (!graphs.length) {
+        return;
+    }
+
+    const timestamp = Date.now();
+
+    container.innerHTML = graphs
+        .map((graph) => {
+            return `
+                <article class="graph-card">
+                    <h4>${escapeHtml(graph.title)}</h4>
+                    <img src="${graph.static_path}?v=${timestamp}" alt="${escapeHtml(graph.title)}">
+                </article>
+            `;
+        })
+        .join("");
+}
+
+
+
 function dotBracketToPairs(structure) {
     const stack = [];
     const pairs = [];
@@ -441,6 +520,14 @@ function renderCircuitComparisonGraphs(data) {
         .join("");
 }
 
+
+async function runQaoaParameterSweep() {
+    await postJson(
+        "/api/qaoa-parameter-sweep",
+        { sequence: getSequence() },
+        "Running QAOA parameter sweep..."
+    );
+}
 
 function drawCurrentInput() {
     drawRnaSimulation(getSequence(), getStructure());

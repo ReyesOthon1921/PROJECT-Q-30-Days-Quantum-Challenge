@@ -95,7 +95,7 @@
 		    <button onclick="runQaoaCircuitPrototype()">Run QAOA Circuit Prototype</button>
 		    <button onclick="runVqeCircuitPrototype()">Run VQE Circuit Prototype</button>
 		    <button onclick="runCircuitComparison()">Run Circuit Comparison</button>
-		    
+		    <button onclick="runQaoaParameterSweep()">Run QAOA Parameter Sweep</button>
                 </div>
             </section>
 
@@ -331,6 +331,31 @@
         </div>
         <span class="status-pill hot">Simulator Comparison</span>
     </div>
+
+    <section id="qaoa-sweep-panel" class="card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Quantum Optimization</p>
+            <h3>QAOA Parameter Sweep</h3>
+        </div>
+        <span class="status-pill hot">Gamma + Beta Sweep</span>
+    </div>
+
+    <p class="helper-text">
+        This section tests multiple QAOA gamma and beta values on the QAOA-ready QUBO subset.
+        The best setting is selected using the lowest estimated QUBO energy from the top measured bitstring.
+        This is a simulator prototype and does not claim quantum advantage.
+    </p>
+
+    <div id=
+"qaoaSweepGrid" class="bio-metric-grid">
+        <p class="helper-text">Run “QAOA Parameter Sweep” to compare gamma and beta values.</p>
+    </div>
+
+    <div id="qaoaSweepGraphsContainer" class="graph-grid">
+        <p class="helper-text">No QAOA parameter sweep graphs generated yet.</p>
+    </div>
+</section>
 
     <p class="helper-text">
         This section compares the QAOA and VQE simulator prototypes side by side.

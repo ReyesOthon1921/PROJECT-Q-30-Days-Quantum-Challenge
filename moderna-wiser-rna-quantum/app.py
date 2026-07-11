@@ -5,6 +5,7 @@ from src.classical.dotbracket import (
     validate_dotbracket,
 )
 
+from src.evaluation.qaoa_parameter_sweep import run_qaoa_parameter_sweep
 from src.evaluation.circuit_comparison import run_circuit_comparison
 from src.quantum.vqe_circuit import run_vqe_circuit_simulation
 from src.quantum.qaoa_circuit import run_qaoa_circuit_simulation
@@ -291,6 +292,18 @@ def circuit_comparison():
     try:
         result = run_circuit_comparison(sequence)
         return jsonify({"success": True, "circuit_comparison": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+@app.route("/api/qaoa-parameter-sweep", methods=["POST"])
+def qaoa_parameter_sweep():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_qaoa_parameter_sweep(sequence)
+        return jsonify({"success": True, "qaoa_parameter_sweep": result})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
