@@ -203,3 +203,31 @@ Run:
 Safe interpretation:
 
 Phase 43 visualizes exact small-instance validation. It supports auditability but does not claim quantum advantage or final biological accuracy.
+
+<!-- PHASE44_GRAPH_AWARE_QRAO_VALIDATION -->
+# Phase 44 — Graph-Aware QRAO Compression Validation
+
+Purpose:
+
+Upgrade the QRAO compression layer so it uses the QUBO interaction graph.
+
+Main file:
+
+`src/evaluation/phase44_graph_aware_qrao_validation.py`
+
+Generated files:
+
+`results/publication_tables/graph_aware_qrao_summary.csv`  
+`results/publication_tables/graph_aware_qrao_mapping.csv`  
+`results/publication_tables/graph_aware_qrao_conflict_check.csv`  
+`results/publication_figures/graph_aware_qrao_qubit_reduction.png`  
+`results/publication_figures/graph_aware_qrao_coloring_counts.png`  
+`docs/phase44_graph_aware_qrao_validation.md`
+
+Run:
+
+`python src\evaluation\phase44_graph_aware_qrao_validation.py`
+
+Safe interpretation:
+
+Graph-aware QRAO validates compression mapping logic, but it does not yet prove compressed solutions preserve RNA folding quality.

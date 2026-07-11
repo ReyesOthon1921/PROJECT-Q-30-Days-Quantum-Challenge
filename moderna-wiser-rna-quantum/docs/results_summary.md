@@ -99,3 +99,16 @@ These figures strengthen the paper results section by turning the exact-validati
 Safe interpretation:
 
 The figures show exact small-instance validation and auditability. They do not claim quantum advantage or final biological validation.
+
+<!-- PHASE44_GRAPH_AWARE_QRAO_VALIDATION -->
+# Phase 44 Update — Graph-Aware QRAO Compression Validation
+
+Phase 44 upgraded the compression layer by using the QUBO interaction graph.
+
+The project now compares direct qubit mapping with graph-aware 2-to-1 and 3-to-1 QRAO-style mappings. The key rule is that interacting QUBO variables should not be packed into the same compressed qubit.
+
+Generated outputs include a graph-aware QRAO summary table, mapping table, conflict-check table, qubit-reduction figure, and coloring-count figure.
+
+Safe interpretation:
+
+This validates the compression mapping logic. It does not yet prove that compression preserves RNA solution quality after rounding.
