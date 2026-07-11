@@ -261,3 +261,38 @@ Run:
 Safe interpretation:
 
 Phase 45 prepares external validation tracking. It does not claim that RNAfold, BLAST, or RCSB validation has already been completed.
+
+<!-- PHASE46_MANUSCRIPT_ASSEMBLY_PACKAGE -->
+# Phase 46 — Manuscript Assembly Package
+
+Purpose:
+
+Assemble the current research outputs into a paper-style manuscript draft.
+
+Main file:
+
+`src/evaluation/phase46_manuscript_assembly_package.py`
+
+Generated files:
+
+`docs/manuscript/abstract.md`  
+`docs/manuscript/introduction.md`  
+`docs/manuscript/related_work.md`  
+`docs/manuscript/methodology.md`  
+`docs/manuscript/results.md`  
+`docs/manuscript/discussion.md`  
+`docs/manuscript/limitations.md`  
+`docs/manuscript/conclusion.md`  
+`docs/manuscript/future_work.md`  
+`docs/manuscript/full_manuscript_draft.md`  
+`docs/phase46_manuscript_assembly_package.md`  
+`results/publication_tables/manuscript_key_results_summary.csv`  
+`results/publication_tables/manuscript_section_source_map.csv`
+
+Run:
+
+`python src\evaluation\phase46_manuscript_assembly_package.py`
+
+Safe interpretation:
+
+Phase 46 creates a professor-review manuscript draft package. It is not a final journal submission.

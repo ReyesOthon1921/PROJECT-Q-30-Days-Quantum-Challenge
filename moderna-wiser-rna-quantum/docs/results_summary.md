@@ -125,3 +125,16 @@ This strengthens the paper direction by separating internal QUBO validation from
 Safe interpretation:
 
 This phase creates the structure for external validation. It does not claim that RNAfold, BLAST, or RCSB validation is complete yet.
+
+<!-- PHASE46_MANUSCRIPT_ASSEMBLY_PACKAGE -->
+# Phase 46 Update — Manuscript Assembly Package
+
+Phase 46 assembled the current research outputs into a paper-style manuscript draft.
+
+Generated sections include abstract, introduction, related work, methodology, results, discussion, limitations, conclusion, future work, and a full manuscript draft.
+
+This package is intended for professor review and future paper development. It is not a final journal submission.
+
+Safe interpretation:
+
+The manuscript describes a prototype benchmark and feasibility framework. It does not claim quantum advantage, clinical accuracy, or final biological validation.
