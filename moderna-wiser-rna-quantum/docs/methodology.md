@@ -2,160 +2,58 @@
 
 ## Overview
 
-The methodology follows an end-to-end pipeline for RNA secondary-structure optimization using classical, quantum, and qubit-compression analysis.
+The methodology follows an end-to-end RNA-QUBO research workflow:
 
-The full workflow is:
+`RNA sequence -> preprocessing -> candidate pairs -> candidate stems -> QUBO formulation -> exact validation -> classical benchmark -> quantum feasibility -> qubit compression -> hardware readiness -> publication results`
 
-**RNA sequence → bioinformatics preprocessing → candidate base pairs → candidate stems → QUBO formulation → classical optimization → quantum benchmark proxy → qubit compression → final publication benchmark table.**
+## 1. RNA Sequence Input
 
-## 1. Dataset Preparation
-
-The current prototype uses a controlled set of RNA sequences. Each sequence is cleaned and converted into a valid RNA alphabet containing only:
-
-- A
-- U
-- G
-- C
-
-Any thymine value is converted to uracil so the pipeline remains RNA-based.
+The input is an RNA sequence over A, U, G, and C. Any thymine is converted to uracil during preprocessing.
 
 ## 2. Bioinformatics Preprocessing
 
-For each sequence, the pipeline calculates:
+The pipeline computes length, GC content, valid bases, candidate base pairs, candidate stems, and structure-related features.
 
-- Sequence length
-- GC-content percentage
-- Candidate base pairs
-- Candidate stems
-- Reference-pair proxy
-- Dot-bracket proxy structure
+## 3. Candidate Pair Generation
 
-Candidate base pairs are generated using common RNA base-pair rules:
-
-- A-U
-- U-A
-- G-C
-- C-G
-- G-U
-- U-G
-
-## 3. Reference-Pair Proxy
-
-A simplified Nussinov-style dynamic programming method is used to generate a reference-pair proxy for prototype evaluation.
-
-This does not replace ViennaRNA or RNAfold. It provides a controlled internal reference so that sensitivity, specificity, precision, recall, and F1-score can be computed during early benchmark development.
+Candidate pairs are generated using Watson-Crick and wobble pairing rules.
 
 ## 4. Candidate Stem Generation
 
-Candidate stems are generated from compatible base pairs. A stem is treated as one or more stacked or related base-pair decisions.
+Candidate stems are generated from compatible base pairs. Each stem becomes a possible structural element.
 
-This helps reduce the problem from individual pair decisions into stem-level decisions.
+## 5. Stem-Based QUBO Formulation
 
-## 5. QUBO Formulation
+Each candidate stem becomes a binary decision variable. Linear terms reward favorable stems. Quadratic terms penalize incompatible stems such as overlaps and forbidden crossing patterns.
 
-The QUBO model uses candidate stems as binary decision variables.
+## 6. Mathematical Traceability
 
-Each variable represents whether a candidate stem is selected:
+Every predicted base pair should trace back to a stem, every stem to a variable, every variable to a coefficient, and every coefficient to a modeling assumption.
 
-- 1 means selected
-- 0 means not selected
+## 7. Exact Small-Instance Validation
 
-The QUBO contains:
+For small QUBO instances, every bitstring is enumerated to find the exact global minimum, degenerate minima, feasibility, decoded pairs, and dot-bracket structure.
 
-- Linear terms rewarding stronger stems
-- Quadratic penalty terms discouraging incompatible stems
-- QUBO density measurement
-- Variable count
-- Linear term count
-- Quadratic term count
+## 8. Energy Audit
 
-The QUBO formulation is currently a prototype stem-based model.
+The project exports term-by-term energy contributions for the exact optimum. This separates linear rewards, overlap penalties, crossing penalties, and total QUBO energy.
 
-## 6. Classical Optimization
+## 9. Classical Benchmark
 
-Two classical solvers are currently benchmarked:
+Greedy and simulated annealing solvers are used as classical baselines. Their results should later be compared against exact optima for small instances.
 
-### Greedy Solver
+## 10. Quantum Benchmark
 
-The greedy solver selects variables when they improve the QUBO energy.
+QAOA and VQE layers are treated as feasibility and simulator/proxy experiments. They do not prove quantum advantage.
 
-### Simulated Annealing
+## 11. Qubit Compression
 
-The simulated annealing solver explores possible binary assignments using probabilistic acceptance and cooling.
+Direct encoding is compared with QRAC/QRAO-style compression estimates. After Christian's feedback, this layer should become graph-aware by using the QUBO interaction graph.
 
-Classical metrics include:
+## 12. Hardware Readiness
 
-- Energy
-- Runtime
-- Selected variables
-- Predicted pair count
-- Sensitivity
-- Specificity
-- Precision
-- Recall
-- F1-score
+Hardware-readiness analysis evaluates qubit count, circuit depth, connectivity, shots, and NISQ limitations.
 
-## 7. Quantum Benchmark Proxy
+## 13. Publication Output
 
-The quantum benchmark layer estimates QAOA and VQE readiness using the QUBO variable count and quadratic-term structure.
-
-The current benchmark records:
-
-- QAOA subset variables
-- VQE subset variables
-- Estimated qubits
-- Estimated circuit depth
-- Energy proxy
-- Top bitstring proxy
-- Top probability proxy
-- Shot count
-- Hardware-readiness label
-
-This is a simulator-readiness and feasibility layer. It does not claim real quantum advantage.
-
-## 8. Qubit Compression Benchmark
-
-The qubit-compression layer compares direct encoding with compressed estimates.
-
-The benchmark includes:
-
-- Direct one-variable-per-qubit encoding
-- 2-to-1 QRAC-style estimate
-- 3-to-1 QRAC/QRAO-style estimate
-- Log-style qubit estimate
-- Qubit reduction percentage
-- Mapping notes and limitations
-
-This layer studies whether qubit requirements can be reduced, but solution quality must still be validated.
-
-## 9. Final Publication Benchmark Table
-
-The final benchmark table combines:
-
-- Sequence ID
-- Sequence length
-- QUBO variables
-- Best classical solver
-- Classical energy
-- QAOA energy proxy
-- VQE energy proxy
-- Direct qubits
-- Compressed qubits
-- Qubit reduction percentage
-- Runtime
-- F1-score
-- Hardware-readiness notes
-
-This table is designed to support the results section of the paper.
-
-## 10. Reproducibility
-
-All benchmark tables and figures are generated by:
-
-`src/evaluation/publication_benchmark_pipeline.py`
-
-The paper package documents are generated by:
-
-`src/evaluation/publication_paper_package.py`
-
-This keeps the workflow reproducible and version-controlled.
+The project generates benchmark tables, figures, documentation, literature review notes, QUBO comparison notes, exact validation results, and traceability outputs.

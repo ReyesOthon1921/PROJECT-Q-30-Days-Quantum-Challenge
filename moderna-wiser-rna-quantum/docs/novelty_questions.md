@@ -1,105 +1,47 @@
 # Novelty Questions
 
-This document organizes the key research questions from the professor into paper-ready form.
+## Current Safe Position
 
-## Question 1
+The project should not claim quantum advantage or a novel QUBO formulation before validation and literature comparison are complete.
 
-### Does the QUBO formulation differ from existing RNA folding formulations?
+The strongest current contribution is the integrated bioinformatics-to-quantum benchmark workflow.
 
-Current answer:
-
-The project uses a stem-based QUBO formulation where candidate stems are represented as binary decision variables. Linear terms reward favorable stems, while quadratic penalty terms discourage incompatible stems such as overlapping or crossing structures.
-
-This must be compared against existing RNA-QUBO and RNA quantum annealing formulations in the literature.
-
-Evidence needed:
-
-- Literature table comparing variable definitions
-- Literature table comparing constraints
-- Comparison of pair-based vs stem-based modeling
-- Comparison of QUBO term growth
-- Discussion of pseudoknot or incompatibility handling
-
-## Question 2
-
-### Does the variable-compression strategy reduce qubit requirements while maintaining solution quality?
+## Question 1 — Does the QUBO formulation differ from existing RNA folding formulations?
 
 Current answer:
 
-The project currently estimates qubit reduction using direct encoding, 2-to-1 QRAC-style compression, 3-to-1 QRAC/QRAO-style compression, and log-style qubit estimates.
-
-The project can show qubit-count reduction estimates, but it must still validate whether compressed mappings preserve solution quality.
+The project uses a stem-based QUBO prototype. The exact novelty of the formulation must be verified against existing RNA-QUBO and RNA quantum annealing literature.
 
 Evidence needed:
 
-- Direct qubit count
-- Compressed qubit count
-- Reduction percentage
-- Energy comparison
-- F1-score comparison
-- Mapping error or approximation-quality discussion
+- variable definitions,
+- objective terms,
+- penalty terms,
+- QUBO matrix convention,
+- pseudoknot/crossing treatment,
+- scaling behavior,
+- solver pathway comparison.
 
-Important wording:
-
-Compression is currently a research direction and benchmark extension, not proof of improved RNA folding performance.
-
-## Question 3
-
-### Does the benchmarking include datasets or evaluation metrics not previously reported together?
+## Question 2 — Does the model have mathematical traceability?
 
 Current answer:
 
-The project combines biological metrics, optimization metrics, quantum metrics, and compression metrics into one final benchmark table.
+Phase 40 adds traceability tables, exact validation, and energy auditing so every predicted structure can be traced back to variables, coefficients, and assumptions.
 
-Metrics include:
-
-- Sequence length
-- GC content
-- Candidate pairs
-- Candidate stems
-- QUBO variables
-- Linear and quadratic terms
-- QUBO density
-- Runtime
-- Energy
-- Sensitivity
-- Specificity
-- Precision
-- Recall
-- F1-score
-- Estimated qubits
-- Circuit-depth estimates
-- Bitstring proxy
-- Qubit reduction percentage
-- Hardware-readiness label
-
-Evidence needed:
-
-- Final publication benchmark table
-- Comparison to what previous papers report
-- Clear statement of which metrics are combined in this project
-
-## Question 4
-
-### Does the framework reveal new insights into when QAOA or VQE becomes practical for RNA optimization?
+## Question 3 — Does variable compression reduce qubits while preserving quality?
 
 Current answer:
 
-The framework estimates QAOA and VQE practicality by tracking QUBO variable count, estimated qubits, circuit-depth estimates, runtime, energy proxy values, bitstring output, and hardware-readiness labels.
+The project currently estimates qubit reduction. The next step is to test whether compression preserves feasibility and objective quality after rounding.
 
-The current results are simulator and proxy-based. The next step is to test small cases with actual Qiskit circuits and compare runtime, depth, and measured bitstring quality.
+## Question 4 — Does the benchmark combine metrics not usually reported together?
 
-Evidence needed:
+Current answer:
 
-- QAOA circuit depth by variable count
-- VQE circuit depth by variable count
-- Hardware-readiness table
-- Qubit-count threshold discussion
-- NISQ limitation discussion
-- Noise simulation in future work
+Yes, the framework is designed to combine biological, optimization, quantum, compression, and hardware-readiness metrics. This combined structure is the safest current novelty claim.
 
-## Proposed Novelty Statement
+## Question 5 — Does the framework reveal when QAOA or VQE becomes practical?
 
-This project contributes an end-to-end bioinformatics-to-quantum benchmarking framework for RNA secondary-structure optimization. The framework connects RNA preprocessing, stem-based QUBO formulation, classical solver benchmarking, QAOA/VQE feasibility analysis, qubit-compression estimates, and hardware-readiness evaluation into one reproducible workflow.
+Current answer:
 
-The novelty is the integrated benchmark framework, not a claim of quantum advantage.
+The framework can study this through QUBO variable count, circuit depth, bitstring quality, exact optimality gap, and hardware-readiness metrics.
