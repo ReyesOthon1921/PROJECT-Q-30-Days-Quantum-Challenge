@@ -44,6 +44,61 @@
                     scaling analysis, algorithm comparison graphs, and research-context visualization.
                 </p>
             </header>
+	    
+	    <section id="workflow-guide-panel" class="card workflow-guide-card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Guided Research Workbench</p>
+            <h3>Choose What You Want to Do</h3>
+        </div>
+        <span class="status-pill hot">Phase 36</span>
+    </div>
+
+    <p class="helper-text">
+        This dashboard is organized as a research workbench. Choose a workflow below and the page will only show
+        the sections, buttons, and outputs that matter for that research task. Full JSON stays collapsed unless you open it.
+    </p>
+
+    <div class="workflow-button-grid">
+        <button class="workflow-tab active" onclick="setWorkflowMode('overview')">Overview</button>
+        <button class="workflow-tab" onclick="setWorkflowMode('classical')">Classical RNA</button>
+        <button class="workflow-tab" onclick="setWorkflowMode('qubo')">QUBO Optimization</button>
+        <button class="workflow-tab" onclick="setWorkflowMode('quantum')">Quantum Experiments</button>
+        <button class="workflow-tab" onclick="setWorkflowMode('compression')">Compression Research</button>
+        <button class="workflow-tab" onclick="setWorkflowMode('demo')">Full Demo</button>
+    </div>
+
+    <div id="workflowInstructionBox" class="workflow-instruction-box">
+        <h4>Overview</h4>
+        <p>
+            Start with the RNA sequence, then choose a workflow. Each workflow explains what it requires,
+            what buttons to run, and what results matter.
+        </p>
+        <ul>
+            <li><strong>Required input:</strong> RNA sequence</li>
+            <li><strong>Recommended first step:</strong> Analyze Sequence</li>
+            <li><strong>Output:</strong> focused metrics, graphs, tables, and an optional raw JSON view</li>
+        </ul>
+    </div>
+</section>
+
+<section id="focused-result-panel" class="card focused-result-card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Focused Output</p>
+            <h3>Current Action Summary</h3>
+        </div>
+        <span class="status-pill">Smart Summary</span>
+    </div>
+
+    <div id="focusedResultSummaryCard" class="focused-summary-box">
+        <h4>No action selected yet</h4>
+        <p class="helper-text">
+            Run a workflow action and this section will explain the purpose, required input, key output,
+            and recommended next step.
+        </p>
+    </div>
+</section>
 
             <section id="input-panel" class="card">
                 <div class="card-header">

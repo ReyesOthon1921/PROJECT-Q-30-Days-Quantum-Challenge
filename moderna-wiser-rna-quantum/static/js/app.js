@@ -131,6 +131,7 @@ function showResults(data) {
     renderQubitCompressionGraphs(data);
     renderQraoSubsetMapping(data);
     renderQraoMappingGraphs(data);
+    updateFocusedResultSummary(data);
 }
 
 
@@ -2052,6 +2053,359 @@ function drawRnaSimulation(sequence, structure) {
     ctx.fillText(`Base pairs shown: ${pairs.length}`, 34, 94);
 }
 
+
+
 window.addEventListener("load", () => {
     drawCurrentInput();
+});
+
+// Phase 36 — Guided Workflow + Smart Output Display
+
+const PHASE36_ALWAYS_VISIBLE = [
+    "workflow-guide-panel",
+    "focused-result-panel",
+    "input-panel",
+    "summary-panel",
+    "results-panel"
+];
+
+const PHASE36_WORKFLOWS = {
+    overview: {
+        title: "Overview",
+        description: "Use this mode to understand the project and start from the RNA input. It keeps the dashboard clean before choosing a specific research path.",
+        required: "RNA sequence",
+        recommended: "Analyze Sequence, then choose Classical RNA, QUBO Optimization, Quantum Experiments, or Compression Research.",
+        output: "Project context, input controls, focused action summary, and optional raw JSON.",
+        panels: [
+            "context-panel"
+        ]
+    },
+
+    classical: {
+        title: "Classical RNA Analysis",
+        description: "Use this workflow to inspect the RNA sequence, validate dot-bracket structure, run the classical benchmark, and view bioinformatics resources.",
+        required: "RNA sequence and optional dot-bracket structure.",
+        recommended: "Analyze Sequence → Validate Structure → Run Classical Benchmark → Run Bioinformatics Metrics.",
+        output: "Sequence length, GC percentage, dot-bracket validation, ViennaRNA-style MFE output, and BLAST/RCSB links.",
+        panels: [
+            "simulation-panel",
+            "bioinformatics-panel"
+        ]
+    },
+
+    qubo: {
+        title: "QUBO Optimization",
+        description: "Use this workflow to build the optimization problem from RNA candidate pairs and stems, then compare baseline solvers.",
+        required: "RNA sequence.",
+        recommended: "Generate Candidate Pairs → Generate Candidate Stems → Build Stem QUBO → Run Greedy Solver → Run Simulated Annealing → Compare Solvers.",
+        output: "Candidate pairs, candidate stems, QUBO variables, quadratic terms, solver comparison, F1 metrics, and scaling graphs.",
+        panels: [
+            "qubo-panel",
+            "graphs-panel",
+            "algorithm-panel"
+        ]
+    },
+
+    quantum: {
+        title: "Quantum Experiments",
+        description: "Use this workflow for QAOA/VQE readiness, circuit simulation, parameter sweeps, measured bitstring energy, and hardware-readiness planning.",
+        required: "RNA sequence and QUBO-ready candidate stems.",
+        recommended: "Run Quantum Benchmark → Run QAOA Circuit Prototype → Run VQE Circuit Prototype → Run Circuit Comparison → Run QAOA/VQE Sweeps → Run Hardware Readiness Check.",
+        output: "Estimated qubits, circuit depth, transpiled depth, top bitstrings, top probabilities, runtime, energy checks, and hardware-readiness notes.",
+        panels: [
+            "quantum-benchmark-panel",
+            "qaoa-circuit-panel",
+            "vqe-circuit-panel",
+            "circuit-comparison-panel",
+            "qaoa-sweep-panel",
+            "vqe-sweep-panel",
+            "measured-bitstring-panel",
+            "hardware-readiness-panel"
+        ]
+    },
+
+    compression: {
+        title: "Compression Research",
+        description: "Use this workflow to compare direct one-variable-per-qubit mapping against QRAC/QRAO-style compression and qubit-efficient log encoding estimates.",
+        required: "RNA sequence and QUBO variables.",
+        recommended: "Run Qubit Compression Estimator → Run QRAO Subset Mapping.",
+        output: "Direct qubits, 2-to-1 QRAC estimate, 3-to-1 QRAC estimate, 3-to-2 QRAC estimate, log-style estimate, compression ratios, risk notes, and X/Y/Z mapping table.",
+        panels: [
+            "qubit-compression-panel",
+            "qrao-mapping-panel"
+        ]
+    },
+
+    demo: {
+        title: "Full Research Demo",
+        description: "Use this workflow for a professor or demo-day walkthrough. It shows only the major checkpoints instead of every raw technical panel.",
+        required: "RNA sequence.",
+        recommended: "Analyze Sequence → Build Stem QUBO → Run Simulated Annealing → Run Quantum Benchmark → Run Circuit Comparison → Run Qubit Compression Estimator → Run QRAO Subset Mapping.",
+        output: "A clean end-to-end view of the classical, QUBO, quantum, and compression research pipeline.",
+        panels: [
+            "context-panel",
+            "qubo-panel",
+            "quantum-benchmark-panel",
+            "circuit-comparison-panel",
+            "qubit-compression-panel",
+            "qrao-mapping-panel"
+        ]
+    }
+};
+
+function phase36Escape(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function phase36QueryPanelById(panelId) {
+    return document.querySelectorAll(`#${panelId}`);
+}
+
+function getAllPhase36PanelIds() {
+    const ids = new Set();
+
+    Object.values(PHASE36_WORKFLOWS).forEach((workflow) => {
+        workflow.panels.forEach((panelId) => ids.add(panelId));
+    });
+
+
+
+
+    PHASE36_ALWAYS_VISIBLE.forEach((panelId) => ids.add(panelId));
+
+    return Array.from(ids);
+}
+
+function setWorkflowMode(workflowName) {
+    const workflow = PHASE36_WORKFLOWS[workflowName] || PHASE36_WORKFLOWS.overview;
+
+    const allPanels = getAllPhase36PanelIds();
+    const visiblePanels = new Set([
+        ...PHASE36_ALWAYS_VISIBLE,
+        ...workflow.panels
+    ]);
+
+    allPanels.forEach((panelId) => {
+        const panels = phase36QueryPanelById(panelId);
+
+        panels.forEach((panel) => {
+            if (visiblePanels.has(panelId)) {
+                panel.classList.remove("workflow-hidden");
+            } else {
+                panel.classList.add("workflow-hidden");
+            }
+        });
+    });
+
+    const buttons = document.querySelectorAll(".workflow-tab");
+    buttons.forEach((button) => button.classList.remove("active"));
+
+    const activeButton = Array.from(buttons).find((button) => {
+        return button.getAttribute("onclick") === `setWorkflowMode('${workflowName}')`;
+    });
+
+    if (activeButton) {
+        activeButton.classList.add("active");
+    }
+
+    const instructionBox = document.getElementById("workflowInstructionBox");
+
+    if (instructionBox) {
+        instructionBox.innerHTML = `
+            <h4>${phase36Escape(workflow.title)}</h4>
+            <p>${phase36Escape(workflow.description)}</p>
+            <ul>
+                <li><strong>Required input:</strong> ${phase36Escape(workflow.required)}</li>
+                <li><strong>Recommended actions:</strong> ${phase36Escape(workflow.recommended)}</li>
+                <li><strong>Focused output:</strong> ${phase36Escape(workflow.output)}</li>
+            </ul>
+        `;
+    }
+}
+
+function updateFocusedResultSummary(data) {
+    const container = document.getElementById("focusedResultSummaryCard");
+
+    if (!container || !data) {
+        return;
+    }
+
+    const summary = getFocusedActionSummary(data);
+
+    container.innerHTML = `
+        <h4>${phase36Escape(summary.title)}</h4>
+        <p>${phase36Escape(summary.purpose)}</p>
+
+        <div class="focused-summary-grid">
+            <article class="focused-summary-item">
+                <span>Required Input</span>
+                <strong>${phase36Escape(summary.required)}</strong>
+            </article>
+
+            <article class="focused-summary-item">
+                <span>Main Output</span>
+                <strong>${phase36Escape(summary.output)}</strong>
+            </article>
+
+            <article class="focused-summary-item">
+                <span>Recommended Next Step</span>
+                <strong>${phase36Escape(summary.next)}</strong>
+            </article>
+
+            <article class="focused-summary-item">
+                <span>Status</span>
+                <strong>${phase36Escape(data.success === false ? "Needs review" : "Success")}</strong>
+            </article>
+        </div>
+    `;
+}
+
+function getFocusedActionSummary(data) {
+    if (data.qubit_compression_estimator) {
+        const result = data.qubit_compression_estimator;
+
+        return {
+            title: "Qubit Compression Estimator",
+            purpose: "Compares direct one-variable-per-qubit mapping against QRAC/QRAO-style compression and qubit-efficient log encoding estimates.",
+            required: "RNA sequence and generated QUBO variables.",
+            output: `${result.variable_count} variables, ${result.direct_qubits} direct qubits, plus compression estimates.`,
+            next: "Run QRAO Subset Mapping to see how variables map into compressed qubit slots."
+        };
+    }
+
+    if (data.qrao_subset_mapping) {
+        const result = data.qrao_subset_mapping;
+
+        return {
+            title: "QRAO Subset Mapping",
+            purpose: "Maps RNA QUBO variables into compressed qubit slots using X, Y, and Z Pauli-axis labels.",
+            required: "RNA sequence and QUBO variables.",
+            output: `${result.selected_variable_count} selected variables, ${result.direct_qubits} direct qubits, ${result.three_to_one_qubits} compressed qubits with 3-to-1 mapping.`,
+            next: "Compare this result with the Quantum Benchmark and Hardware Readiness sections."
+        };
+    }
+
+    if (data.hardware_readiness) {
+        return {
+            title: "Hardware Readiness Check",
+            purpose: "Estimates whether the QAOA and VQE circuits are small enough for possible future hardware testing.",
+            required: "QAOA and VQE circuit prototypes.",
+            output: "Qubit counts, transpiled depth, circuit size, CX gate count, and readiness notes.",
+            next: "Use this as a planning estimate before any real hardware run."
+        };
+    }
+
+    if (data.measured_bitstring_energy) {
+        const result = data.measured_bitstring_energy;
+        const best = result.best_result || {};
+
+        return {
+            title: "Measured Bitstring Energy",
+            purpose: "Converts measured simulator bitstrings back into QUBO assignments and estimates their QUBO energy.",
+            required: "QAOA/VQE measured bitstrings and QUBO terms.",
+            output: `Best source: ${best.source || "not available"}, estimated energy: ${best.estimated_qubo_energy ?? "not available"}.`,
+            next: "Use this to compare whether circuit outputs are producing useful QUBO solutions."
+        };
+    }
+
+    if (data.vqe_parameter_sweep) {
+        const best = data.vqe_parameter_sweep.best_result || {};
+
+        return {
+            title: "VQE Parameter Sweep",
+            purpose: "Tests multiple VQE ansatz settings on the VQE-ready Hamiltonian subset.",
+            required: "VQE-ready subset and simulator.",
+            output: `Best angle scale: ${best.angle_scale ?? "not available"}, top probability: ${best.top_probability ?? "not available"}.`,
+            next: "Run Measured Bitstring Energy to evaluate the measured output against the QUBO objective."
+        };
+    }
+
+    if (data.qaoa_parameter_sweep) {
+        const best = data.qaoa_parameter_sweep.best_result || {};
+
+        return {
+            title: "QAOA Parameter Sweep",
+            purpose: "Tests multiple gamma and beta values for the QAOA-style circuit.",
+            required: "QAOA-ready QUBO subset.",
+            output: `Best gamma: ${best.gamma ?? "not available"}, best beta: ${best.beta ?? "not available"}, energy: ${best.top_energy ?? "not available"}.`,
+            next: "Compare this with VQE Parameter Sweep and Measured Bitstring Energy."
+        };
+    }
+
+    if (data.circuit_comparison) {
+        return {
+            title: "QAOA vs VQE Circuit Comparison",
+            purpose: "Compares QAOA and VQE simulator prototypes side by side.",
+            required: "QAOA and VQE circuit prototypes.",
+            output: "Circuit depth, transpiled depth, runtime, circuit size, and top measurement probability.",
+            next: "Run Hardware Readiness Check to estimate future hardware feasibility."
+        };
+    }
+
+    if (data.vqe_circuit) {
+        return {
+            title: "VQE Circuit Prototype",
+            purpose: "Runs a small VQE-style ansatz circuit on Qiskit Aer.",
+            required: "VQE-ready Ising/Hamiltonian subset.",
+            output: "Top bitstring, top probability, circuit depth, transpiled depth, and runtime.",
+            next: "Run Circuit Comparison or VQE Parameter Sweep."
+        };
+    }
+
+    if (data.qaoa_circuit) {
+        return {
+            title: "QAOA Circuit Prototype",
+            purpose: "Runs a small QAOA-style circuit on Qiskit Aer.",
+            required: "QAOA-ready QUBO subset.",
+            output: "Top bitstring, top probability, circuit depth, transpiled depth, and runtime.",
+            next: "Run Circuit Comparison or QAOA Parameter Sweep."
+        };
+    }
+
+    if (data.quantum_benchmark) {
+        return {
+            title: "Quantum Benchmark",
+            purpose: "Compares QAOA-ready and VQE-ready subsets against exact subset baselines.",
+            required: "RNA sequence and QUBO formulation.",
+            output: "Estimated qubits, circuit-depth estimates, Hamiltonian terms, and subset energies.",
+            next: "Run QAOA Circuit Prototype and VQE Circuit Prototype."
+        };
+    }
+
+    if (data.bioinformatics_metrics) {
+        return {
+            title: "Bioinformatics Metrics",
+            purpose: "Connects RNA/QUBO metrics with bioinformatics interpretation and external resources.",
+            required: "RNA sequence.",
+            output: "Sequence metrics, QUBO metrics, solver metrics, and BLAST/RCSB resource links.",
+            next: "Use this before explaining biological motivation or validation direction."
+        };
+    }
+
+    if (data.success === false) {
+        return {
+            title: "Action Needs Review",
+            purpose: "The selected action returned an error or did not complete.",
+            required: "Check the input sequence and terminal logs.",
+            output: data.error || "No error message provided.",
+            next: "Fix the error, then rerun the same action."
+        };
+    }
+
+    return {
+        title: "Dashboard Action Complete",
+        purpose: "The selected dashboard action completed successfully.",
+        required: "RNA sequence or selected workflow input.",
+        output: "Focused metrics are shown in the relevant section, with raw JSON available below.",
+        next: "Choose another workflow action or open the raw JSON for full technical details."
+    };
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    setWorkflowMode("overview");
 });

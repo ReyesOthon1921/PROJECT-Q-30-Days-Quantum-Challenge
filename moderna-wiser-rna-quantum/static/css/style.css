@@ -625,4 +625,97 @@ pre {
     line-height: 1.5;
 }
 
+/* Phase 36 — Guided Research Workbench */
 
+.workflow-hidden {
+    display: none !important;
+}
+
+.workflow-guide-card {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.workflow-button-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.workflow-tab {
+    padding: 13px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 700;
+    transition: transform 0.15s ease, filter 0.15s ease, background 0.15s ease;
+}
+
+.workflow-tab:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.15);
+}
+
+.workflow-tab.active {
+    background: linear-gradient(135deg, rgba(213, 0, 72, 0.75), rgba(86, 0, 114, 0.75));
+    border-color: rgba(255, 255, 255, 0.32);
+}
+
+.workflow-instruction-box,
+.focused-summary-box {
+    margin-top: 18px;
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.36);
+    border: 1px solid var(--border);
+}
+
+.workflow-instruction-box h4,
+.focused-summary-box h4 {
+    margin: 0 0 10px;
+    color: #ffffff;
+}
+
+.workflow-instruction-box p,
+.focused-summary-box p {
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+.workflow-instruction-box ul {
+    margin: 12px 0 0;
+    padding-left: 20px;
+    color: var(--muted);
+    line-height: 1.65;
+}
+
+.focused-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.focused-summary-item {
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid var(--border);
+}
+
+.focused-summary-item span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 7px;
+}
+
+.focused-summary-item strong {
+    display: block;
+    color: #ffffff;
+    overflow-wrap: anywhere;
+}
