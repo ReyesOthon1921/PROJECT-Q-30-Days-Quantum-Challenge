@@ -1,0 +1,45 @@
+PROJECT-Q 30-Day Quantum Computing Challenge
+Day 16 — Quantum Machine Learning Lab
+
+Purpose
+This lab demonstrates the core idea of Quantum Machine Learning using a small
+hybrid quantum-classical workflow.
+
+Workflow
+1. Start with a small classical dataset.
+2. Encode classical features into qubit rotations.
+3. Process the encoded data with a parameterized quantum circuit.
+4. Measure an expectation value from the quantum state.
+5. Compare the output with the correct label using a loss function.
+6. Use a classical optimizer loop to update circuit parameters.
+
+Important Note
+This lab is a beginner QML demonstration. It does not claim quantum advantage.
+
+Training Summary
+Training samples: 6
+Trainable parameters: 4
+Training steps: 90
+Initial loss: 3.445996
+Final loss: 0.011626
+Accuracy on small demo dataset: 1.000
+
+Learned Parameters
+[3.296132, -1.41895, -3.281868, -1.992315]
+
+Predictions
+Sample 1: features=[0.2, 0.15] | expected=-1 | raw_expectation=-0.963819 | predicted=-1 | correct=True
+Sample 2: features=[0.35, 0.25] | expected=-1 | raw_expectation=-0.91517 | predicted=-1 | correct=True
+Sample 3: features=[0.25, 0.4] | expected=-1 | raw_expectation=-0.94261 | predicted=-1 | correct=True
+Sample 4: features=[2.4, 2.65] | expected=1 | raw_expectation=0.777538 | predicted=1 | correct=True
+Sample 5: features=[2.7, 2.5] | expected=1 | raw_expectation=0.928456 | predicted=1 | correct=True
+Sample 6: features=[2.85, 2.9] | expected=1 | raw_expectation=0.942143 | predicted=1 | correct=True
+
+Generated Files
+- C:\Users\reyes\QuantumResearch\quantum-education-research-lab\results\figures\day16_loss_curve.png
+- C:\Users\reyes\QuantumResearch\quantum-education-research-lab\results\figures\day16_qml_circuit.png
+
+Key Takeaway
+Quantum Machine Learning connects classical data, quantum feature encoding,
+parameterized circuits, measurement, loss calculation, and classical optimization
+into one hybrid learning loop.
