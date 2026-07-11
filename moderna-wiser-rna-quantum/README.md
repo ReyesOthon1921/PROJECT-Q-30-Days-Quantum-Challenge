@@ -1,80 +1,62 @@
-\# Classical-to-Quantum Optimization Pipeline for mRNA Secondary Structure Prediction
+# RNA-QUBO Quantum Research Prototype
 
+## Project Summary
 
+This project is an end-to-end RNA secondary-structure optimization research prototype.
 
-This project is for the WISER <> Moderna Quantum+AI challenge: Optimization of mRNA Secondary Structure Prediction Using Quantum Computing.
+It connects bioinformatics preprocessing, candidate pair/stem generation, stem-based QUBO formulation, classical solvers, exact small-instance validation, QUBO-to-Ising conversion, QAOA/VQE feasibility modules, graph-aware QRAO compression validation, dashboard visualization, and manuscript preparation.
 
+## Live Dashboard
 
+https://moderna-wiser-rna-quantum.onrender.com
 
-\## Project Goal
+## GitHub Repository
 
+https://github.com/ReyesOthon1921/PROJECT-Q-30-Days-Quantum-Challenge
 
+## Current Status
 
-Build a reproducible classical-to-quantum pipeline for small synthetic RNA sequences.
+Phase 47 complete: final dashboard, README, demo, deployment, and handoff package.
 
+## How to Run Locally
 
+```cmd
+cd C:\Users\reyes\QuantumResearch\quantum-education-research-lab\moderna-wiser-rna-quantum
+C:\Users\reyes\QuantumResearch\qenv\Scripts\activate
+python app.py
+```
 
-The pipeline starts with classical RNA secondary-structure foundations, then uses ViennaRNA as the classical MFE benchmark, then reformulates small RNA folding instances as QUBO/BQM optimization problems for quantum-inspired and quantum algorithms.
+Open:
 
+```text
+http://127.0.0.1:5000
+```
 
+## Key API Endpoint
 
-\## Research Claim
+```text
+/api/exact-validation-dashboard
+```
 
+This endpoint returns exact-validation, energy-audit, QUBO-to-Ising, and benchmark integration data.
 
+## Main Research Outputs
 
-We are not claiming quantum advantage.
+- `docs/manuscript/full_manuscript_draft.md`
+- `docs/final_project_handoff_package.md`
+- `docs/final_dashboard_demo_script_phase47.md`
+- `results/publication_tables/final_publication_benchmark_with_exact_validation.csv`
+- `results/publication_tables/final_project_manifest.csv`
+- `results/publication_tables/final_phase_completion_summary.csv`
 
+## Safe Research Claim
 
+This project is a prototype benchmark and feasibility framework.
 
-We are building a benchmark pipeline that compares candidate quantum or quantum-inspired RNA folding approaches against ViennaRNA using:
+It does not claim quantum advantage, clinical accuracy, production RNA design readiness, final biological validation, or proven compression improvement.
 
+The contribution is an integrated and auditable workflow connecting RNA preprocessing, QUBO modeling, exact validation, quantum-readiness analysis, graph-aware compression analysis, and publication preparation.
 
+## Next Human Review Step
 
-\- energy gap
-
-\- pair precision
-
-\- pair recall
-
-\- F1 score
-
-\- runtime
-
-\- number of variables
-
-\- estimated qubits
-
-\- scaling limits
-
-
-
-\## Phase 1
-
-
-
-Phase 1 focuses on classical RNA foundation:
-
-
-
-\- RNA sequence representation
-
-\- dot-bracket notation
-
-\- base-pair extraction
-
-\- structure validation
-
-\- preparation for ViennaRNA benchmarking
-
-
-
-\## Data Rule
-
-
-
-Only public, synthetic, or randomly generated RNA sequences will be used.
-
-
-
-No confidential Moderna data, patient data, clinical data, proprietary sequence data, or personally identifiable information will be used.
-
+Review with the professor before making publication, novelty, or biological-performance claims.
