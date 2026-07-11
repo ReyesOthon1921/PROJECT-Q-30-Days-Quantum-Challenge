@@ -121,6 +121,12 @@ function showResults(data) {
     renderCircuitComparisonGraphs(data);
     renderQaoaParameterSweep(data);
     renderQaoaParameterSweepGraphs(data);
+    renderVqeParameterSweep(data);
+    renderVqeParameterSweepGraphs(data);
+    renderMeasuredBitstringEnergy(data);
+    renderMeasuredBitstringGraphs(data);
+    renderHardwareReadiness(data);
+    renderHardwareReadinessGraphs(data);
 }
 
 
@@ -154,6 +160,9 @@ function renderGraphImages(data) {
         })
         .join("");
 }
+
+
+
 
 async function runBioinformaticsMetrics() {
     await postJson(
@@ -398,6 +407,29 @@ function renderQaoaParameterSweepGraphs(data) {
         .join("");
 }
 
+async function runVqeParameterSweep() {
+    await postJson(
+        "/api/vqe-parameter-sweep",
+        { sequence: getSequence() },
+        "Running VQE parameter sweep..."
+    );
+}
+
+async function runMeasuredBitstringEnergy() {
+    await postJson(
+        "/api/measured-bitstring-energy",
+        { sequence: getSequence() },
+        "Evaluating measured bitstring energy..."
+    );
+}
+
+async function runHardwareReadinessCheck() {
+    await postJson(
+        "/api/hardware-readiness",
+        { sequence: getSequence() },
+        "Running hardware readiness check..."
+    );
+}
 
 
 function dotBracketToPairs(structure) {
@@ -791,6 +823,244 @@ function renderVqeCircuitResults(data) {
             </table>
         `;
     }
+}
+
+function renderVqeParameterSweep(data) {
+    const container = document.getElementById("vqeSweepGrid");
+
+    if (!container) {
+        return;
+    }
+
+    const result = data?.vqe_parameter_sweep;
+
+    if (!result || !result.best_result) {
+        return;
+    }
+
+    const best = result.best_result;
+
+    const metricOrder = [
+        ["Phase", result.phase],
+        ["Parameter Count", result.parameter_count],
+        ["Shots", result.shots],
+        ["Best Angle Scale", best.angle_scale],
+        ["Best Entanglement", best.entanglement_mode],
+        ["Top Bitstring", best.top_bitstring],
+        ["Top Count", best.top_count],
+        ["Top Probability", best.top_probability],
+        ["Qubits", best.num_qubits],
+        ["Z Terms", best.z_term_count],
+        ["ZZ Terms", best.zz_term_count],
+        ["Circuit Depth", best.circuit_depth],
+        ["Transpiled Depth", best.transpiled_depth],
+        ["Circuit Size", best.circuit_size],
+        ["Exact Baseline Energy", best.exact_subset_baseline_energy],
+        ["Best Runtime", `${best.runtime_seconds} s`],
+        ["Total Runtime", `${result.total_runtime_seconds} s`],
+    ];
+
+    container.innerHTML = metricOrder
+        .map(([label, value]) => {
+            return `
+                <article class="bio-metric-card">
+                    <span>${escapeHtml(label)}</span>
+                    <strong>${escapeHtml(value)}</strong>
+                </article>
+            `;
+        })
+        .join("");
+}
+
+function renderVqeParameterSweepGraphs(data) {
+    const container = document.getElementById("vqeSweepGraphsContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const graphs = data?.vqe_parameter_sweep?.generated_graphs || [];
+
+    if (!graphs.length) {
+        return;
+    }
+
+    const timestamp = Date.now();
+
+    container.innerHTML = graphs
+        .map((graph) => {
+            return `
+                <article class="graph-card">
+                    <h4>${escapeHtml(graph.title)}</h4>
+                    <img src="${graph.static_path}?v=${timestamp}" alt="${escapeHtml(graph.title)}">
+                </article>
+            `;
+        })
+        .join("");
+}
+
+function renderMeasuredBitstringEnergy(data) {
+    const grid = document.getElementById("measuredBitstringGrid");
+    const table = document.getElementById("measuredBitstringTable");
+
+    const result = data?.measured_bitstring_energy;
+
+    if (!result) {
+        return;
+    }
+
+    const best = result.best_result || {};
+
+    if (grid) {
+        const metricOrder = [
+            ["Phase", result.phase],
+            ["Variable Count", result.variable_count],
+            ["Best Source", best.source],
+            ["Best Bitstring", best.bitstring],
+            ["Best Probability", best.probability],
+            ["Best QUBO Energy", best.estimated_qubo_energy],
+            ["Selected Variables", best.selected_variable_count],
+            ["Total Runtime", `${result.total_runtime_seconds} s`],
+        ];
+
+        grid.innerHTML = metricOrder
+            .map(([label, value]) => {
+                return `
+                    <article class="bio-metric-card">
+                        <span>${escapeHtml(label)}</span>
+                        <strong>${escapeHtml(value)}</strong>
+                    </article>
+                `;
+            })
+            .join("");
+    }
+
+    if (table) {
+        const rows = result.evaluated_results || [];
+
+        table.innerHTML = `
+            <h4>Evaluated Bitstrings</h4>
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Bitstring</th>
+                        <th>Probability</th>
+                        <th>Estimated QUBO Energy</th>
+                        <th>Selected Variables</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.map((row) => {
+                        return `
+                            <tr>
+                                <td>${escapeHtml(row.source)}</td>
+                                <td>${escapeHtml(row.bitstring)}</td>
+                                <td>${escapeHtml(row.probability)}</td>
+                                <td>${escapeHtml(row.estimated_qubo_energy)}</td>
+                                <td>${escapeHtml(row.selected_variable_count)}</td>
+                            </tr>
+                        `;
+                    }).join("")}
+                </tbody>
+            </table>
+        `;
+    }
+}
+
+function renderMeasuredBitstringGraphs(data) {
+    const container = document.getElementById("measuredBitstringGraphsContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const graphs = data?.measured_bitstring_energy?.generated_graphs || [];
+
+    if (!graphs.length) {
+        return;
+    }
+
+    const timestamp = Date.now();
+
+    container.innerHTML = graphs
+        .map((graph) => {
+            return `
+                <article class="graph-card">
+                    <h4>${escapeHtml(graph.title)}</h4>
+                    <img src="${graph.static_path}?v=${timestamp}" alt="${escapeHtml(graph.title)}">
+                </article>
+            `;
+        })
+        .join("");
+}
+
+function renderHardwareReadiness(data) {
+    const container = document.getElementById("hardwareReadinessGrid");
+
+    if (!container) {
+        return;
+    }
+
+    const result = data?.hardware_readiness;
+
+    if (!result || !result.summaries) {
+        return;
+    }
+
+    const metricOrder = [
+        ["Phase", result.phase],
+        ["Hardware Run", result.hardware_run],
+        ["Backend Used", result.backend_used],
+        ["Total Runtime", `${result.total_runtime_seconds} s`],
+    ];
+
+    result.summaries.forEach((summary) => {
+        metricOrder.push([`${summary.name} Qubits`, summary.num_qubits]);
+        metricOrder.push([`${summary.name} Original Depth`, summary.original_depth]);
+        metricOrder.push([`${summary.name} Transpiled Depth`, summary.transpiled_depth]);
+        metricOrder.push([`${summary.name} Circuit Size`, summary.circuit_size]);
+        metricOrder.push([`${summary.name} CX Count`, summary.cx_count]);
+        metricOrder.push([`${summary.name} Readiness`, summary.readiness]);
+    });
+
+    container.innerHTML = metricOrder
+        .map(([label, value]) => {
+            return `
+                <article class="bio-metric-card">
+                    <span>${escapeHtml(label)}</span>
+                    <strong>${escapeHtml(value)}</strong>
+                </article>
+            `;
+        })
+        .join("");
+}
+
+function renderHardwareReadinessGraphs(data) {
+    const container = document.getElementById("hardwareReadinessGraphsContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const graphs = data?.hardware_readiness?.generated_graphs || [];
+
+    if (!graphs.length) {
+        return;
+    }
+
+    const timestamp = Date.now();
+
+    container.innerHTML = graphs
+        .map((graph) => {
+            return `
+                <article class="graph-card">
+                    <h4>${escapeHtml(graph.title)}</h4>
+                    <img src="${graph.static_path}?v=${timestamp}" alt="${escapeHtml(graph.title)}">
+                </article>
+            `;
+        })
+        .join("");
 }
 
 

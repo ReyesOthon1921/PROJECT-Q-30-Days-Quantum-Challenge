@@ -96,6 +96,9 @@
 		    <button onclick="runVqeCircuitPrototype()">Run VQE Circuit Prototype</button>
 		    <button onclick="runCircuitComparison()">Run Circuit Comparison</button>
 		    <button onclick="runQaoaParameterSweep()">Run QAOA Parameter Sweep</button>
+		    <button onclick="runVqeParameterSweep()">Run VQE Parameter Sweep</button>
+		    <button onclick="runMeasuredBitstringEnergy()">Run Measured Bitstring Energy</button>
+		    <button onclick="runHardwareReadinessCheck()">Run Hardware Readiness Check</button>
                 </div>
             </section>
 
@@ -346,6 +349,81 @@
         The best setting is selected using the lowest estimated QUBO energy from the top measured bitstring.
         This is a simulator prototype and does not claim quantum advantage.
     </p>
+
+    <section id="vqe-sweep-panel" class="card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Quantum Optimization</p>
+            <h3>VQE Parameter Sweep</h3>
+        </div>
+        <span class="status-pill hot">Ansatz Sweep</span>
+    </div>
+
+    <p class="helper-text">
+        This section tests multiple VQE ansatz settings on the VQE-ready Hamiltonian subset.
+        It is a simulator-level parameter sweep and does not claim quantum advantage.
+    </p>
+
+    <div id="vqeSweepGrid" class="bio-metric-grid">
+        <p class="helper-text">Run “VQE Parameter Sweep” to compare ansatz settings.</p>
+    </div>
+
+    <div id="vqeSweepGraphsContainer" class="graph-grid">
+        <p class="helper-text">No VQE parameter sweep graphs generated yet.</p>
+    </div>
+</section>
+
+<section id="measured-bitstring-panel" class="card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Quantum Output Evaluation</p>
+            <h3>Measured Bitstring Energy</h3>
+        </div>
+        <span class="status-pill hot">Energy Check</span>
+    </div>
+
+    <p class="helper-text">
+        This section converts measured QAOA and VQE simulator bitstrings back into QUBO assignments
+        and estimates their QUBO energy.
+    </p>
+
+    <div id="measuredBitstringGrid" class="bio-metric-grid">
+        <p class="helper-text">Run “Measured Bitstring Energy” to evaluate measured simulator outputs.</p>
+    </div>
+
+    <div id="measuredBitstringTable" class="result-detail-card">
+        <h4>Evaluated Bitstrings</h4>
+        <p class="helper-text">No measured bitstring results yet.</p>
+    </div>
+
+    <div id="measuredBitstringGraphsContainer" class="graph-grid">
+        <p class="helper-text">No measured bitstring graphs generated yet.</p>
+    </div>
+</section>
+
+<section id="hardware-readiness-panel" class="card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Quantum Hardware Planning</p>
+            <h3>Hardware Readiness Check</h3>
+        </div>
+        <span class="status-pill hot">No Hardware Run</span>
+    </div>
+
+    <p class="helper-text">
+        This section estimates whether the QAOA and VQE circuits are small enough for possible future
+        hardware testing. It does not run on real quantum hardware.
+    </p>
+
+    <div id="hardwareReadinessGrid" class="bio-metric-grid">
+        <p class="helper-text">Run “Hardware Readiness Check” to estimate circuit feasibility.</p>
+    </div>
+
+    <div id="hardwareReadinessGraphsContainer" class="graph-grid">
+        <p class="helper-text">No hardware readiness graphs generated yet.</p>
+    </div>
+</section>
+
 
     <div id=
 "qaoaSweepGrid" class="bio-metric-grid">

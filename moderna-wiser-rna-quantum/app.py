@@ -5,6 +5,9 @@ from src.classical.dotbracket import (
     validate_dotbracket,
 )
 
+from src.evaluation.vqe_parameter_sweep import run_vqe_parameter_sweep
+from src.evaluation.measured_bitstring_energy import run_measured_bitstring_energy
+from src.evaluation.hardware_readiness import run_hardware_readiness_check
 from src.evaluation.qaoa_parameter_sweep import run_qaoa_parameter_sweep
 from src.evaluation.circuit_comparison import run_circuit_comparison
 from src.quantum.vqe_circuit import run_vqe_circuit_simulation
@@ -304,6 +307,44 @@ def qaoa_parameter_sweep():
     try:
         result = run_qaoa_parameter_sweep(sequence)
         return jsonify({"success": True, "qaoa_parameter_sweep": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+@app.route("/api/vqe-parameter-sweep", methods=["POST"])
+def vqe_parameter_sweep():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_vqe_parameter_sweep(sequence)
+        return jsonify({"success": True, "vqe_parameter_sweep": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+
+@app.route("/api/measured-bitstring-energy", methods=["POST"])
+def measured_bitstring_energy():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_measured_bitstring_energy(sequence)
+        return jsonify({"success": True, "measured_bitstring_energy": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+
+@app.route("/api/hardware-readiness", methods=["POST"])
+def hardware_readiness():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_hardware_readiness_check(sequence)
+        return jsonify({"success": True, "hardware_readiness": result})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
