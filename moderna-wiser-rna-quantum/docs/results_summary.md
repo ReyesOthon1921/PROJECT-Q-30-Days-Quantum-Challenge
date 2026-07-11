@@ -62,3 +62,22 @@ They show that the framework can generate unified metrics across:
 - Hardware-readiness classification
 
 The next research task is to validate these outputs against stronger external RNA folding tools and larger datasets.
+
+<!-- PHASE41_EXACT_VALIDATION_INTEGRATION -->
+# Phase 41 Update — Exact Validation Integration
+
+Phase 41 integrated the exact-validation outputs into the final benchmark layer.
+
+The final publication benchmark now includes exact small-instance ground truth, including exact minimum energy, assignment count, feasibility, best bitstring, energy audit terms, and QUBO-to-Ising coefficient summaries.
+
+This strengthens the results section because the benchmark now connects:
+
+RNA/QUBO formulation  
+→ exact small-instance validation  
+→ energy audit  
+→ QUBO-to-Ising mapping  
+→ classical/quantum/compression benchmark context.
+
+Important interpretation:
+
+This does not prove quantum advantage. It makes the benchmark more auditable and gives a stronger validation foundation before interpreting QAOA, VQE, hardware-readiness, or QRAO compression outputs.

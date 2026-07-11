@@ -147,3 +147,32 @@ Do not claim:
 git status --short
 git log --oneline -5
 ```
+
+<!-- PHASE41_EXACT_VALIDATION_INTEGRATION -->
+# Phase 41 — Exact Validation Integration Into Final Benchmark
+
+Purpose:
+
+Merge exact optimum, feasibility, exact-validation notes, QUBO-to-Ising data, and energy audit summaries back into the final publication benchmark table and results summary.
+
+Main file:
+
+`src/evaluation/phase41_exact_validation_benchmark_integration.py`
+
+Generated or updated files:
+
+`results/publication_tables/final_publication_benchmark_table.csv`  
+`results/publication_tables/final_publication_benchmark_table_pre_phase41_backup.csv`  
+`results/publication_tables/final_publication_benchmark_with_exact_validation.csv`  
+`results/publication_tables/exact_validation_integrated_summary.csv`  
+`docs/phase41_exact_validation_integration.md`  
+`docs/results_summary.md`  
+`docs/project_navigation_guide.md`
+
+Run:
+
+`python src\evaluation\phase41_exact_validation_benchmark_integration.py`
+
+Safe interpretation:
+
+Phase 41 adds exact small-instance ground truth to the final benchmark. It supports auditability and validation, but it does not claim quantum advantage or final biological accuracy.
