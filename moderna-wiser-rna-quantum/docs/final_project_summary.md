@@ -142,6 +142,34 @@ The quantum side currently includes:
 
 
 
+\## Variable Compression Research Extension
+
+
+
+The project also includes a variable-compression research layer. This layer compares the current direct one-variable-per-qubit QUBO mapping against QRAC/QRAO-style compression estimates and qubit-efficient log-style encoding estimates.
+
+
+
+The QRAO subset mapping assigns RNA candidate stem variables into compressed qubit slots using Pauli-axis labels such as X, Y, and Z. This does not solve the compressed optimization problem yet. It is a research extension that estimates whether future RNA/QUBO instances could reduce qubit requirements before QAOA or VQE testing.
+
+
+
+This layer helps compare:
+
+
+
+\- direct one-variable-per-qubit mapping
+
+\- 2-to-1 QRAC estimate
+
+\- 3-to-1 QRAC estimate
+
+\- 3-to-2 QRAC estimate
+
+\- qubit-efficient log encoding estimate
+
+
+
 \## Current Limitations
 
 
