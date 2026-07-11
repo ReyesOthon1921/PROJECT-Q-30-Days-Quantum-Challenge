@@ -378,5 +378,20 @@ def qrao_subset_mapping():
 
 
 
+
+
+# PHASE42_EXACT_VALIDATION_DASHBOARD_ROUTE
+@app.route("/api/exact-validation-dashboard", methods=["GET"])
+def exact_validation_dashboard_api():
+    from flask import jsonify
+    from src.evaluation.exact_validation_dashboard import run_exact_validation_dashboard
+
+    try:
+        result = run_exact_validation_dashboard()
+        return jsonify(result)
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+
 if __name__ == "__main__":
     app.run(debug=True)

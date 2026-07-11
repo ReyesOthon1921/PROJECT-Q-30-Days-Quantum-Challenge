@@ -2409,3 +2409,192 @@ function getFocusedActionSummary(data) {
 document.addEventListener("DOMContentLoaded", () => {
     setWorkflowMode("overview");
 });
+
+
+// PHASE42_EXACT_VALIDATION_DASHBOARD_JS
+
+function phase42EscapeHtml(value) {
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function phase42SetText(id, text) {
+    const element = document.getElementById(id);
+
+    if (element) {
+        element.textContent = text;
+    }
+}
+
+function phase42MetricCard(label, value) {
+    return `
+        <div class="phase42-metric-card">
+            <span>${phase42EscapeHtml(label)}</span>
+            <strong>${phase42EscapeHtml(value)}</strong>
+        </div>
+    `;
+}
+
+function phase42RenderMetrics(summary) {
+    const target = document.getElementById("exactValidationMetrics");
+
+    if (!target) {
+        return;
+    }
+
+    const exact = summary.exact_validation || {};
+    const energy = summary.energy_audit || {};
+    const ising = summary.ising_mapping || {};
+    const benchmark = summary.integrated_benchmark || {};
+
+    const cards = [
+        phase42MetricCard("Exact sequences", exact.sequence_count ?? ""),
+        phase42MetricCard("Enumerated", exact.enumerated_count ?? ""),
+        phase42MetricCard("Feasible optima", exact.feasible_count ?? ""),
+        phase42MetricCard("Assignments checked", exact.total_assignments ?? ""),
+        phase42MetricCard("Best exact energy", exact.minimum_energy_best ?? ""),
+        phase42MetricCard("Audited sequences", energy.audited_sequence_count ?? ""),
+        phase42MetricCard("Ising h fields", ising.linear_field_count ?? ""),
+        phase42MetricCard("Ising couplings", ising.coupling_count ?? ""),
+        phase42MetricCard("Benchmark rows", benchmark.integrated_benchmark_rows ?? ""),
+        phase42MetricCard("Rows with exact ground truth", benchmark.rows_with_exact_ground_truth ?? "")
+    ];
+
+    target.innerHTML = cards.join("");
+}
+
+function phase42RenderTable(id, rows, columns) {
+    const target = document.getElementById(id);
+
+    if (!target) {
+        return;
+    }
+
+    if (!rows || rows.length === 0) {
+        target.innerHTML = `<p class="helper-text">No rows available.</p>`;
+        return;
+    }
+
+    const tableHead = columns
+        .map((column) => `<th>${phase42EscapeHtml(column.label)}</th>`)
+        .join("");
+
+    const tableRows = rows
+        .map((row) => {
+            const cells = columns
+                .map((column) => `<td>${phase42EscapeHtml(row[column.key] ?? "")}</td>`)
+                .join("");
+
+            return `<tr>${cells}</tr>`;
+        })
+        .join("");
+
+    target.innerHTML = `
+        <table class="phase42-table">
+            <thead>
+                <tr>${tableHead}</tr>
+            </thead>
+            <tbody>
+                ${tableRows}
+            </tbody>
+        </table>
+    `;
+}
+
+function phase42RenderExactValidationDashboard(data) {
+    phase42SetText("exactValidationStatus", "Exact-validation data loaded successfully.");
+
+    phase42RenderMetrics(data.summary || {});
+
+    const tables = data.tables || {};
+
+    phase42RenderTable(
+        "exactValidationResultsTable",
+        tables.exact_validation_results || [],
+        [
+            { key: "sequence_id", label: "Sequence ID" },
+            { key: "length", label: "Length" },
+            { key: "variable_count", label: "Variables" },
+            { key: "assignment_count", label: "Assignments" },
+            { key: "exact_minimum_energy", label: "Exact Min Energy" },
+            { key: "best_bitstring", label: "Best Bitstring" },
+            { key: "feasible", label: "Feasible" },
+            { key: "dot_bracket", label: "Dot-Bracket" }
+        ]
+    );
+
+    phase42RenderTable(
+        "exactValidationEnergyTable",
+        tables.energy_audit_summary || [],
+        [
+            { key: "sequence_id", label: "Sequence ID" },
+            { key: "linear_energy", label: "Linear" },
+            { key: "overlap_penalty_energy", label: "Overlap" },
+            { key: "crossing_penalty_energy", label: "Crossing" },
+            { key: "interaction_energy", label: "Interaction" },
+            { key: "total_energy", label: "Total" },
+            { key: "feasible", label: "Feasible" }
+        ]
+    );
+
+    phase42RenderTable(
+        "exactValidationIsingTable",
+        tables.ising_coefficients || [],
+        [
+            { key: "sequence_id", label: "Sequence ID" },
+            { key: "coefficient_type", label: "Type" },
+            { key: "term", label: "Term" },
+            { key: "value", label: "Value" },
+            { key: "mapping_note", label: "Mapping Note" }
+        ]
+    );
+
+    phase42RenderTable(
+        "exactValidationBenchmarkTable",
+        tables.final_benchmark_with_exact_validation || [],
+        [
+            { key: "phase41_row_type", label: "Row Type" },
+            { key: "sequence_id", label: "Sequence ID" },
+            { key: "sequence", label: "Sequence" },
+            { key: "phase41_exact_minimum_energy", label: "Exact Energy" },
+            { key: "phase41_exact_feasible", label: "Feasible" },
+            { key: "phase41_best_bitstring", label: "Best Bitstring" },
+            { key: "phase41_ising_coupling_count", label: "Ising Couplings" },
+            { key: "phase41_validation_note", label: "Note" }
+        ]
+    );
+}
+
+async function loadExactValidationDashboard() {
+    phase42SetText("exactValidationStatus", "Loading exact-validation dashboard...");
+
+    try {
+        const response = await fetch("/api/exact-validation-dashboard");
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.error || "Unknown dashboard API error.");
+        }
+
+        phase42RenderExactValidationDashboard(data);
+    } catch (error) {
+        phase42SetText("exactValidationStatus", `Error loading exact-validation dashboard: ${error.message}`);
+    }
+}
+
+window.addEventListener("load", () => {
+    const target = document.getElementById("exact-validation-panel");
+
+    if (target) {
+        loadExactValidationDashboard();
+    }
+});
+

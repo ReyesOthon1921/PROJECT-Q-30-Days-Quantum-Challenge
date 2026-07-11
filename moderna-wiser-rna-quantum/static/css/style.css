@@ -719,3 +719,70 @@ pre {
     color: #ffffff;
     overflow-wrap: anywhere;
 }
+
+
+/* PHASE42_EXACT_VALIDATION_DASHBOARD_CSS */
+
+.phase42-exact-validation-card {
+    border: 1px solid rgba(90, 120, 255, 0.25);
+}
+
+.phase42-status {
+    margin: 1rem 0;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    background: rgba(90, 120, 255, 0.08);
+    font-weight: 600;
+}
+
+.phase42-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0 1.5rem;
+}
+
+.phase42-metric-card {
+    padding: 0.9rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.phase42-metric-card span {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.75;
+    margin-bottom: 0.35rem;
+}
+
+.phase42-metric-card strong {
+    display: block;
+    font-size: 1.15rem;
+}
+
+.phase42-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin: 0.75rem 0 1.5rem;
+}
+
+.phase42-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.phase42-table th,
+.phase42-table td {
+    padding: 0.6rem 0.7rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: left;
+    vertical-align: top;
+}
+
+.phase42-table th {
+    font-weight: 700;
+    background: rgba(90, 120, 255, 0.12);
+}
+

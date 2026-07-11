@@ -606,6 +606,51 @@
     </div>
 </section>
 
+
+<!-- PHASE42_EXACT_VALIDATION_PANEL -->
+<section id="exact-validation-panel" class="card phase42-exact-validation-card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Phase 42</p>
+            <h3>Exact Validation Dashboard</h3>
+        </div>
+        <span class="status-pill hot">Exact Ground Truth</span>
+    </div>
+
+    <p class="helper-text">
+        This section displays the Phase 40/41 exact-validation layer, including exact minimum energy,
+        feasibility, decoded dot-bracket structure, QUBO-to-Ising summaries, energy audit summaries,
+        and the final benchmark with exact validation.
+    </p>
+
+    <div class="action-row">
+        <button type="button" onclick="loadExactValidationDashboard()">Load Exact Validation Results</button>
+    </div>
+
+    <div id="exactValidationStatus" class="phase42-status">
+        Exact-validation dashboard has not been loaded yet.
+    </div>
+
+    <div id="exactValidationMetrics" class="phase42-metric-grid"></div>
+
+    <h4>Exact Validation Results</h4>
+    <div id="exactValidationResultsTable" class="phase42-table-wrap"></div>
+
+    <h4>Energy Audit Summary</h4>
+    <div id="exactValidationEnergyTable" class="phase42-table-wrap"></div>
+
+    <h4>QUBO-to-Ising Coefficients</h4>
+    <div id="exactValidationIsingTable" class="phase42-table-wrap"></div>
+
+    <h4>Final Benchmark With Exact Validation</h4>
+    <div id="exactValidationBenchmarkTable" class="phase42-table-wrap"></div>
+
+    <p class="helper-text">
+        Safe interpretation: this validates small QUBO instances and strengthens benchmark auditability.
+        It does not claim quantum advantage, clinical accuracy, or final biological validation.
+    </p>
+</section>
+
 <section id="results-panel" class="card results-card">
 
             <section id="results-panel" class="card results-card">
