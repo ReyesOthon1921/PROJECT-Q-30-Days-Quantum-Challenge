@@ -231,3 +231,33 @@ Run:
 Safe interpretation:
 
 Graph-aware QRAO validates compression mapping logic, but it does not yet prove compressed solutions preserve RNA folding quality.
+
+<!-- PHASE45_DATASET_EXTERNAL_VALIDATION -->
+# Phase 45 — Dataset and External Validation Expansion
+
+Purpose:
+
+Strengthen the biological validation side by adding dataset tracking and external-validation planning.
+
+Main file:
+
+`src/evaluation/phase45_dataset_external_validation.py`
+
+Generated files:
+
+`data/rna_validation_dataset.csv`  
+`results/publication_tables/external_validation_dataset_tracker.csv`  
+`results/publication_tables/rnafold_validation_plan.csv`  
+`results/publication_tables/blast_rcsb_reference_plan.csv`  
+`results/publication_tables/phase45_dataset_readiness_summary.csv`  
+`results/publication_figures/dataset_sequence_lengths.png`  
+`results/publication_figures/dataset_gc_content.png`  
+`docs/phase45_dataset_external_validation.md`
+
+Run:
+
+`python src\evaluation\phase45_dataset_external_validation.py`
+
+Safe interpretation:
+
+Phase 45 prepares external validation tracking. It does not claim that RNAfold, BLAST, or RCSB validation has already been completed.

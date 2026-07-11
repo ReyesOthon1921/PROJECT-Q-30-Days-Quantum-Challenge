@@ -1,0 +1,9 @@
+summary_item,value,note
+total_sequences,8,Total RNA sequences currently tracked for validation planning.
+exact_validation_control_sequences,4,Sequences already connected to exact QUBO validation.
+bioinformatics_expansion_sequences,4,Additional sequences added for future RNAfold/BLAST/RCSB planning.
+average_sequence_length,18.625,Average sequence length across the current validation dataset.
+average_gc_content_percent,51.636,Average GC content across the current validation dataset.
+total_candidate_pairs,490,Total candidate base pairs under current pairing rules.
+total_candidate_stems,490,Total candidate stems under current stem-generation logic.
+external_validation_status,planned,"RNAfold, BLAST, and RCSB validation are planned and must be manually verified before claims."

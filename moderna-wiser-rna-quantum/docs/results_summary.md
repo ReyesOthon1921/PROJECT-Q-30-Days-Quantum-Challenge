@@ -112,3 +112,16 @@ Generated outputs include a graph-aware QRAO summary table, mapping table, confl
 Safe interpretation:
 
 This validates the compression mapping logic. It does not yet prove that compression preserves RNA solution quality after rounding.
+
+<!-- PHASE45_DATASET_EXTERNAL_VALIDATION -->
+# Phase 45 Update — Dataset and External Validation Expansion
+
+Phase 45 expanded the biological validation side of the project.
+
+The project now includes a tracked RNA validation dataset, RNAfold/ViennaRNA validation plan, BLAST/RCSB reference plan, dataset readiness summary, sequence length figure, and GC content figure.
+
+This strengthens the paper direction by separating internal QUBO validation from external biological validation.
+
+Safe interpretation:
+
+This phase creates the structure for external validation. It does not claim that RNAfold, BLAST, or RCSB validation is complete yet.
