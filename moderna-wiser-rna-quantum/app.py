@@ -5,6 +5,7 @@ from src.classical.dotbracket import (
     validate_dotbracket,
 )
 
+from src.evaluation.circuit_comparison import run_circuit_comparison
 from src.quantum.vqe_circuit import run_vqe_circuit_simulation
 from src.quantum.qaoa_circuit import run_qaoa_circuit_simulation
 from src.evaluation.quantum_benchmark import run_quantum_benchmark
@@ -278,6 +279,18 @@ def vqe_circuit():
     try:
         result = run_vqe_circuit_simulation(sequence)
         return jsonify({"success": True, "vqe_circuit": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+@app.route("/api/circuit-comparison", methods=["POST"])
+def circuit_comparison():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_circuit_comparison(sequence)
+        return jsonify({"success": True, "circuit_comparison": result})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500

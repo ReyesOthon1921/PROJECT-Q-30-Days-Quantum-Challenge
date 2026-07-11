@@ -94,6 +94,7 @@
 		    <button onclick="runQuantumBenchmark()">Run Quantum Benchmark</button>
 		    <button onclick="runQaoaCircuitPrototype()">Run QAOA Circuit Prototype</button>
 		    <button onclick="runVqeCircuitPrototype()">Run VQE Circuit Prototype</button>
+		    <button onclick="runCircuitComparison()">Run Circuit Comparison</button>
 		    
                 </div>
             </section>
@@ -321,6 +322,31 @@
         This section runs a small VQE-style ansatz circuit on a Qiskit Aer simulator using the VQE-ready
         Ising/Hamiltonian subset. This is a local simulator prototype and does not claim quantum advantage.
     </p>
+
+    <section id="circuit-comparison-panel" class="card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Quantum Circuit Comparison</p>
+            <h3>QAOA vs VQE Circuit Comparison</h3>
+        </div>
+        <span class="status-pill hot">Simulator Comparison</span>
+    </div>
+
+    <p class="helper-text">
+        This section compares the QAOA and VQE simulator prototypes side by side.
+        It compares qubits, circuit depth, transpiled depth, circuit size, runtime,
+        and top measurement probability. This does not claim quantum advantage.
+    </p>
+
+    <div id="circuitComparisonGrid" class="bio-metric-grid">
+        <p class="helper-text">Run “Circuit Comparison” to compare QAOA and VQE.</p>
+    </div>
+
+    <div id="circuitComparisonGraphsContainer" class="graph-grid">
+        <p class="helper-text">No circuit comparison graphs generated yet.</p>
+    </div>
+</section>
+
 
     <div id="vqeCircuitGrid" class="bio-metric-grid">
         <p class="helper-text">Run “VQE Circuit Prototype” to generate simulator metrics.</p>

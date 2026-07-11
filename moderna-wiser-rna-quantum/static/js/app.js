@@ -117,6 +117,8 @@ function showResults(data) {
     renderQuantumBenchmarkGraphs(data);
     renderQaoaCircuitResults(data);
     renderVqeCircuitResults(data);
+    renderCircuitComparison(data);
+    renderCircuitComparisonGraphs(data);
 }
 
 
@@ -361,6 +363,84 @@ function renderFromResponse(data) {
 
     drawRnaSimulation(sequence, structure);
 }
+
+
+function renderCircuitComparison(data) {
+    const container = document.getElementById("circuitComparisonGrid");
+
+    if (!container) {
+        return;
+    }
+
+    const metrics = data?.circuit_comparison?.metrics;
+
+    if (!metrics) {
+        return;
+    }
+
+    const metricOrder = [
+        ["Sequence Length", metrics.sequence_length],
+        ["Shots", metrics.shots],
+        ["QAOA Qubits", metrics.qaoa_qubits],
+        ["VQE Qubits", metrics.vqe_qubits],
+        ["QAOA Circuit Depth", metrics.qaoa_circuit_depth],
+        ["VQE Circuit Depth", metrics.vqe_circuit_depth],
+        ["QAOA Transpiled Depth", metrics.qaoa_transpiled_depth],
+        ["VQE Transpiled Depth", metrics.vqe_transpiled_depth],
+        ["QAOA Circuit Size", metrics.qaoa_circuit_size],
+        ["VQE Circuit Size", metrics.vqe_circuit_size],
+        ["QAOA Top Bitstring", metrics.qaoa_top_bitstring],
+        ["VQE Top Bitstring", metrics.vqe_top_bitstring],
+        ["QAOA Top Probability", metrics.qaoa_top_probability],
+        ["VQE Top Probability", metrics.vqe_top_probability],
+        ["QAOA Runtime", `${metrics.qaoa_runtime_seconds} s`],
+        ["VQE Runtime", `${metrics.vqe_runtime_seconds} s`],
+        ["QAOA Linear Terms", metrics.qaoa_linear_terms],
+        ["QAOA Quadratic Terms", metrics.qaoa_quadratic_terms],
+        ["VQE Z Terms", metrics.vqe_z_terms],
+        ["VQE ZZ Terms", metrics.vqe_zz_terms],
+        ["VQE Exact Baseline Energy", metrics.vqe_exact_subset_baseline_energy],
+    ];
+
+    container.innerHTML = metricOrder
+        .map(([label, value]) => {
+            return `
+                <article class="bio-metric-card">
+                    <span>${escapeHtml(label)}</span>
+                    <strong>${escapeHtml(value)}</strong>
+                </article>
+            `;
+        })
+        .join("");
+}
+
+function renderCircuitComparisonGraphs(data) {
+    const container = document.getElementById("circuitComparisonGraphsContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const graphs = data?.circuit_comparison?.generated_graphs || [];
+
+    if (!graphs.length) {
+        return;
+    }
+
+    const timestamp = Date.now();
+
+    container.innerHTML = graphs
+        .map((graph) => {
+            return `
+                <article class="graph-card">
+                    <h4>${escapeHtml(graph.title)}</h4>
+                    <img src="${graph.static_path}?v=${timestamp}" alt="${escapeHtml(graph.title)}">
+                </article>
+            `;
+        })
+        .join("");
+}
+
 
 function drawCurrentInput() {
     drawRnaSimulation(getSequence(), getStructure());
@@ -995,6 +1075,14 @@ async function runQuantumBenchmark() {
         "/api/quantum-benchmark",
         { sequence: getSequence() },
         "Running quantum benchmark layer..."
+    );
+}
+
+async function runCircuitComparison() {
+    await postJson(
+        "/api/circuit-comparison",
+        { sequence: getSequence() },
+        "Running QAOA vs VQE circuit comparison..."
     );
 }
 
