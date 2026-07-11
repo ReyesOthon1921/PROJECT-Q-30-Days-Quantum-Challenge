@@ -5,6 +5,7 @@ from src.classical.dotbracket import (
     validate_dotbracket,
 )
 
+from src.quantum.qaoa_circuit import run_qaoa_circuit_simulation
 from src.evaluation.quantum_benchmark import run_quantum_benchmark
 from src.evaluation.bioinformatics_metrics import run_bioinformatics_metrics
 from src.classical.sequence_tools import summarize_sequence
@@ -251,6 +252,18 @@ def quantum_benchmark():
     try:
         result = run_quantum_benchmark(sequence)
         return jsonify({"success": True, "quantum_benchmark": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+@app.route("/api/qaoa-circuit", methods=["POST"])
+def qaoa_circuit():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_qaoa_circuit_simulation(sequence)
+        return jsonify({"success": True, "qaoa_circuit": result})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500

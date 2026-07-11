@@ -115,6 +115,7 @@ function showResults(data) {
     renderAlgorithmGraphImages(data);
     renderQuantumBenchmark(data);
     renderQuantumBenchmarkGraphs(data);
+    renderQaoaCircuitResults(data);
 }
 
 
@@ -545,6 +546,75 @@ function collectProfessionalMetrics(data) {
 
     return metrics.filter((metric) => metric.value !== undefined && metric.value !== null);
 }
+
+
+function renderQaoaCircuitResults(data) {
+    const grid = document.getElementById("qaoaCircuitGrid");
+    const countsContainer = document.getElementById("qaoaCountsContainer");
+
+    const result = data?.qaoa_circuit;
+
+    if (!result) {
+        return;
+    }
+
+    if (grid) {
+        const metrics = [
+            ["Simulator", result.simulator],
+            ["Shots", result.shots],
+            ["Qubits", result.num_qubits],
+            ["Linear Terms", result.linear_term_count],
+            ["Quadratic Terms", result.quadratic_term_count],
+            ["Circuit Depth", result.circuit_depth],
+            ["Transpiled Depth", result.transpiled_depth],
+            ["Circuit Size", result.circuit_size],
+            ["Top Bitstring", result.top_bitstring],
+            ["Top Probability", result.top_probability],
+            ["Runtime", `${result.runtime_seconds} s`],
+            ["Gamma", result.gamma],
+            ["Beta", result.beta],
+        ];
+
+        grid.innerHTML = metrics
+            .map(([label, value]) => {
+                return `
+                    <article class="bio-metric-card">
+                        <span>${escapeHtml(label)}</span>
+                        <strong>${escapeHtml(value)}</strong>
+                    </article>
+                `;
+            })
+            .join("");
+    }
+
+    if (countsContainer) {
+        const rows = result.top_10_counts || [];
+
+        countsContainer.innerHTML = `
+            <h4>Top Measurement Counts</h4>
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th>Bitstring</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.map((row) => {
+                        return `
+                            <tr>
+                                <td>${escapeHtml(row[0])}</td>
+                                <td>${escapeHtml(row[1])}</td>
+                            </tr>
+                        `;
+                    }).join("")}
+                </tbody>
+            </table>
+        `;
+    }
+}
+
+
 
 function renderComparisonTable(data) {
     const rows = data?.comparison?.comparison_rows;
@@ -1050,6 +1120,16 @@ function drawResult3dSimulation(data) {
         ctx.fillText(line, 54, 212 + index * 24);
     });
 }
+
+
+async function runQaoaCircuitPrototype() {
+    await postJson(
+        "/api/qaoa-circuit",
+        { sequence: getSequence() },
+        "Running QAOA circuit prototype on Qiskit AerSimulator..."
+    );
+}
+
 
 function drawMetricChart(data) {
     const canvas = document.getElementById("metricChartCanvas");
