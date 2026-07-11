@@ -113,6 +113,8 @@ function showResults(data) {
     renderBioinformaticsMetrics(data);
     renderDataVisuals(data);
     renderAlgorithmGraphImages(data);
+    renderQuantumBenchmark(data);
+    renderQuantumBenchmarkGraphs(data);
 }
 
 
@@ -833,6 +835,89 @@ function renderBioinformaticsMetrics(data) {
                 <article class="bio-metric-card">
                     <span>${escapeHtml(label)}</span>
                     <strong>${escapeHtml(value)}</strong>
+                </article>
+            `;
+        })
+        .join("");
+}
+
+async function runQuantumBenchmark() {
+    await postJson(
+        "/api/quantum-benchmark",
+        { sequence: getSequence() },
+        "Running quantum benchmark layer..."
+    );
+}
+
+function renderQuantumBenchmark(data) {
+    const container = document.getElementById("quantumBenchmarkGrid");
+
+    if (!container) {
+        return;
+    }
+
+    const metrics = data?.quantum_benchmark?.metrics;
+
+    if (!metrics) {
+        return;
+    }
+
+    const metricOrder = [
+        ["Sequence Length", metrics.sequence_length],
+        ["Full QUBO Variables", metrics.full_qubo_variables],
+        ["Full Estimated Qubits", metrics.full_estimated_qubits],
+        ["Full Linear Terms", metrics.full_linear_terms],
+        ["Full Quadratic Terms", metrics.full_quadratic_terms],
+        ["QAOA Subset Variables", metrics.qaoa_subset_variables],
+        ["QAOA Subset Qubits", metrics.qaoa_subset_qubits],
+        ["QAOA Quadratic Terms", metrics.qaoa_quadratic_terms],
+        ["QAOA Estimated Depth", metrics.qaoa_estimated_depth],
+        ["QAOA Best Energy", metrics.qaoa_best_energy],
+        ["QAOA Selected Variables", metrics.qaoa_selected_variable_count],
+        ["VQE Subset Variables", metrics.vqe_subset_variables],
+        ["VQE Subset Qubits", metrics.vqe_subset_qubits],
+        ["VQE Z Terms", metrics.vqe_z_terms],
+        ["VQE ZZ Terms", metrics.vqe_zz_terms],
+        ["VQE Estimated Depth", metrics.vqe_estimated_depth],
+        ["VQE Best Energy", metrics.vqe_best_energy],
+        ["VQE Selected Variables", metrics.vqe_selected_variable_count],
+        ["QAOA/VQE Energy Ratio", metrics.qaoa_vqe_energy_ratio],
+        ["Runtime", `${metrics.runtime_seconds} s`],
+    ];
+
+    container.innerHTML = metricOrder
+        .map(([label, value]) => {
+            return `
+                <article class="bio-metric-card">
+                    <span>${escapeHtml(label)}</span>
+                    <strong>${escapeHtml(value)}</strong>
+                </article>
+            `;
+        })
+        .join("");
+}
+
+function renderQuantumBenchmarkGraphs(data) {
+    const container = document.getElementById("quantumBenchmarkGraphsContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const graphs = data?.quantum_benchmark?.generated_graphs || [];
+
+    if (!graphs.length) {
+        return;
+    }
+
+    const timestamp = Date.now();
+
+    container.innerHTML = graphs
+        .map((graph) => {
+            return `
+                <article class="graph-card">
+                    <h4>${graph.title}</h4>
+                    <img src="${graph.static_path}?v=${timestamp}" alt="${graph.title}">
                 </article>
             `;
         })

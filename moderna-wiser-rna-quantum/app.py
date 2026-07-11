@@ -5,6 +5,7 @@ from src.classical.dotbracket import (
     validate_dotbracket,
 )
 
+from src.evaluation.quantum_benchmark import run_quantum_benchmark
 from src.evaluation.bioinformatics_metrics import run_bioinformatics_metrics
 from src.classical.sequence_tools import summarize_sequence
 from src.classical.vienna_benchmark import run_vienna_benchmark
@@ -238,6 +239,18 @@ def bioinformatics_metrics():
     try:
         result = run_bioinformatics_metrics(sequence)
         return jsonify({"success": True, "bioinformatics_metrics": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+@app.route("/api/quantum-benchmark", methods=["POST"])
+def quantum_benchmark():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_quantum_benchmark(sequence)
+        return jsonify({"success": True, "quantum_benchmark": result})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500

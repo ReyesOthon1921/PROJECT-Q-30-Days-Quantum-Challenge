@@ -91,6 +91,7 @@
                     <button onclick="generateScalingGraphs()">Generate Scaling Graphs</button>
                     <button onclick="generateAlgorithmComparisonGraphs()">Generate Algorithm Comparison Graphs</button>
 		    <button onclick="runBioinformaticsMetrics()">Run Bioinformatics Metrics</button>
+		    <button onclick="runQuantumBenchmark()">Run Quantum Benchmark</button>
                 </div>
             </section>
 
@@ -270,6 +271,30 @@
         </div>
         <span class="status-pill hot">BLAST + RCSB</span>
     </div>
+
+    <section id="quantum-benchmark-panel" class="card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Quantum Layer</p>
+            <h3>Quantum Benchmark</h3>
+        </div>
+        <span class="status-pill hot">QAOA + VQE</span>
+    </div>
+
+    <p class="helper-text">
+        This benchmark compares QAOA-ready and VQE-ready subsets against exact subset baselines.
+        It does not claim quantum advantage. It checks whether the QUBO/Ising formulation is ready
+        for future quantum algorithm testing.
+    </p>
+
+    <div id="quantumBenchmarkGrid" class="bio-metric-grid">
+        <p class="helper-text">Run “Quantum Benchmark” to generate quantum-readiness metrics.</p>
+    </div>
+
+    <div id="quantumBenchmarkGraphsContainer" class="graph-grid">
+        <p class="helper-text">No quantum benchmark graphs generated yet.</p>
+    </div>
+</section>
 
     <p class="helper-text">
         This section connects the RNA/QUBO pipeline to external bioinformatics resources.
