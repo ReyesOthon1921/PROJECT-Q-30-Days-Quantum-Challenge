@@ -176,3 +176,30 @@ Run:
 Safe interpretation:
 
 Phase 41 adds exact small-instance ground truth to the final benchmark. It supports auditability and validation, but it does not claim quantum advantage or final biological accuracy.
+
+<!-- PHASE43_EXACT_VALIDATION_FIGURES -->
+# Phase 43 — Exact Validation Publication Figures
+
+Purpose:
+
+Generate publication-ready figures from exact-validation outputs.
+
+Main file:
+
+`src/evaluation/phase43_exact_validation_figures.py`
+
+Generated files:
+
+`results/publication_figures/exact_minimum_energy.png`  
+`results/publication_figures/exact_assignment_growth.png`  
+`results/publication_figures/exact_energy_decomposition.png`  
+`results/publication_figures/ising_coefficient_counts.png`  
+`docs/phase43_exact_validation_figures.md`
+
+Run:
+
+`python src\evaluation\phase43_exact_validation_figures.py`
+
+Safe interpretation:
+
+Phase 43 visualizes exact small-instance validation. It supports auditability but does not claim quantum advantage or final biological accuracy.

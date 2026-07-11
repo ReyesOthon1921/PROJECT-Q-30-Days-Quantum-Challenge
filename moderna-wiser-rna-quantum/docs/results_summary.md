@@ -81,3 +81,21 @@ RNA/QUBO formulation
 Important interpretation:
 
 This does not prove quantum advantage. It makes the benchmark more auditable and gives a stronger validation foundation before interpreting QAOA, VQE, hardware-readiness, or QRAO compression outputs.
+
+<!-- PHASE43_EXACT_VALIDATION_FIGURES -->
+# Phase 43 Update — Exact Validation Publication Figures
+
+Phase 43 generated publication-ready figures from the exact-validation layer.
+
+Generated figures:
+
+- Exact minimum QUBO energy by RNA sequence
+- Exact enumeration assignment growth
+- QUBO energy decomposition
+- QUBO-to-Ising coefficient counts
+
+These figures strengthen the paper results section by turning the exact-validation CSV outputs into visual evidence.
+
+Safe interpretation:
+
+The figures show exact small-instance validation and auditability. They do not claim quantum advantage or final biological validation.
