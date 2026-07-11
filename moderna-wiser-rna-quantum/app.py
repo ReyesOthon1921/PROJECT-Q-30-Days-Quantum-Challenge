@@ -5,6 +5,7 @@ from src.classical.dotbracket import (
     validate_dotbracket,
 )
 
+from src.quantum.vqe_circuit import run_vqe_circuit_simulation
 from src.quantum.qaoa_circuit import run_qaoa_circuit_simulation
 from src.evaluation.quantum_benchmark import run_quantum_benchmark
 from src.evaluation.bioinformatics_metrics import run_bioinformatics_metrics
@@ -267,6 +268,20 @@ def qaoa_circuit():
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
+
+
+@app.route("/api/vqe-circuit", methods=["POST"])
+def vqe_circuit():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_vqe_circuit_simulation(sequence)
+        return jsonify({"success": True, "vqe_circuit": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
 
 
 if __name__ == "__main__":

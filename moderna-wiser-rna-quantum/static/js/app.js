@@ -116,6 +116,7 @@ function showResults(data) {
     renderQuantumBenchmark(data);
     renderQuantumBenchmarkGraphs(data);
     renderQaoaCircuitResults(data);
+    renderVqeCircuitResults(data);
 }
 
 
@@ -474,6 +475,17 @@ function buildMetricCards(metrics) {
     `;
 }
 
+
+async function runVqeCircuitPrototype() {
+    await postJson(
+        "/api/vqe-circuit",
+        { sequence: getSequence() },
+        "Running VQE circuit prototype on Qiskit AerSimulator..."
+    );
+}
+
+
+
 function collectProfessionalMetrics(data) {
     const metrics = [];
 
@@ -545,6 +557,73 @@ function collectProfessionalMetrics(data) {
     }
 
     return metrics.filter((metric) => metric.value !== undefined && metric.value !== null);
+}
+
+
+function renderVqeCircuitResults(data) {
+    const grid = document.getElementById("vqeCircuitGrid");
+    const countsContainer = document.getElementById("vqeCountsContainer");
+
+    const result = data?.vqe_circuit;
+
+    if (!result) {
+        return;
+    }
+
+    if (grid) {
+        const metrics = [
+            ["Simulator", result.simulator],
+            ["Shots", result.shots],
+            ["Qubits", result.num_qubits],
+            ["Selected Variables", result.selected_variable_count],
+            ["Z Terms", result.z_term_count],
+            ["ZZ Terms", result.zz_term_count],
+            ["Circuit Depth", result.circuit_depth],
+            ["Transpiled Depth", result.transpiled_depth],
+            ["Circuit Size", result.circuit_size],
+            ["Top Bitstring", result.top_bitstring],
+            ["Top Probability", result.top_probability],
+            ["Exact Baseline Energy", result.exact_subset_baseline_energy],
+            ["Runtime", `${result.runtime_seconds} s`],
+        ];
+
+        grid.innerHTML = metrics
+            .map(([label, value]) => {
+                return `
+                    <article class="bio-metric-card">
+                        <span>${escapeHtml(label)}</span>
+                        <strong>${escapeHtml(value)}</strong>
+                    </article>
+                `;
+            })
+            .join("");
+    }
+
+    if (countsContainer) {
+        const rows = result.top_10_counts || [];
+
+        countsContainer.innerHTML = `
+            <h4>Top Measurement Counts</h4>
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th>Bitstring</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.map((row) => {
+                        return `
+                            <tr>
+                                <td>${escapeHtml(row[0])}</td>
+                                <td>${escapeHtml(row[1])}</td>
+                            </tr>
+                        `;
+                    }).join("")}
+                </tbody>
+            </table>
+        `;
+    }
 }
 
 

@@ -93,6 +93,7 @@
 		    <button onclick="runBioinformaticsMetrics()">Run Bioinformatics Metrics</button>
 		    <button onclick="runQuantumBenchmark()">Run Quantum Benchmark</button>
 		    <button onclick="runQaoaCircuitPrototype()">Run QAOA Circuit Prototype</button>
+		    <button onclick="runVqeCircuitPrototype()">Run VQE Circuit Prototype</button>
 		    
                 </div>
             </section>
@@ -307,6 +308,29 @@
     </div>
 </section>
 
+<section id="vqe-circuit-panel" class="card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Quantum Circuit Layer</p>
+            <h3>VQE Circuit Prototype</h3>
+        </div>
+        <span class="status-pill hot">Qiskit Aer</span>
+    </div>
+
+    <p class="helper-text">
+        This section runs a small VQE-style ansatz circuit on a Qiskit Aer simulator using the VQE-ready
+        Ising/Hamiltonian subset. This is a local simulator prototype and does not claim quantum advantage.
+    </p>
+
+    <div id="vqeCircuitGrid" class="bio-metric-grid">
+        <p class="helper-text">Run “VQE Circuit Prototype” to generate simulator metrics.</p>
+    </div>
+
+    <div id="vqeCountsContainer" class="result-detail-card">
+        <h4>Top Measurement Counts</h4>
+        <p class="helper-text">No VQE circuit results yet.</p>
+    </div>
+</section>
 
     <p class="helper-text">
         This benchmark compares QAOA-ready and VQE-ready subsets against exact subset baselines.
