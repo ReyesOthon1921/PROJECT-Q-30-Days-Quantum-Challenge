@@ -99,6 +99,8 @@
 		    <button onclick="runVqeParameterSweep()">Run VQE Parameter Sweep</button>
 		    <button onclick="runMeasuredBitstringEnergy()">Run Measured Bitstring Energy</button>
 		    <button onclick="runHardwareReadinessCheck()">Run Hardware Readiness Check</button>
+		    <button onclick="runQubitCompressionEstimator()">Run Qubit Compression Estimator</button>
+		    <button onclick="runQraoSubsetMapping()">Run QRAO Subset Mapping</button>
                 </div>
             </section>
 
@@ -414,6 +416,57 @@
         This section estimates whether the QAOA and VQE circuits are small enough for possible future
         hardware testing. It does not run on real quantum hardware.
     </p>
+
+    <section id="qubit-compression-panel" class="card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Variable Compression Layer</p>
+            <h3>Qubit Compression Estimator</h3>
+        </div>
+        <span class="status-pill hot">QRAO + Log Encoding</span>
+    </div>
+
+    <p class="helper-text">
+        This section compares direct one-variable-per-qubit mapping against QRAC/QRAO-style compression
+        and qubit-efficient log-style encoding estimates. This is a research estimator, not a solved compressed quantum algorithm.
+    </p>
+
+    <div id="qubitCompressionGrid" class="bio-metric-grid">
+        <p class="helper-text">Run “Qubit Compression Estimator” to compare qubit compression models.</p>
+    </div>
+
+    <div id="qubitCompressionGraphsContainer" class="graph-grid">
+        <p class="helper-text">No qubit compression graphs generated yet.</p>
+    </div>
+</section>
+
+<section id="qrao-mapping-panel" class="card">
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">QRAO Mapping Layer</p>
+            <h3>QRAO Subset Mapping</h3>
+        </div>
+        <span class="status-pill hot">X / Y / Z Encoding</span>
+    </div>
+
+    <p class="helper-text">
+        This section maps RNA QUBO variables into QRAO-style compressed qubit slots using Pauli-axis labels.
+        The 3-to-1 mapping assigns variables to X, Y, and Z axes. This is not a full QRAO solver.
+    </p>
+
+    <div id="qraoMappingGrid" class="bio-metric-grid">
+        <p class="helper-text">Run “QRAO Subset Mapping” to generate compressed variable mapping.</p>
+    </div>
+
+    <div id="qraoMappingTable" class="result-detail-card">
+        <h4>First QRAO Variable Mappings</h4>
+        <p class="helper-text">No QRAO mapping results yet.</p>
+    </div>
+
+    <div id="qraoMappingGraphsContainer" class="graph-grid">
+        <p class="helper-text">No QRAO mapping graphs generated yet.</p>
+    </div>
+</section>
 
     <div id="hardwareReadinessGrid" class="bio-metric-grid">
         <p class="helper-text">Run “Hardware Readiness Check” to estimate circuit feasibility.</p>

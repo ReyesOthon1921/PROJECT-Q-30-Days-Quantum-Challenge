@@ -5,6 +5,8 @@ from src.classical.dotbracket import (
     validate_dotbracket,
 )
 
+from src.evaluation.qubit_compression_estimator import run_qubit_compression_estimator
+from src.evaluation.qrao_subset_mapping import run_qrao_subset_mapping
 from src.evaluation.vqe_parameter_sweep import run_vqe_parameter_sweep
 from src.evaluation.measured_bitstring_energy import run_measured_bitstring_energy
 from src.evaluation.hardware_readiness import run_hardware_readiness_check
@@ -345,6 +347,31 @@ def hardware_readiness():
     try:
         result = run_hardware_readiness_check(sequence)
         return jsonify({"success": True, "hardware_readiness": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+@app.route("/api/qubit-compression-estimator", methods=["POST"])
+def qubit_compression_estimator():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_qubit_compression_estimator(sequence)
+        return jsonify({"success": True, "qubit_compression_estimator": result})
+
+    except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+
+@app.route("/api/qrao-subset-mapping", methods=["POST"])
+def qrao_subset_mapping():
+    data = request.get_json() or {}
+    sequence = data.get("sequence", "")
+
+    try:
+        result = run_qrao_subset_mapping(sequence)
+        return jsonify({"success": True, "qrao_subset_mapping": result})
 
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500

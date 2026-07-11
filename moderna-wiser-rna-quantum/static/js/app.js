@@ -127,6 +127,10 @@ function showResults(data) {
     renderMeasuredBitstringGraphs(data);
     renderHardwareReadiness(data);
     renderHardwareReadinessGraphs(data);
+    renderQubitCompressionEstimator(data);
+    renderQubitCompressionGraphs(data);
+    renderQraoSubsetMapping(data);
+    renderQraoMappingGraphs(data);
 }
 
 
@@ -684,6 +688,171 @@ async function runVqeCircuitPrototype() {
 }
 
 
+function renderQubitCompressionEstimator(data) {
+    const container = document.getElementById("qubitCompressionGrid");
+
+    if (!container) {
+        return;
+    }
+
+    const result = data?.qubit_compression_estimator;
+
+    if (!result || !result.estimates) {
+        return;
+    }
+
+    const metricOrder = [
+        ["Phase", result.phase],
+        ["Variable Count", result.variable_count],
+        ["Direct Qubits", result.direct_qubits],
+        ["64 Variables Log Encoding Example", result.example_64_variables_log_encoding_qubits],
+        ["80 Variables Log Encoding Example", result.example_80_variables_log_encoding_qubits],
+        ["Total Runtime", `${result.total_runtime_seconds} s`],
+    ];
+
+    result.estimates.forEach((estimate) => {
+        metricOrder.push([`${estimate.model} Qubits`, estimate.estimated_qubits]);
+        metricOrder.push([`${estimate.model} Ratio`, estimate.compression_ratio_vs_direct]);
+        metricOrder.push([`${estimate.model} Risk`, estimate.risk_note]);
+    });
+
+    container.innerHTML = metricOrder
+        .map(([label, value]) => {
+            return `
+                <article class="bio-metric-card">
+                    <span>${escapeHtml(label)}</span>
+                    <strong>${escapeHtml(value)}</strong>
+                </article>
+            `;
+        })
+        .join("");
+}
+
+function renderQubitCompressionGraphs(data) {
+    const container = document.getElementById("qubitCompressionGraphsContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const graphs = data?.qubit_compression_estimator?.generated_graphs || [];
+
+    if (!graphs.length) {
+        return;
+    }
+
+    const timestamp = Date.now();
+
+    container.innerHTML = graphs
+        .map((graph) => {
+            return `
+                <article class="graph-card">
+                    <h4>${escapeHtml(graph.title)}</h4>
+                    <img src="${graph.static_path}?v=${timestamp}" alt="${escapeHtml(graph.title)}">
+                </article>
+            `;
+        })
+        .join("");
+}
+
+function renderQraoSubsetMapping(data) {
+    const grid = document.getElementById("qraoMappingGrid");
+    const table = document.getElementById("qraoMappingTable");
+
+    const result = data?.qrao_subset_mapping;
+
+    if (!result) {
+        return;
+    }
+
+    if (grid) {
+        const metricOrder = [
+            ["Phase", result.phase],
+            ["Selected Variables", result.selected_variable_count],
+            ["Direct Qubits", result.direct_qubits],
+            ["2-to-1 Compressed Qubits", result.two_to_one_qubits],
+            ["3-to-1 Compressed Qubits", result.three_to_one_qubits],
+            ["2-to-1 Compression Ratio", result.two_to_one_compression_ratio],
+            ["3-to-1 Compression Ratio", result.three_to_one_compression_ratio],
+            ["Total Runtime", `${result.total_runtime_seconds} s`],
+        ];
+
+        const axisCounts = result.three_to_one_axis_counts || {};
+
+        Object.keys(axisCounts).forEach((axis) => {
+            metricOrder.push([`3-to-1 ${axis} Axis Count`, axisCounts[axis]]);
+        });
+
+        grid.innerHTML = metricOrder
+            .map(([label, value]) => {
+                return `
+                    <article class="bio-metric-card">
+                        <span>${escapeHtml(label)}</span>
+                        <strong>${escapeHtml(value)}</strong>
+                    </article>
+                `;
+            })
+            .join("");
+    }
+
+    if (table) {
+        const rows = result.three_to_one_mapping || [];
+
+        table.innerHTML = `
+            <h4>First QRAO Variable Mappings</h4>
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Compressed Qubit</th>
+                        <th>Pauli Axis</th>
+                        <th>Encoding</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.slice(0, 18).map((row) => {
+                        return `
+                            <tr>
+                                <td>${escapeHtml(row.variable)}</td>
+                                <td>${escapeHtml(row.compressed_qubit)}</td>
+                                <td>${escapeHtml(row.pauli_axis)}</td>
+                                <td>${escapeHtml(row.encoding)}</td>
+                            </tr>
+                        `;
+                    }).join("")}
+                </tbody>
+            </table>
+        `;
+    }
+}
+
+function renderQraoMappingGraphs(data) {
+    const container = document.getElementById("qraoMappingGraphsContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const graphs = data?.qrao_subset_mapping?.generated_graphs || [];
+
+    if (!graphs.length) {
+        return;
+    }
+
+    const timestamp = Date.now();
+
+    container.innerHTML = graphs
+        .map((graph) => {
+            return `
+                <article class="graph-card">
+                    <h4>${escapeHtml(graph.title)}</h4>
+                    <img src="${graph.static_path}?v=${timestamp}" alt="${escapeHtml(graph.title)}">
+                </article>
+            `;
+        })
+        .join("");
+}
+
 
 function collectProfessionalMetrics(data) {
     const metrics = [];
@@ -1201,6 +1370,22 @@ function renderStructureCards(data) {
     }
 
     return html;
+}
+
+async function runQubitCompressionEstimator() {
+    await postJson(
+        "/api/qubit-compression-estimator",
+        { sequence: getSequence() },
+        "Running qubit compression estimator..."
+    );
+}
+
+async function runQraoSubsetMapping() {
+    await postJson(
+        "/api/qrao-subset-mapping",
+        { sequence: getSequence() },
+        "Running QRAO subset mapping..."
+    );
 }
 
 function renderVariableTags(data) {
