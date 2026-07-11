@@ -1,0 +1,7 @@
+sequence_id,qubo_variables,qaoa_subset_variables,vqe_subset_variables,qaoa_estimated_qubits,vqe_estimated_qubits,qaoa_depth_estimate,vqe_depth_estimate,qaoa_energy_proxy,vqe_energy_proxy,top_bitstring_proxy,top_probability_proxy,shots,hardware_readiness
+RNA_01_demo,30,8,6,8,6,41,36,-29.8,-29.8,00011000,0.015625,1024,subset_only_until_compression_or_reduction
+RNA_02_short_hairpin,4,4,4,4,4,14,18,-6.4,-6.2,1100,0.0625,1024,small_simulator_ready
+RNA_03_medium_control,9,8,6,8,6,41,36,-10.8,-10.8,11000000,0.015625,1024,subset_only_until_compression_or_reduction
+RNA_04_gc_rich,8,8,6,8,6,41,36,-16.8,-16.8,11000000,0.015625,1024,small_simulator_ready
+RNA_05_balanced,15,8,6,8,6,41,36,-12.8,-12.8,00110000,0.015625,1024,subset_only_until_compression_or_reduction
+RNA_06_longer_control,30,8,6,8,6,41,36,-15.8,-15.8,10001000,0.015625,1024,subset_only_until_compression_or_reduction

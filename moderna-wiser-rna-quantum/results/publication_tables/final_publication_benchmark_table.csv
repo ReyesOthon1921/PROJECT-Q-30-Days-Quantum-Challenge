@@ -1,0 +1,7 @@
+sequence_id,length,qubo_variables,best_classical_solver,classical_energy,quantum_qaoa_energy_proxy,quantum_vqe_energy_proxy,direct_qubits,compressed_qubits_3_to_1,qubit_reduction_3_to_1_percent,runtime_seconds_best_classical,f1_score,hardware_readiness,publication_note
+RNA_01_demo,44,30,simulated_annealing,-31.0,-29.8,-29.8,30,10,66.667,0.086291,0.5714,subset_only_until_compression_or_reduction,Prototype benchmark; no quantum advantage claim.
+RNA_02_short_hairpin,9,4,simulated_annealing,-7.0,-6.4,-6.2,4,2,50.0,0.003111,0.75,small_simulator_ready,Prototype benchmark; no quantum advantage claim.
+RNA_03_medium_control,15,9,simulated_annealing,-12.0,-10.8,-10.8,9,3,66.667,0.011457,1.0,subset_only_until_compression_or_reduction,Prototype benchmark; no quantum advantage claim.
+RNA_04_gc_rich,13,8,simulated_annealing,-18.0,-16.8,-16.8,8,3,62.5,0.009258,1.0,small_simulator_ready,Prototype benchmark; no quantum advantage claim.
+RNA_05_balanced,21,15,simulated_annealing,-14.0,-12.8,-12.8,15,5,66.667,0.02676,0.1667,subset_only_until_compression_or_reduction,Prototype benchmark; no quantum advantage claim.
+RNA_06_longer_control,27,30,simulated_annealing,-17.0,-15.8,-15.8,30,10,66.667,0.099883,0.0,subset_only_until_compression_or_reduction,Prototype benchmark; no quantum advantage claim.

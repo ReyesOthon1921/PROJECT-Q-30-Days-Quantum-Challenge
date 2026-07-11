@@ -1,0 +1,7 @@
+sequence_id,qubo_variables,direct_qubits,qrac_2_to_1_qubits,qrac_3_to_1_qubits,log_style_qubits,reduction_2_to_1_percent,reduction_3_to_1_percent,reduction_log_style_percent,mapping_note
+RNA_01_demo,30,30,15,10,6,50.0,66.667,80.0,QRAO/QRAC-style compression is a research estimate and requires solution-quality validation.
+RNA_02_short_hairpin,4,4,2,2,3,50.0,50.0,25.0,QRAO/QRAC-style compression is a research estimate and requires solution-quality validation.
+RNA_03_medium_control,9,9,5,3,5,44.444,66.667,44.444,QRAO/QRAC-style compression is a research estimate and requires solution-quality validation.
+RNA_04_gc_rich,8,8,4,3,4,50.0,62.5,50.0,QRAO/QRAC-style compression is a research estimate and requires solution-quality validation.
+RNA_05_balanced,15,15,8,5,5,46.667,66.667,66.667,QRAO/QRAC-style compression is a research estimate and requires solution-quality validation.
+RNA_06_longer_control,30,30,15,10,6,50.0,66.667,80.0,QRAO/QRAC-style compression is a research estimate and requires solution-quality validation.
