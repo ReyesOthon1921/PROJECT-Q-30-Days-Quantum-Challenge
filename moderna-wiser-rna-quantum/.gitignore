@@ -18,3 +18,7 @@ results/phase50_solver_diagnostics/
 phase50_last_backup.txt
 results/phase50B_objective_ablation/
 phase50B_last_backup.txt
+
+# Local code snapshots
+snapshots/
+snapshot_codebase_v2.py
