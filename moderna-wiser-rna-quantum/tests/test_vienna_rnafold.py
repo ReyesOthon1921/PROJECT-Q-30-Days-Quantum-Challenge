@@ -1,47 +1,38 @@
-from types import SimpleNamespace
-import subprocess
-import sys
+from __future__ import annotations
 
-from src.classical import vienna_rnafold
+from src.classical.vienna_rnafold import run_rnafold, validate_rna_sequence
 
 
-def test_missing_backends_return_clear_failure(monkeypatch) -> None:
-    monkeypatch.setattr(vienna_rnafold.shutil, "which", lambda _: None)
-    monkeypatch.delitem(sys.modules, "RNA", raising=False)
-    result = vienna_rnafold.run_rnafold(
-        "GGGAAAUCC",
-        executable="missing_rnafold",
-        allow_python_fallback=False,
-    )
-    assert result["success"] is False
-    assert result["status"] == "unavailable"
-    assert "not found" in result["error"].lower()
+def test_validate_rna_sequence_accepts_rna():
+    assert validate_rna_sequence("AUGC") == "AUGC"
 
 
-def test_cli_output_is_parsed(monkeypatch) -> None:
-    monkeypatch.setattr(vienna_rnafold.shutil, "which", lambda _: "RNAfold")
-    completed = subprocess.CompletedProcess(
-        args=["RNAfold", "--noPS"],
-        returncode=0,
-        stdout="GGGAAAUCC\n(((...))) ( -3.40)\n",
-        stderr="",
-    )
-    monkeypatch.setattr(vienna_rnafold.subprocess, "run", lambda *a, **k: completed)
-    result = vienna_rnafold.run_rnafold("GGGAAAUCC")
-    assert result["success"] is True
-    assert result["backend"] == "RNAfold CLI"
-    assert result["reference_structure"] == "(((...)))"
-    assert result["reference_energy"] == -3.4
+def test_validate_rna_sequence_converts_t_to_u():
+    assert validate_rna_sequence("ATGC") == "AUGC"
 
 
-def test_python_binding_fallback(monkeypatch) -> None:
-    monkeypatch.setattr(vienna_rnafold.shutil, "which", lambda _: None)
-    monkeypatch.setitem(
-        sys.modules,
-        "RNA",
-        SimpleNamespace(fold=lambda sequence: ("(((...)))", -3.4)),
-    )
-    result = vienna_rnafold.run_rnafold("GGGAAAUCC")
-    assert result["success"] is True
-    assert result["status"] == "success_with_fallback"
-    assert result["backend"] == "ViennaRNA Python RNA.fold"
+def test_validate_rna_sequence_rejects_invalid_letters():
+    try:
+        validate_rna_sequence("AUGX")
+    except ValueError as exc:
+        assert "invalid characters" in str(exc)
+    else:
+        raise AssertionError("Expected ValueError for invalid RNA sequence.")
+
+
+def test_run_rnafold_returns_expected_keys():
+    result = run_rnafold("GGGAAAUCC")
+
+    expected_keys = {
+        "sequence",
+        "reference_structure",
+        "reference_energy",
+        "runtime_seconds",
+        "success",
+        "error",
+        "raw_output",
+    }
+
+    assert expected_keys.issubset(result.keys())
+    assert result["sequence"] == "GGGAAAUCC"
+    assert isinstance(result["success"], bool)

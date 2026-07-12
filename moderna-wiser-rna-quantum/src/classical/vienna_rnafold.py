@@ -10,174 +10,169 @@ Windows systems where the package is installed but ``RNAfold.exe`` is not on
 from __future__ import annotations
 
 import re
-import shutil
 import subprocess
 import time
-from typing import Any
-
-from src.classical.sequence_tools import clean_sequence, validate_rna_sequence
-
-_STRUCTURE_RE = re.compile(
-    r"(?P<structure>[().]+)\s+\(\s*(?P<energy>[-+]?\d+(?:\.\d+)?)\s*\)"
-)
+from dataclasses import dataclass
+from typing import Dict, Optional
 
 
-def _base_result(sequence: str) -> dict[str, Any]:
-    return {
-        "sequence": sequence,
-        "reference_structure": None,
-        "reference_energy": None,
-        "runtime_seconds": 0.0,
-        "success": False,
-        "status": "pending",
-        "error": None,
-        "backend": None,
-        "warnings": [],
-    }
+@dataclass
+class RNAfoldResult:
+    sequence: str
+    reference_structure: Optional[str]
+    reference_energy: Optional[float]
+    runtime_seconds: float
+    success: bool
+    error: Optional[str]
+    raw_output: str
 
 
-def _parse_rnafold_stdout(stdout: str, sequence_length: int) -> tuple[str, float]:
-    match = None
-    for line in stdout.splitlines():
-        candidate = _STRUCTURE_RE.search(line.strip())
-        if candidate:
-            match = candidate
+def validate_rna_sequence(sequence: str) -> str:
+    cleaned = sequence.strip().upper().replace("T", "U")
 
-    if match is None:
+    if not cleaned:
+        raise ValueError("RNA sequence is empty.")
+
+    invalid = sorted(set(cleaned) - {"A", "U", "G", "C"})
+
+    if invalid:
         raise ValueError(
-            "RNAfold finished, but its structure/energy output could not be parsed. "
-            f"Raw stdout: {stdout.strip()!r}"
+            f"RNA sequence contains invalid characters: {invalid}. "
+            "Allowed characters are A, U, G, C. T is converted to U."
         )
 
-    structure = match.group("structure")
-    if len(structure) != sequence_length:
-        raise ValueError(
-            "RNAfold returned a structure whose length does not match the input "
-            f"sequence ({len(structure)} != {sequence_length})."
-        )
-
-    return structure, float(match.group("energy"))
+    return cleaned
 
 
-def _run_cli(
+def parse_rnafold_output(
     sequence: str,
-    executable: str,
-    timeout_seconds: float,
-) -> dict[str, Any]:
-    resolved = shutil.which(executable)
-    if resolved is None:
-        raise FileNotFoundError(
-            f"RNAfold executable '{executable}' was not found on PATH."
+    raw_output: str,
+    runtime_seconds: float,
+) -> RNAfoldResult:
+    lines = [line.strip() for line in raw_output.splitlines() if line.strip()]
+
+    if len(lines) < 2:
+        return RNAfoldResult(
+            sequence=sequence,
+            reference_structure=None,
+            reference_energy=None,
+            runtime_seconds=runtime_seconds,
+            success=False,
+            error="RNAfold output did not contain enough lines.",
+            raw_output=raw_output,
         )
 
-    completed = subprocess.run(
-        [resolved, "--noPS"],
-        input=f"{sequence}\n",
-        text=True,
-        capture_output=True,
-        timeout=timeout_seconds,
-        check=False,
+    structure_line = lines[1]
+
+    match = re.search(r"([().]+)\s+\(([-+]?\d+(?:\.\d+)?)\)", structure_line)
+
+    if not match:
+        return RNAfoldResult(
+            sequence=sequence,
+            reference_structure=None,
+            reference_energy=None,
+            runtime_seconds=runtime_seconds,
+            success=False,
+            error="Could not parse RNAfold structure and energy.",
+            raw_output=raw_output,
+        )
+
+    structure = match.group(1)
+    energy = float(match.group(2))
+
+    return RNAfoldResult(
+        sequence=sequence,
+        reference_structure=structure,
+        reference_energy=energy,
+        runtime_seconds=runtime_seconds,
+        success=True,
+        error=None,
+        raw_output=raw_output,
     )
 
-    if completed.returncode != 0:
-        stderr = completed.stderr.strip() or "No stderr output was produced."
-        raise RuntimeError(
-            f"RNAfold exited with code {completed.returncode}: {stderr}"
-        )
 
-    structure, energy = _parse_rnafold_stdout(completed.stdout, len(sequence))
-    return {
-        "reference_structure": structure,
-        "reference_energy": energy,
-        "backend": "RNAfold CLI",
-        "command": [resolved, "--noPS"],
-    }
-
-
-def _run_python_binding(sequence: str) -> dict[str, Any]:
-    try:
-        import RNA  # type: ignore
-    except ImportError as exc:
-        raise ImportError(
-            "ViennaRNA Python binding is not installed."
-        ) from exc
-
-    structure, energy = RNA.fold(sequence)
-    structure = str(structure)
-
-    if len(structure) != len(sequence):
-        raise ValueError(
-            "ViennaRNA Python binding returned a structure whose length does not "
-            f"match the input sequence ({len(structure)} != {len(sequence)})."
-        )
-
-    return {
-        "reference_structure": structure,
-        "reference_energy": float(energy),
-        "backend": "ViennaRNA Python RNA.fold",
-        "command": None,
-    }
-
-
-def run_rnafold(
-    sequence: str,
-    executable: str = "RNAfold",
-    timeout_seconds: float = 60.0,
-    allow_python_fallback: bool = True,
-) -> dict[str, Any]:
-    """Return a stable ViennaRNA reference dictionary for one RNA sequence.
-
-    Failures are returned as data instead of being raised so the surrounding
-    pipeline can still save a reproducible partial report.
-    """
-
-    started = time.perf_counter()
-    cleaned = clean_sequence(sequence)
-    result = _base_result(cleaned)
-
-    if not validate_rna_sequence(cleaned):
-        result["status"] = "invalid_input"
-        result["error"] = "Invalid RNA sequence. Use only A, U, G, and C."
-        result["runtime_seconds"] = round(time.perf_counter() - started, 6)
-        return result
-
-    cli_error: str | None = None
+def run_rnafold(sequence: str, timeout_seconds: int = 15) -> Dict[str, object]:
+    cleaned_sequence = validate_rna_sequence(sequence)
+    start = time.perf_counter()
 
     try:
-        cli_result = _run_cli(cleaned, executable, timeout_seconds)
-        result.update(cli_result)
-        result["success"] = True
-        result["status"] = "success"
-        result["runtime_seconds"] = round(time.perf_counter() - started, 6)
-        return result
+        completed = subprocess.run(
+            ["RNAfold", "--noPS"],
+            input=cleaned_sequence + "\n",
+            text=True,
+            capture_output=True,
+            timeout=timeout_seconds,
+            check=False,
+        )
+
+        runtime_seconds = time.perf_counter() - start
+
+        if completed.returncode != 0:
+            return RNAfoldResult(
+                sequence=cleaned_sequence,
+                reference_structure=None,
+                reference_energy=None,
+                runtime_seconds=runtime_seconds,
+                success=False,
+                error=completed.stderr.strip() or "RNAfold returned a non-zero exit code.",
+                raw_output=completed.stdout,
+            ).__dict__
+
+        result = parse_rnafold_output(
+            sequence=cleaned_sequence,
+            raw_output=completed.stdout,
+            runtime_seconds=runtime_seconds,
+        )
+
+        return result.__dict__
+
+    except FileNotFoundError:
+        runtime_seconds = time.perf_counter() - start
+
+        return RNAfoldResult(
+            sequence=cleaned_sequence,
+            reference_structure=None,
+            reference_energy=None,
+            runtime_seconds=runtime_seconds,
+            success=False,
+            error="RNAfold command was not found. Install ViennaRNA or add RNAfold to PATH.",
+            raw_output="",
+        ).__dict__
+
     except subprocess.TimeoutExpired:
-        cli_error = f"RNAfold timed out after {timeout_seconds:.1f} seconds."
-    except (FileNotFoundError, OSError, RuntimeError, ValueError) as exc:
-        cli_error = str(exc)
+        runtime_seconds = time.perf_counter() - start
 
-    if allow_python_fallback:
-        try:
-            binding_result = _run_python_binding(cleaned)
-            result.update(binding_result)
-            result["success"] = True
-            result["status"] = "success_with_fallback"
-            if cli_error:
-                result["warnings"].append(
-                    f"RNAfold CLI was unavailable or failed: {cli_error}"
-                )
-            result["runtime_seconds"] = round(time.perf_counter() - started, 6)
-            return result
-        except (ImportError, RuntimeError, ValueError) as exc:
-            binding_error = str(exc)
-        except Exception as exc:  # Defensive boundary around an external package.
-            binding_error = f"ViennaRNA Python binding failed: {exc}"
-    else:
-        binding_error = "Python-binding fallback was disabled."
+        return RNAfoldResult(
+            sequence=cleaned_sequence,
+            reference_structure=None,
+            reference_energy=None,
+            runtime_seconds=runtime_seconds,
+            success=False,
+            error=f"RNAfold timed out after {timeout_seconds} seconds.",
+            raw_output="",
+        ).__dict__
 
-    result["status"] = "unavailable"
-    result["error"] = (
-        f"RNAfold CLI error: {cli_error or 'unknown error'} "
-        f"Python binding error: {binding_error}"
+
+if __name__ == "__main__":
+    import argparse
+    import json
+
+    parser = argparse.ArgumentParser(
+        description="Run ViennaRNA RNAfold on one RNA sequence."
     )
-    result["runtime_seconds"] = round(time.perf_counter() - started, 6)
-    return result
+    parser.add_argument(
+        "--sequence",
+        required=True,
+        help="RNA sequence using A, U, G, C. T will be converted to U.",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=15,
+        help="Timeout in seconds.",
+    )
+
+    args = parser.parse_args()
+
+    output = run_rnafold(args.sequence, timeout_seconds=args.timeout)
+    print(json.dumps(output, indent=2))
