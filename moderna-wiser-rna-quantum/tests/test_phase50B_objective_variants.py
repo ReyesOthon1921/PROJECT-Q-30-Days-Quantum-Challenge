@@ -49,3 +49,39 @@ def test_greedy_skips_positive_linear_stem():
     assert result["selected_stem_count"] == 0
     assert result["best_energy"] == 0.0
     assert result["predicted_structure"] == "........"
+
+
+def test_exact_solver_reports_degenerate_optimal_structures():
+    from src.qubo.objective_variants import solve_variant_qubo_exact
+
+    qubo = {
+        "linear_terms": {"s_0": -1.0, "s_1": 0.0},
+        "quadratic_terms": [],
+        "stems": [
+            {
+                "stem_index": 0,
+                "variable_name": "s_0",
+                "length": 2,
+                "pairs": [(0, 9), (1, 8)],
+                "pair_types": ["G-C", "C-G"],
+            },
+            {
+                "stem_index": 1,
+                "variable_name": "s_1",
+                "length": 2,
+                "pairs": [(2, 7), (3, 6)],
+                "pair_types": ["G-C", "C-G"],
+            },
+        ],
+    }
+    result = solve_variant_qubo_exact(
+        "GGGGAACCCC",
+        qubo,
+        max_variables=20,
+        collect_optimal_structures=True,
+    )
+    assert result["status"] == "success"
+    assert result["best_energy"] == -1.0
+    assert result["optimal_assignment_count"] == 2
+    assert result["captured_optimal_structure_count"] == 2
+    assert result["optimal_structures_truncated"] is False
