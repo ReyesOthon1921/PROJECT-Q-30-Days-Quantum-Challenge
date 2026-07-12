@@ -1,0 +1,25 @@
+sequence_id,split,category,source_type,sequence,notes
+cal_unstructured_a12,calibration,unstructured_control,synthetic_control,AAAAAAAAAAAA,No complementary bases; negative control.
+cal_unstructured_c20,calibration,unstructured_control,synthetic_control,CCCCCCCCCCCCCCCCCCCC,No G bases; negative control.
+cal_hairpin_gc12,calibration,designed_hairpin,synthetic_control,GCGCUUCGGCGC,Four-pair GC-rich hairpin starter control.
+cal_hairpin_au14,calibration,designed_hairpin,synthetic_control,GGAUCGAAAGAUCC,Five-pair mixed GC/AU designed hairpin.
+cal_hairpin_gc16,calibration,designed_hairpin,synthetic_control,CGGCGCUUCGGCGCCG,Six-pair GC-rich designed hairpin.
+cal_hairpin_gc18,calibration,designed_hairpin,synthetic_control,GGGCCCGAAAAAGGGCCC,Six-pair designed hairpin with longer loop.
+cal_wobble_12,calibration,wobble_enriched_hairpin,synthetic_control,GUGCUUCGGCAC,Designed stem containing potential GU wobble pairing.
+cal_wobble_14,calibration,wobble_enriched_hairpin,synthetic_control,GUGGUGAAAACCAC,Longer wobble-enriched designed stem.
+cal_mixed_16,calibration,mixed_composition,deterministic_random,AGCAGAAGUCAUGGCA,Fixed-seed mixed-composition sequence.
+cal_mixed_24,calibration,mixed_composition,deterministic_random,CCCCGAUAUAGAAGACGACUCGCU,Fixed-seed mixed-composition sequence.
+cal_mixed_32,calibration,mixed_composition,deterministic_random,ACUCAGAGGCUAUAGACCGACGACUACUGCUG,Fixed-seed mixed-composition sequence.
+cal_mixed_48,calibration,mixed_composition,deterministic_random,UUGUAGGCAGUCGAUCACUGCCACAUCCAAUUAAUAGGAUCACAGUCC,Fixed-seed longer mixed-composition sequence.
+val_unstructured_a16,validation,unstructured_control,synthetic_control,AAAAAAAAAAAAAAAA,Held-out no-complement negative control.
+val_unstructured_u24,validation,unstructured_control,synthetic_control,UUUUUUUUUUUUUUUUUUUUUUUU,Held-out no-complement negative control.
+val_hairpin_12,validation,designed_hairpin,synthetic_control,CGCGGAAACGCG,Held-out four-pair designed hairpin.
+val_hairpin_14,validation,designed_hairpin,synthetic_control,GCCGUUUCGACGGC,Held-out five-pair designed hairpin.
+val_hairpin_16,validation,designed_hairpin,synthetic_control,GGCCGCGAAAGCGGCC,Held-out six-pair designed hairpin.
+val_hairpin_20,validation,designed_hairpin,synthetic_control,GCGGCCGUUCGAACGGCCGC,Held-out seven-pair designed hairpin.
+val_wobble_13,validation,wobble_enriched_hairpin,synthetic_control,UGUGGAAAACACA,Held-out wobble-enriched designed stem.
+val_wobble_15,validation,wobble_enriched_hairpin,synthetic_control,GUUGCUUCGGGCAAC,Held-out longer wobble-enriched designed stem.
+val_mixed_20,validation,mixed_composition,deterministic_random,UUACCGGGCACUAGGUCUGG,Held-out fixed-seed mixed-composition sequence.
+val_mixed_28,validation,mixed_composition,deterministic_random,GCGAACCCAAUUCGAUGGAAUGCAGGUC,Held-out fixed-seed mixed-composition sequence.
+val_mixed_40,validation,mixed_composition,deterministic_random,UGGAUGAUAAACAUUGCCGGUGAUCGCAACUCUAAAGUCA,Held-out longer mixed-composition sequence.
+val_mixed_56,validation,mixed_composition,deterministic_random,ACCCGGGUUUGAGCUAAGUAUAGCGUAGCCCUUUGUUUUAGGAGUGGUGGAGCGUC,Held-out longest starter benchmark sequence.

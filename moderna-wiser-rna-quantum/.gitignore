@@ -10,3 +10,7 @@ phase48_last_backup.txt
 phase48_tailored_payload_source.txt
 results/classical_foundation/
 **/__pycache__/
+results/phase49_benchmark/
+results/phase49_calibration/
+phase49_last_backup.txt
+phase49_payload_source.txt
