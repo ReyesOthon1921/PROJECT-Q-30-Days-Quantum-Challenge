@@ -1,0 +1,22 @@
+sequence: GGGAAAUCC
+min_loop_length: 3
+allow_wobble: true
+candidate_mode: stems
+stem_min_length: 2
+overlap_penalty: 10.0
+crossing_penalty: 8.0
+solver_exact_max_variables: 20
+run_greedy: true
+run_simulated_annealing: true
+simulated_annealing_steps: 8000
+simulated_annealing_initial_temperature: 10.0
+simulated_annealing_final_temperature: 0.01
+simulated_annealing_cooling_rate: 0.995
+random_seed: 7
+rnafold_executable: RNAfold
+allow_vienna_python_fallback: true
+notes: >
+  Strict classical foundation integrated with the project's existing
+  candidate-pair, candidate-stem, QUBO, greedy, and simulated-annealing code.
+  ViennaRNA MFE and QUBO objective values are diagnostic only and are not
+  physically equivalent scoring systems.

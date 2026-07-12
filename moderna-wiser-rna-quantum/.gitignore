@@ -4,3 +4,9 @@ __pycache__/
 .env
 venv/
 qenv/
+.venv-phase48/
+backups/
+phase48_last_backup.txt
+phase48_tailored_payload_source.txt
+results/classical_foundation/
+**/__pycache__/

@@ -3,14 +3,10 @@ build_qubo.py
 
 Phase 6 QUBO formulation.
 
-This module builds a simple stem-based QUBO for RNA secondary-structure
-candidate selection.
-
-QUBO idea:
-    minimize objective
-
-    favorable stems get negative linear weights
-    invalid combinations get positive penalty weights
+This module builds the project's stem-based QUBO for RNA secondary-structure
+candidate selection. Phase 48 extends the original function with optional,
+backward-compatible candidate settings and exposes the complete term/stem lists
+needed by exact validation and reproducible reporting.
 """
 
 from src.classical.sequence_tools import clean_sequence
@@ -28,93 +24,78 @@ PAIR_REWARDS = {
 
 
 def stem_score(stem: dict) -> float:
-    """
-    Convert a stem into a linear QUBO score.
+    """Convert a stem into a linear QUBO score."""
 
-    More stable stems receive more negative values because QUBO minimizes.
-    """
-    score = 0.0
-
-    for pair_type in stem["pair_types"]:
-        score += PAIR_REWARDS.get(pair_type, 0.0)
-
-    return score
+    return sum(PAIR_REWARDS.get(pair_type, 0.0) for pair_type in stem["pair_types"])
 
 
 def stem_base_positions(stem: dict) -> set:
-    """
-    Return every nucleotide index used by a stem.
-    """
-    positions = set()
+    """Return every nucleotide index used by a stem."""
 
+    positions = set()
     for i, j in stem["pairs"]:
         positions.add(i)
         positions.add(j)
-
     return positions
 
 
 def stems_overlap(stem_a: dict, stem_b: dict) -> bool:
-    """
-    Return True if two stems reuse any nucleotide position.
-    """
-    return len(stem_base_positions(stem_a) & stem_base_positions(stem_b)) > 0
+    """Return True if two stems reuse any nucleotide position."""
+
+    return bool(stem_base_positions(stem_a) & stem_base_positions(stem_b))
 
 
 def pairs_cross(pair_a: tuple, pair_b: tuple) -> bool:
-    """
-    Detect crossing base pairs.
+    """Return True for the crossing relationship ``i < k < j < l``."""
 
-    Crossing example:
-        i < k < j < l
-    """
     i, j = pair_a
     k, l = pair_b
-
     return (i < k < j < l) or (k < i < l < j)
 
 
 def stems_cross(stem_a: dict, stem_b: dict) -> bool:
-    """
-    Return True if any pair from stem A crosses any pair from stem B.
-    """
-    for pair_a in stem_a["pairs"]:
-        for pair_b in stem_b["pairs"]:
-            if pairs_cross(pair_a, pair_b):
-                return True
+    """Return True if any pair from stem A crosses a pair from stem B."""
 
-    return False
+    return any(
+        pairs_cross(pair_a, pair_b)
+        for pair_a in stem_a["pairs"]
+        for pair_b in stem_b["pairs"]
+    )
 
 
 def build_stem_qubo(
     sequence: str,
     overlap_penalty: float = 10.0,
     crossing_penalty: float = 8.0,
+    min_stem_length: int = 2,
+    min_loop_length: int = 3,
+    allow_wobble: bool = True,
 ) -> dict:
-    """
-    Build a stem-based QUBO dictionary.
+    """Build the existing stem-based minimization QUBO.
 
-    Linear terms:
-        Q[i, i]
-
-    Quadratic terms:
-        Q[i, j] for invalid stem combinations
+    Existing callers remain compatible because every new parameter has the
+    original default value. The original preview keys are retained, while the
+    complete ``quadratic_terms`` and ``stems`` collections are now also returned.
     """
+
     cleaned = clean_sequence(sequence)
-    stems = generate_candidate_stems(cleaned)
+    stems = generate_candidate_stems(
+        cleaned,
+        min_stem_length=min_stem_length,
+        min_loop_length=min_loop_length,
+        allow_wobble=allow_wobble,
+    )
 
-    linear_terms = {}
+    linear_terms = {
+        stem["variable_name"]: stem_score(stem)
+        for stem in stems
+    }
     quadratic_terms = []
-
-    for stem in stems:
-        variable = stem["variable_name"]
-        linear_terms[variable] = stem_score(stem)
 
     for index_a in range(len(stems)):
         for index_b in range(index_a + 1, len(stems)):
             stem_a = stems[index_a]
             stem_b = stems[index_b]
-
             penalty = 0.0
             reasons = []
 
@@ -146,11 +127,19 @@ def build_stem_qubo(
         "num_linear_terms": len(linear_terms),
         "num_quadratic_terms": len(quadratic_terms),
         "linear_terms": linear_terms,
+        "quadratic_terms": quadratic_terms,
+        "stems": stems,
+        # Backward-compatible preview keys used by earlier dashboard phases.
         "first_20_quadratic_terms": quadratic_terms[:20],
         "first_10_stems": stems[:10],
         "penalty_settings": {
             "overlap_penalty": overlap_penalty,
             "crossing_penalty": crossing_penalty,
+        },
+        "candidate_settings": {
+            "min_stem_length": min_stem_length,
+            "min_loop_length": min_loop_length,
+            "allow_wobble": allow_wobble,
         },
     }
 
@@ -170,4 +159,4 @@ if __name__ == "__main__":
     print(f"num_quadratic_terms: {qubo['num_quadratic_terms']}")
     print(f"penalty_settings: {qubo['penalty_settings']}")
     print(f"first_10_linear_terms: {list(qubo['linear_terms'].items())[:10]}")
-    print(f"first_5_quadratic_terms: {qubo['first_20_quadratic_terms'][:5]}")
+    print(f"first_5_quadratic_terms: {qubo['quadratic_terms'][:5]}")
