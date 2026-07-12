@@ -14,3 +14,5 @@ results/phase49_benchmark/
 results/phase49_calibration/
 phase49_last_backup.txt
 phase49_payload_source.txt
+results/phase50_solver_diagnostics/
+phase50_last_backup.txt
