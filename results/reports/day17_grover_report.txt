@@ -1,0 +1,63 @@
+PROJECT-Q Day 17 — Grover's Algorithm Lab
+================================================
+
+Objective
+---------
+Search four possible two-qubit states and amplify the
+marked target state |11>.
+
+Search Space
+------------
+|00>
+|01>
+|10>
+|11>
+
+Target State
+------------
+|11>
+
+Number of Shots
+---------------
+1024
+
+Measurement Counts
+------------------
+{'11': 1024}
+
+Winning State
+-------------
+|11>
+
+Target Count
+------------
+1024/1024
+
+Target Success Rate
+-------------------
+100.00%
+
+Validation
+----------
+PASS: The target state |11> was measured
+more frequently than every other state.
+
+Lab Workflow
+------------
+1. Initialize two qubits in the |00> state.
+2. Apply Hadamard gates to create equal superposition.
+3. Use a Controlled-Z oracle to mark |11>.
+4. Apply the Grover diffusion operation.
+5. Measure both qubits.
+6. Confirm that |11> dominates the measurement results.
+
+Circuit
+-------
+global phase: π
+        ┌───┐ ░     ░ ┌───┐ ░ ┌───┐          ┌───┐      ░ ┌───┐ ░  ░ ┌─┐   
+   q_0: ┤ H ├─░──■──░─┤ H ├─░─┤ X ├───────■──┤ X ├──────░─┤ H ├─░──░─┤M├───
+        ├───┤ ░  │  ░ ├───┤ ░ ├───┤┌───┐┌─┴─┐├───┤┌───┐ ░ ├───┤ ░  ░ └╥┘┌─┐
+   q_1: ┤ H ├─░──■──░─┤ H ├─░─┤ X ├┤ H ├┤ X ├┤ H ├┤ X ├─░─┤ H ├─░──░──╫─┤M├
+        └───┘ ░     ░ └───┘ ░ └───┘└───┘└───┘└───┘└───┘ ░ └───┘ ░  ░  ║ └╥┘
+meas: 2/══════════════════════════════════════════════════════════════╩══╩═
+                                                                      0  1 
