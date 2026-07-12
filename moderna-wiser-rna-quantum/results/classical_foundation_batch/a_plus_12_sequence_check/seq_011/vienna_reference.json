@@ -1,0 +1,10 @@
+{
+  "sequence": "CGGAAAUUCCG",
+  "reference_structure": null,
+  "reference_energy": null,
+  "runtime_seconds": 0.003183300024829805,
+  "success": false,
+  "error": "ViennaRNA reference unavailable. CLI error: RNAfold command was not found. Install ViennaRNA or add RNAfold to PATH. Python fallback error: ViennaRNA Python RNA.fold returned an unexpected value.",
+  "raw_output": "{'cli': '', 'python': \"['((((...))))', -2.200000047683716]\"}",
+  "vienna_method": "unavailable"
+}

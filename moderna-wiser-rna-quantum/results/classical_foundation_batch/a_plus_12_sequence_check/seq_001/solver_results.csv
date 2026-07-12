@@ -1,0 +1,4 @@
+solver,energy,bitstring
+exact,-7.0,"[0, 1, 0, 0]"
+greedy,-7.0,"[0, 1, 0, 0]"
+simulated_annealing,-7.0,"[0, 1, 0, 0]"

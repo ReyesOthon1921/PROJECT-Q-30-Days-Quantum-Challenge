@@ -1,0 +1,15 @@
+rubric_area,evidence,status,risk,grade_strength
+Problem formulation,docs/mathematical_formulation.md; docs/rubric_alignment.md,complete,Simplified energy model must be described clearly,A
+Background review,docs/literature_review_matrix.md; docs/research_gap_table.md,complete,Citations should be reviewed for final presentation,A
+Classical benchmarking,results/classical_foundation_batch/final_submission_12_sequence_check/batch_summary.csv,complete,ViennaRNA availability may depend on local environment,A-
+ViennaRNA reference handling,src/classical/vienna_rnafold.py; src/evaluation/vienna_preflight.py,complete,Reference comparison is active only when ViennaRNA is available,A-
+QUBO formulation,src/qubo/build_qubo.py; results/publication_tables/qubo_formulation_summary.csv,complete,Does not include full thermodynamic model,A
+Solver baselines,src/solvers/greedy_solver.py; src/solvers/simulated_annealing.py,complete,Baselines are prototype-level,A-
+Exact validation,results/publication_tables/exact_validation_results.csv,complete,Limited to small instances due exponential enumeration,A
+Quantum readiness,src/quantum/qaoa_circuit.py; src/quantum/vqe_circuit.py; docs/quantum_circuit_report.md,complete,No quantum advantage claim,A-
+Scaling/resource analysis,results/publication_figures; results/publication_tables,complete,Resource estimates need careful interpretation,A
+Qubit compression,results/publication_tables/graph_aware_qrao_summary.csv,complete,Exploratory and not final proof of solution quality,A-
+Reproducibility,configs/strict_classical_foundation.yaml; final_submission_package.zip,complete,Environment-dependent ViennaRNA install,A
+Communication,docs/final_demo_script.md; docs/final_submission_index.md; docs/final_professor_review_summary.md,complete,Presentation should stay concise,A
+Safe claims,docs/final_limitations_and_safe_claims.md,complete,Must not overclaim during demo,A+
+Overall,Complete research prototype with 12-sequence final benchmark and rubric mapping,submission_ready,Not final biological validator or quantum-advantage proof,A/A+

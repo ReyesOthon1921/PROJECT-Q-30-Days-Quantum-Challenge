@@ -1,0 +1,23 @@
+file_path,purpose,present,size_bytes,status
+README.md,Project landing page,True,2131,PASS
+docs/final_submission_summary.md,Final submission summary,True,2768,PASS
+docs/rubric_alignment.md,Challenge rubric alignment,True,4913,PASS
+docs/final_submission_index.md,Reviewer navigation index,True,3062,PASS
+docs/final_results_interpretation.md,Plain-English result interpretation,True,3062,PASS
+docs/final_limitations_and_safe_claims.md,Safe claims and limitations,True,2315,PASS
+docs/final_demo_script.md,Final demo script,True,2521,PASS
+docs/final_professor_review_summary.md,Professor review summary,True,1988,PASS
+docs/strict_classical_foundation.md,Strict classical pipeline documentation,True,1555,PASS
+docs/professor_12_sequence_benchmark_plan.md,12-sequence benchmark plan,True,1647,PASS
+src/evaluation/strict_classical_pipeline.py,One-sequence strict classical pipeline,True,17338,PASS
+src/evaluation/run_strict_classical_batch.py,12-sequence batch runner,True,9937,PASS
+src/evaluation/vienna_preflight.py,ViennaRNA preflight check,True,1495,PASS
+data/external/phase51_external_dataset.csv,12-sequence dataset,True,822,PASS
+results/classical_foundation/final_submission_single_sequence/experiment_report.md,Final one-sequence report,True,2784,PASS
+results/classical_foundation/professor_check_final/experiment_report.md,Professor one-sequence report,True,2764,PASS
+results/classical_foundation_batch/final_submission_12_sequence_check/batch_summary.csv,Final 12-sequence batch summary,True,2221,PASS
+results/classical_foundation_batch/final_submission_12_sequence_check/batch_report.md,Final 12-sequence batch report,True,848,PASS
+results/classical_foundation_batch/a_plus_12_sequence_check/batch_summary.csv,A+ 12-sequence batch summary,True,2223,PASS
+results/classical_foundation_batch/a_plus_12_sequence_check/batch_report.md,A+ 12-sequence batch report,True,837,PASS
+results/final_submission/final_evidence_manifest.csv,Final evidence manifest,True,2496,PASS
+results/final_submission/final_grade_audit.csv,Final grade audit,True,2091,PASS

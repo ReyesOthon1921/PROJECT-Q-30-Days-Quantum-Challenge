@@ -1,0 +1,209 @@
+{
+  "timestamp": "2026-07-12T13:48:15",
+  "overall_status": "PASS",
+  "required_paths_ok": true,
+  "tests_ok": true,
+  "batch_ok": true,
+  "dataset_ok": true,
+  "selected_batch_summary": "results/classical_foundation_batch/a_plus_12_sequence_check/batch_summary.csv",
+  "batch_sequence_count": 12,
+  "dataset_sequence_count": 12,
+  "vienna_success_count": 0,
+  "comparison_available_count": 0,
+  "average_f1_score_when_available": "Not available",
+  "average_runtime_seconds": "0.0204",
+  "categories": [],
+  "evidence_manifest_rows": 18,
+  "grade_audit_rows": 14,
+  "pytest": {
+    "cmd": "C:\\Users\\reyes\\QuantumResearch\\quantum-education-research-lab\\moderna-wiser-rna-quantum\\.venv-phase48\\Scripts\\python.exe -m pytest tests/test_vienna_rnafold.py tests/test_dotbracket_tools.py tests/test_structural_comparison.py tests/test_energy_comparison.py tests/test_runtime_summary.py tests/test_experiment_report_writer.py tests/test_strict_classical_pipeline.py tests/test_vienna_preflight.py tests/test_run_strict_classical_batch.py -q",
+    "returncode": 0,
+    "stdout": "....................................                                     [100%]\n36 passed in 0.43s",
+    "stderr": "",
+    "ok": true
+  },
+  "vienna_preflight": {
+    "cmd": "C:\\Users\\reyes\\QuantumResearch\\quantum-education-research-lab\\moderna-wiser-rna-quantum\\.venv-phase48\\Scripts\\python.exe -m src.evaluation.vienna_preflight",
+    "returncode": 0,
+    "stdout": "ViennaRNA preflight check\nRNAfold executable: RNAfold\nRNAfold CLI available: no\nViennaRNA Python module available: yes\nVienna reference status: ready\nRecommended action: ViennaRNA reference layer is ready. Run the strict classical pipeline.",
+    "stderr": "",
+    "ok": true
+  },
+  "git_branch": {
+    "cmd": "git branch --show-current",
+    "returncode": 0,
+    "stdout": "phase51-external-generalization",
+    "stderr": "",
+    "ok": true
+  },
+  "git_log": {
+    "cmd": "git log --oneline -5",
+    "returncode": 0,
+    "stdout": "4830a49 Add final submission package\n48819c3 Complete strict classical benchmark validation and batch comparison\n1e32082 Add strict classical foundation pipeline\n3d53615 Add energy and runtime comparison utilities\n208ad0d Add strict classical foundation comparison tools",
+    "stderr": "",
+    "ok": true
+  },
+  "git_status": {
+    "cmd": "git status --short",
+    "returncode": 0,
+    "stdout": "M ../Quantum-Communication-Dashboard/static/outputs/bell_state_histogram.png\n M ../Quantum-Communication-Dashboard/static/outputs/entanglement_histogram.png\nA  docs/final_demo_script.md\nA  docs/final_limitations_and_safe_claims.md\nA  docs/final_professor_review_summary.md\nA  docs/final_results_interpretation.md\nA  docs/final_submission_index.md\nA  docs/rubric_alignment.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/batch_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/batch_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/artifact_manifest.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/candidate_pairs.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/candidate_stems.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/config_snapshot.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/energy_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/experiment_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/input_sequence.txt\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/predicted_structure.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/qubo_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/runtime_summary.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/solver_results.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/structural_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_001/vienna_reference.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/artifact_manifest.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/candidate_pairs.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/candidate_stems.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/config_snapshot.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/energy_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/experiment_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/input_sequence.txt\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/predicted_structure.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/qubo_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/runtime_summary.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/solver_results.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/structural_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_002/vienna_reference.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/artifact_manifest.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/candidate_pairs.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/candidate_stems.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/config_snapshot.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/energy_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/experiment_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/input_sequence.txt\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/predicted_structure.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/qubo_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/runtime_summary.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/solver_results.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/structural_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_003/vienna_reference.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/artifact_manifest.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/candidate_pairs.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/candidate_stems.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/config_snapshot.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/energy_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/experiment_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/input_sequence.txt\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/predicted_structure.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/qubo_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/runtime_summary.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/solver_results.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/structural_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_004/vienna_reference.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/artifact_manifest.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/candidate_pairs.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/candidate_stems.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/config_snapshot.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/energy_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/experiment_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/input_sequence.txt\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/predicted_structure.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/qubo_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/runtime_summary.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/solver_results.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/structural_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_005/vienna_reference.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/artifact_manifest.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/candidate_pairs.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/candidate_stems.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/config_snapshot.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/energy_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/experiment_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/input_sequence.txt\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/predicted_structure.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/qubo_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/runtime_summary.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/solver_results.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/structural_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_006/vienna_reference.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/artifact_manifest.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/candidate_pairs.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/candidate_stems.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/config_snapshot.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/energy_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/experiment_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/input_sequence.txt\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/predicted_structure.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/qubo_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/runtime_summary.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/solver_results.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/structural_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_007/vienna_reference.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/artifact_manifest.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/candidate_pairs.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/candidate_stems.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/config_snapshot.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/energy_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/experiment_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/input_sequence.txt\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/predicted_structure.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/qubo_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/runtime_summary.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/solver_results.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/structural_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_008/vienna_reference.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/artifact_manifest.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/candidate_pairs.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/candidate_stems.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/config_snapshot.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/energy_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/experiment_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/input_sequence.txt\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/predicted_structure.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/qubo_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/runtime_summary.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/solver_results.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/structural_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_009/vienna_reference.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/artifact_manifest.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/candidate_pairs.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/candidate_stems.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/config_snapshot.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/energy_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/experiment_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/input_sequence.txt\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/predicted_structure.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/qubo_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/runtime_summary.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/solver_results.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/structural_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_010/vienna_reference.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/artifact_manifest.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/candidate_pairs.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/candidate_stems.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/config_snapshot.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/energy_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/experiment_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/input_sequence.txt\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/predicted_structure.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/qubo_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/runtime_summary.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/solver_results.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/structural_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_011/vienna_reference.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/artifact_manifest.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/candidate_pairs.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/candidate_stems.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/config_snapshot.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/energy_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/experiment_report.md\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/input_sequence.txt\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/predicted_structure.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/qubo_summary.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/runtime_summary.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/solver_results.csv\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/structural_comparison.json\nA  results/classical_foundation_batch/a_plus_12_sequence_check/seq_012/vienna_reference.json\nA  results/final_submission/final_evidence_manifest.csv\nA  results/final_submission/final_grade_audit.csv\n?? ../criptsa_plus_evidence_validate_commit_push.bat\n?? \"../e48) C\\357\\200\\272Usersreyes...moderna-wiser-rna-quantum\\357\\200\\276\"\n?? APLUS_EVIDENCE_README.md\n?? AUDIT_REPORT_FIX_README.md\n?? _final_audit_report_generator.py\n?? data/external/phase51_source_intake.txt\n?? docs/final_project_audit_report.md\n?? final_project_audit_bundle/\n?? run_final_project_audit_report_fix.bat\n?? scripts/",
+    "stderr": "",
+    "ok": true
+  },
+  "manifest": [
+    {
+      "file_path": "README.md",
+      "purpose": "Project landing page",
+      "present": true,
+      "size_bytes": 2131,
+      "status": "PASS"
+    },
+    {
+      "file_path": "docs/final_submission_summary.md",
+      "purpose": "Final submission summary",
+      "present": true,
+      "size_bytes": 2768,
+      "status": "PASS"
+    },
+    {
+      "file_path": "docs/rubric_alignment.md",
+      "purpose": "Challenge rubric alignment",
+      "present": true,
+      "size_bytes": 4913,
+      "status": "PASS"
+    },
+    {
+      "file_path": "docs/final_submission_index.md",
+      "purpose": "Reviewer navigation index",
+      "present": true,
+      "size_bytes": 3062,
+      "status": "PASS"
+    },
+    {
+      "file_path": "docs/final_results_interpretation.md",
+      "purpose": "Plain-English result interpretation",
+      "present": true,
+      "size_bytes": 3062,
+      "status": "PASS"
+    },
+    {
+      "file_path": "docs/final_limitations_and_safe_claims.md",
+      "purpose": "Safe claims and limitations",
+      "present": true,
+      "size_bytes": 2315,
+      "status": "PASS"
+    },
+    {
+      "file_path": "docs/final_demo_script.md",
+      "purpose": "Final demo script",
+      "present": true,
+      "size_bytes": 2521,
+      "status": "PASS"
+    },
+    {
+      "file_path": "docs/final_professor_review_summary.md",
+      "purpose": "Professor review summary",
+      "present": true,
+      "size_bytes": 1988,
+      "status": "PASS"
+    },
+    {
+      "file_path": "docs/strict_classical_foundation.md",
+      "purpose": "Strict classical pipeline documentation",
+      "present": true,
+      "size_bytes": 1555,
+      "status": "PASS"
+    },
+    {
+      "file_path": "docs/professor_12_sequence_benchmark_plan.md",
+      "purpose": "12-sequence benchmark plan",
+      "present": true,
+      "size_bytes": 1647,
+      "status": "PASS"
+    },
+    {
+      "file_path": "src/evaluation/strict_classical_pipeline.py",
+      "purpose": "One-sequence strict classical pipeline",
+      "present": true,
+      "size_bytes": 17338,
+      "status": "PASS"
+    },
+    {
+      "file_path": "src/evaluation/run_strict_classical_batch.py",
+      "purpose": "12-sequence batch runner",
+      "present": true,
+      "size_bytes": 9937,
+      "status": "PASS"
+    },
+    {
+      "file_path": "src/evaluation/vienna_preflight.py",
+      "purpose": "ViennaRNA preflight check",
+      "present": true,
+      "size_bytes": 1495,
+      "status": "PASS"
+    },
+    {
+      "file_path": "data/external/phase51_external_dataset.csv",
+      "purpose": "12-sequence dataset",
+      "present": true,
+      "size_bytes": 822,
+      "status": "PASS"
+    },
+    {
+      "file_path": "results/classical_foundation/final_submission_single_sequence/experiment_report.md",
+      "purpose": "Final one-sequence report",
+      "present": true,
+      "size_bytes": 2784,
+      "status": "PASS"
+    },
+    {
+      "file_path": "results/classical_foundation/professor_check_final/experiment_report.md",
+      "purpose": "Professor one-sequence report",
+      "present": true,
+      "size_bytes": 2764,
+      "status": "PASS"
+    },
+    {
+      "file_path": "results/classical_foundation_batch/final_submission_12_sequence_check/batch_summary.csv",
+      "purpose": "Final 12-sequence batch summary",
+      "present": true,
+      "size_bytes": 2221,
+      "status": "PASS"
+    },
+    {
+      "file_path": "results/classical_foundation_batch/final_submission_12_sequence_check/batch_report.md",
+      "purpose": "Final 12-sequence batch report",
+      "present": true,
+      "size_bytes": 848,
+      "status": "PASS"
+    },
+    {
+      "file_path": "results/classical_foundation_batch/a_plus_12_sequence_check/batch_summary.csv",
+      "purpose": "A+ 12-sequence batch summary",
+      "present": true,
+      "size_bytes": 2223,
+      "status": "PASS"
+    },
+    {
+      "file_path": "results/classical_foundation_batch/a_plus_12_sequence_check/batch_report.md",
+      "purpose": "A+ 12-sequence batch report",
+      "present": true,
+      "size_bytes": 837,
+      "status": "PASS"
+    },
+    {
+      "file_path": "results/final_submission/final_evidence_manifest.csv",
+      "purpose": "Final evidence manifest",
+      "present": true,
+      "size_bytes": 2496,
+      "status": "PASS"
+    },
+    {
+      "file_path": "results/final_submission/final_grade_audit.csv",
+      "purpose": "Final grade audit",
+      "present": true,
+      "size_bytes": 2091,
+      "status": "PASS"
+    }
+  ]
+}

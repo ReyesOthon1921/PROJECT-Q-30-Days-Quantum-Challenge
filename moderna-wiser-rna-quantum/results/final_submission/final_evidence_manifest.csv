@@ -1,0 +1,19 @@
+deliverable,file_path,purpose,challenge_requirement,status
+Project overview,README.md,High-level project explanation and setup,Communication and reproducibility,complete
+Final submission summary,docs/final_submission_summary.md,Final closeout overview,Final submission package,complete
+Rubric alignment,docs/rubric_alignment.md,Maps project files to judging criteria,Judging criteria alignment,complete
+Final submission index,docs/final_submission_index.md,Shows reviewer where to find evidence,Communication quality,complete
+Results interpretation,docs/final_results_interpretation.md,Explains results safely,Benchmark interpretation,complete
+Limitations and safe claims,docs/final_limitations_and_safe_claims.md,Prevents overclaiming,Research maturity,complete
+Demo script,docs/final_demo_script.md,3-5 minute presentation plan,Presentation quality,complete
+Professor review summary,docs/final_professor_review_summary.md,Copy/paste professor summary,Review readiness,complete
+Strict classical pipeline,src/evaluation/strict_classical_pipeline.py,Runs one RNA sequence end-to-end,Implementation and benchmarking,complete
+12-sequence batch runner,src/evaluation/run_strict_classical_batch.py,Runs final benchmark panel,Benchmarking,complete
+One-sequence final report,results/classical_foundation/final_submission_single_sequence/experiment_report.md,Saved reproducible example run,Reproducibility,complete
+12-sequence batch summary,results/classical_foundation_batch/final_submission_12_sequence_check/batch_summary.csv,Professor-ready result table,Benchmark quality,complete
+12-sequence batch report,results/classical_foundation_batch/final_submission_12_sequence_check/batch_report.md,Narrative batch summary,Communication quality,complete
+Exact validation results,results/publication_tables/exact_validation_results.csv,Small-instance QUBO enumeration,Technical correctness,complete
+QUBO formulation summary,results/publication_tables/qubo_formulation_summary.csv,Optimization formulation evidence,Problem formulation,complete
+Quantum benchmark summary,results/publication_tables/quantum_benchmark_summary.csv,Quantum-readiness evidence,Quantum algorithm design,complete
+Hardware readiness,results/publication_tables/hardware_readiness_summary.csv,Near-term constraints/resource estimates,Scaling and resource analysis,complete_or_if_available
+Final submission zip,%USERPROFILE%/Downloads/final_submission_package.zip,Portable submission package,Final deliverable,complete
