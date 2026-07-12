@@ -1,0 +1,28 @@
+dataset_path: data/external/phase51_external_dataset.csv
+template_path: data/external/phase51_external_dataset_template.csv
+output_root: results/phase51_dataset_audit
+required_branch: phase51-external-generalization
+required_tags:
+  - phase50B-objective-locked
+  - phase50C-complete
+locked_objective_config_path: configs/phase50B_locked_objective_config.yaml
+final_test_registry_snapshot_path: docs/phase50C_evidence/final_test_registry.json
+prior_dataset_paths:
+  - data/benchmarks/phase49_rna_sequences.csv
+  - data/benchmarks/phase50_solver_diagnostics_sequences.csv
+  - data/rna_validation_dataset.csv
+required_split: external_test
+minimum_sequence_count: 12
+minimum_category_count: 4
+minimum_length: 12
+maximum_length: 80
+required_length_bins:
+  - short
+  - medium
+  - long
+length_bins:
+  short: [12, 29]
+  medium: [30, 49]
+  long: [50, 80]
+allow_wobble: true
+require_canonical_or_wobble_pairs: true
