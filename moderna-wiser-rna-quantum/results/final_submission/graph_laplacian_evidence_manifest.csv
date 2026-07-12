@@ -1,0 +1,3 @@
+artifact,path,purpose,status
+qubo_graph_laplacian_diagnostics,results\final_submission\qubo_graph_laplacian_diagnostics.csv,Graph Laplacian diagnostics over final RNA-QUBO batch outputs.,generated
+graph_laplacian_diagnostics_doc,docs\graph_laplacian_diagnostics.md,Readable explanation tying Graph Laplacian diagnostics to the RNA-QUBO model.,generated
