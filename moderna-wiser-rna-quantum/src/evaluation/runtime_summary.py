@@ -13,29 +13,22 @@ class RuntimeTracker:
 
     def start(self, step_name: str) -> None:
         if self._active_step is not None:
-            raise RuntimeError(
-                f"Timer already running for step: {self._active_step}"
-            )
-
+            raise RuntimeError(f"Timer already running for step: {self._active_step}")
         self._active_step = step_name
         self._start_time = time.perf_counter()
 
     def stop(self) -> float:
         if self._active_step is None or self._start_time is None:
             raise RuntimeError("No active timer to stop.")
-
         elapsed = time.perf_counter() - self._start_time
         self.timings[self._active_step] = elapsed
-
         self._active_step = None
         self._start_time = None
-
         return elapsed
 
     def record(self, step_name: str, runtime_seconds: float) -> None:
         if runtime_seconds < 0:
             raise ValueError("Runtime cannot be negative.")
-
         self.timings[step_name] = float(runtime_seconds)
 
     def summary(self) -> Dict[str, object]:
@@ -43,11 +36,7 @@ class RuntimeTracker:
 
 
 def summarize_runtime(step_timings: Dict[str, float]) -> Dict[str, object]:
-    cleaned_timings = {
-        step: float(runtime)
-        for step, runtime in step_timings.items()
-    }
-
+    cleaned_timings = {step: float(runtime) for step, runtime in step_timings.items()}
     if not cleaned_timings:
         return {
             "step_count": 0,
@@ -56,10 +45,8 @@ def summarize_runtime(step_timings: Dict[str, float]) -> Dict[str, object]:
             "slowest_step_runtime_seconds": None,
             "step_timings": {},
         }
-
     total_runtime = sum(cleaned_timings.values())
     slowest_step = max(cleaned_timings, key=cleaned_timings.get)
-
     return {
         "step_count": len(cleaned_timings),
         "total_runtime_seconds": total_runtime,
@@ -72,26 +59,13 @@ def summarize_runtime(step_timings: Dict[str, float]) -> Dict[str, object]:
 if __name__ == "__main__":
     import argparse
     import json
-
-    parser = argparse.ArgumentParser(
-        description="Create a runtime summary from step=seconds values."
-    )
-    parser.add_argument(
-        "--step",
-        action="append",
-        default=[],
-        help="Runtime entry in the format step_name=seconds. Can be repeated.",
-    )
-
+    parser = argparse.ArgumentParser(description="Create runtime summary from step=seconds entries.")
+    parser.add_argument("--step", action="append", default=[])
     args = parser.parse_args()
-
     timings: Dict[str, float] = {}
-
     for item in args.step:
         if "=" not in item:
             raise ValueError(f"Invalid step format: {item}")
-
         name, value = item.split("=", 1)
         timings[name] = float(value)
-
     print(json.dumps(summarize_runtime(timings), indent=2))

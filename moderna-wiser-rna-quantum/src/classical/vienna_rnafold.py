@@ -1,12 +1,3 @@
-"""ViennaRNA reference wrapper with CLI-first and Python-binding fallback.
-
-The strict path uses the ``RNAfold`` executable through :mod:`subprocess`.
-Because this project already declares the ViennaRNA Python package and uses
-``RNA.fold`` elsewhere, the wrapper can optionally fall back to that binding on
-Windows systems where the package is installed but ``RNAfold.exe`` is not on
-``PATH``.
-"""
-
 from __future__ import annotations
 
 import re
@@ -63,7 +54,6 @@ def parse_rnafold_output(
         )
 
     structure_line = lines[1]
-
     match = re.search(r"([().]+)\s+\(([-+]?\d+(?:\.\d+)?)\)", structure_line)
 
     if not match:
@@ -77,13 +67,10 @@ def parse_rnafold_output(
             raw_output=raw_output,
         )
 
-    structure = match.group(1)
-    energy = float(match.group(2))
-
     return RNAfoldResult(
         sequence=sequence,
-        reference_structure=structure,
-        reference_energy=energy,
+        reference_structure=match.group(1),
+        reference_energy=float(match.group(2)),
         runtime_seconds=runtime_seconds,
         success=True,
         error=None,
@@ -91,20 +78,23 @@ def parse_rnafold_output(
     )
 
 
-def run_rnafold(sequence: str, timeout_seconds: int = 15) -> Dict[str, object]:
+def run_rnafold(
+    sequence: str,
+    timeout_seconds: int = 15,
+    executable: str = "RNAfold",
+) -> Dict[str, object]:
     cleaned_sequence = validate_rna_sequence(sequence)
     start = time.perf_counter()
 
     try:
         completed = subprocess.run(
-            ["RNAfold", "--noPS"],
+            [executable, "--noPS"],
             input=cleaned_sequence + "\n",
             text=True,
             capture_output=True,
             timeout=timeout_seconds,
             check=False,
         )
-
         runtime_seconds = time.perf_counter() - start
 
         if completed.returncode != 0:
@@ -118,30 +108,26 @@ def run_rnafold(sequence: str, timeout_seconds: int = 15) -> Dict[str, object]:
                 raw_output=completed.stdout,
             ).__dict__
 
-        result = parse_rnafold_output(
+        return parse_rnafold_output(
             sequence=cleaned_sequence,
             raw_output=completed.stdout,
             runtime_seconds=runtime_seconds,
-        )
-
-        return result.__dict__
+        ).__dict__
 
     except FileNotFoundError:
         runtime_seconds = time.perf_counter() - start
-
         return RNAfoldResult(
             sequence=cleaned_sequence,
             reference_structure=None,
             reference_energy=None,
             runtime_seconds=runtime_seconds,
             success=False,
-            error="RNAfold command was not found. Install ViennaRNA or add RNAfold to PATH.",
+            error=f"{executable} command was not found. Install ViennaRNA or add RNAfold to PATH.",
             raw_output="",
         ).__dict__
 
     except subprocess.TimeoutExpired:
         runtime_seconds = time.perf_counter() - start
-
         return RNAfoldResult(
             sequence=cleaned_sequence,
             reference_structure=None,
@@ -157,22 +143,9 @@ if __name__ == "__main__":
     import argparse
     import json
 
-    parser = argparse.ArgumentParser(
-        description="Run ViennaRNA RNAfold on one RNA sequence."
-    )
-    parser.add_argument(
-        "--sequence",
-        required=True,
-        help="RNA sequence using A, U, G, C. T will be converted to U.",
-    )
-    parser.add_argument(
-        "--timeout",
-        type=int,
-        default=15,
-        help="Timeout in seconds.",
-    )
-
+    parser = argparse.ArgumentParser(description="Run ViennaRNA RNAfold on one RNA sequence.")
+    parser.add_argument("--sequence", required=True)
+    parser.add_argument("--timeout", type=int, default=15)
+    parser.add_argument("--executable", default="RNAfold")
     args = parser.parse_args()
-
-    output = run_rnafold(args.sequence, timeout_seconds=args.timeout)
-    print(json.dumps(output, indent=2))
+    print(json.dumps(run_rnafold(args.sequence, args.timeout, args.executable), indent=2))

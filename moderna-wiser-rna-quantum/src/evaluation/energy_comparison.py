@@ -1,8 +1,6 @@
-"""Diagnostic ViennaRNA-MFE versus QUBO-objective comparison."""
 from __future__ import annotations
 
 from typing import Dict, Optional
-
 
 ENERGY_NOTE = (
     "Diagnostic comparison only. ViennaRNA MFE energy and QUBO energy are "
@@ -10,10 +8,7 @@ ENERGY_NOTE = (
 )
 
 
-def compare_energy(
-    reference_energy: Optional[float],
-    qubo_energy: Optional[float],
-) -> Dict[str, object]:
+def compare_energy(reference_energy: Optional[float], qubo_energy: Optional[float]) -> Dict[str, object]:
     reference_available = reference_energy is not None
     qubo_available = qubo_energy is not None
 
@@ -30,8 +25,6 @@ def compare_energy(
         }
 
     energy_difference = float(qubo_energy) - float(reference_energy)
-    absolute_energy_difference = abs(energy_difference)
-
     return {
         "reference_energy": float(reference_energy),
         "qubo_energy": float(qubo_energy),
@@ -39,7 +32,7 @@ def compare_energy(
         "qubo_available": True,
         "comparison_available": True,
         "energy_difference": energy_difference,
-        "absolute_energy_difference": absolute_energy_difference,
+        "absolute_energy_difference": abs(energy_difference),
         "note": ENERGY_NOTE,
     }
 
@@ -47,18 +40,8 @@ def compare_energy(
 if __name__ == "__main__":
     import argparse
     import json
-
-    parser = argparse.ArgumentParser(
-        description="Compare ViennaRNA reference energy against QUBO energy."
-    )
+    parser = argparse.ArgumentParser(description="Compare ViennaRNA MFE energy against QUBO energy.")
     parser.add_argument("--reference-energy", type=float, required=True)
     parser.add_argument("--qubo-energy", type=float, required=True)
-
     args = parser.parse_args()
-
-    result = compare_energy(
-        reference_energy=args.reference_energy,
-        qubo_energy=args.qubo_energy,
-    )
-
-    print(json.dumps(result, indent=2))
+    print(json.dumps(compare_energy(args.reference_energy, args.qubo_energy), indent=2))

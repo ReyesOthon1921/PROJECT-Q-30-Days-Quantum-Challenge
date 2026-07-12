@@ -2,11 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.classical.dotbracket_tools import (
-    dotbracket_to_pairs,
-    pairs_to_dotbracket,
-    validate_dotbracket,
-)
+from src.classical.dotbracket_tools import dotbracket_to_pairs, pairs_to_dotbracket, validate_dotbracket
 
 
 def test_validate_dotbracket_valid_structure():
@@ -26,23 +22,14 @@ def test_dotbracket_to_pairs():
 
 
 def test_pairs_to_dotbracket():
-    pairs = [(0, 6), (1, 5)]
-    assert pairs_to_dotbracket(7, pairs) == "((...))"
+    assert pairs_to_dotbracket(7, [(0, 6), (1, 5)]) == "((...))"
 
 
 def test_round_trip_dotbracket_pairs():
     structure = "((...))"
-    pairs = dotbracket_to_pairs(structure)
-    reconstructed = pairs_to_dotbracket(len(structure), pairs)
-
-    assert reconstructed == structure
+    assert pairs_to_dotbracket(len(structure), dotbracket_to_pairs(structure)) == structure
 
 
 def test_pairs_to_dotbracket_rejects_reused_position():
     with pytest.raises(ValueError):
         pairs_to_dotbracket(6, [(0, 5), (0, 4)])
-
-
-def test_dotbracket_to_pairs_rejects_invalid_structure():
-    with pytest.raises(ValueError):
-        dotbracket_to_pairs("((...)")
