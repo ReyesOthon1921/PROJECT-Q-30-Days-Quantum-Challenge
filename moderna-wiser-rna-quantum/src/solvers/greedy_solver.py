@@ -83,8 +83,17 @@ def solve_stem_qubo_greedy(
         else "." * len(cleaned)
     )
 
+    # ``selected_stems`` contains scored copies of the original stem dictionaries.
+    # Comparing the original dictionaries directly against those copies is unsafe
+    # because the copies include the extra ``linear_score`` field. Track selection
+    # by the stable QUBO variable name so ``best_solution`` matches the prediction.
+    selected_variable_names = {
+        stem["variable_name"] for stem in selected_stems
+    }
     best_solution = {
-        stem["variable_name"]: int(stem in selected_stems)
+        stem["variable_name"]: int(
+            stem["variable_name"] in selected_variable_names
+        )
         for stem in stems
     }
     # Selected stems are conflict-free, so the quadratic penalty contribution is 0.
