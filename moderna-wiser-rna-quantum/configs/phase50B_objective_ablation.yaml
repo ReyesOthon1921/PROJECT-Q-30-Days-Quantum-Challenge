@@ -1,0 +1,79 @@
+dataset_path: data/benchmarks/phase50_solver_diagnostics_sequences.csv
+strict_config_path: configs/phase50_locked_phase49_config.yaml
+output_root: results/phase50B_objective_ablation
+resume: true
+top_k: 3
+exact_max_variables: 20
+
+screen:
+  sa_seeds: [3, 7, 11, 19]
+  sa_steps: 2500
+  sa_initial_temperature: 10.0
+  sa_final_temperature: 0.01
+  sa_cooling_rate: 0.995
+  run_local_refinement: true
+
+confirmation:
+  sa_seeds: [3, 7, 11, 19, 23, 29, 31, 37, 41, 43, 47, 53]
+  sa_steps: 6000
+  sa_initial_temperature: 10.0
+  sa_final_temperature: 0.01
+  sa_cooling_rate: 0.995
+  run_local_refinement: true
+
+variants:
+  - id: baseline_sum
+    description: Frozen Phase 50A linear reward baseline.
+    objective:
+      reward_mode: sum
+      short_stem_penalty: 0.0
+      short_stem_length: 2
+      min_stem_length: 2
+
+  - id: short2_penalty_1
+    description: Add a +1 penalty to every two-pair candidate stem.
+    objective:
+      reward_mode: sum
+      short_stem_penalty: 1.0
+      short_stem_length: 2
+      min_stem_length: 2
+
+  - id: short2_penalty_2
+    description: Add a +2 penalty to every two-pair candidate stem.
+    objective:
+      reward_mode: sum
+      short_stem_penalty: 2.0
+      short_stem_length: 2
+      min_stem_length: 2
+
+  - id: short2_penalty_3
+    description: Add a +3 penalty to every two-pair candidate stem.
+    objective:
+      reward_mode: sum
+      short_stem_penalty: 3.0
+      short_stem_length: 2
+      min_stem_length: 2
+
+  - id: min_stem_length_3
+    description: Remove all two-pair stems from the candidate space.
+    objective:
+      reward_mode: sum
+      short_stem_penalty: 0.0
+      short_stem_length: 2
+      min_stem_length: 3
+
+  - id: mean_pair_reward
+    description: Normalize each stem reward by its number of base pairs.
+    objective:
+      reward_mode: mean_pair
+      short_stem_penalty: 0.0
+      short_stem_length: 2
+      min_stem_length: 2
+
+  - id: sqrt_length_reward
+    description: Apply sublinear square-root normalization to stem rewards.
+    objective:
+      reward_mode: sqrt_length
+      short_stem_penalty: 0.0
+      short_stem_length: 2
+      min_stem_length: 2
