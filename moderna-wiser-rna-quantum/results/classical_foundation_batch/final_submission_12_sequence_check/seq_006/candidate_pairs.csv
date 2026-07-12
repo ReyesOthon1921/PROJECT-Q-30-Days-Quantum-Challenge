@@ -1,0 +1,13 @@
+pair_id,i,j,left_base,right_base,pair_type,score
+0,0,6,C,G,GC,3.0
+1,0,7,C,G,GC,3.0
+2,0,8,C,G,GC,3.0
+3,1,6,C,G,GC,3.0
+4,1,7,C,G,GC,3.0
+5,1,8,C,G,GC,3.0
+6,2,6,C,G,GC,3.0
+7,2,7,C,G,GC,3.0
+8,2,8,C,G,GC,3.0
+9,3,7,U,G,GU,1.0
+10,3,8,U,G,GU,1.0
+11,4,8,U,G,GU,1.0

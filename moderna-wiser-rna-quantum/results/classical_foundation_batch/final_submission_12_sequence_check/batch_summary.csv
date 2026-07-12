@@ -1,0 +1,13 @@
+sequence_id,sequence,sequence_length,description,source,expected_use,vienna_success,vienna_method,vienna_structure,vienna_energy,qubo_predicted_structure,qubo_energy,comparison_available,precision,recall,f1_score,base_pair_distance,exact_match,candidate_pair_count,candidate_stem_count,best_solver,total_runtime_seconds,status,error
+seq_001,GGGAAAUCC,9,short smoke test,synthetic,debug,False,unavailable,,,(((...))),-7.0,False,,,,,,9,4,exact,0.048307100048987195,completed,
+seq_002,GCAUCUAUGC,10,short candidate test,synthetic,benchmark,False,unavailable,,,(((....))),-8.0,False,,,,,,8,2,exact,0.012412200012477115,completed,
+seq_003,GGGAAACCC,9,GC-rich short hairpin candidate,synthetic,benchmark,False,unavailable,,,(((...))),-9.0,False,,,,,,9,4,exact,0.0178252000187058,completed,
+seq_004,AUGCGCAU,8,short balanced sequence,synthetic,benchmark,False,unavailable,,,((....)),-4.0,False,,,,,,3,1,exact,0.010857399989617988,completed,
+seq_005,GGCAAAUGCC,10,GC stem with loop,synthetic,benchmark,False,unavailable,,,(((....))),-9.0,False,,,,,,7,2,exact,0.012814799993066117,completed,
+seq_006,CCCUUUGGG,9,complementary stem candidate,synthetic,benchmark,False,unavailable,,,(((...))),-9.0,False,,,,,,12,5,exact,0.023480999981984496,completed,
+seq_007,AUGGCUACGU,10,medium wobble/canonical mix,synthetic,benchmark,False,unavailable,,,(((....))),-6.0,False,,,,,,9,3,exact,0.014779399993130937,completed,
+seq_008,GGAUACCUCC,10,medium candidate pair mix,synthetic,benchmark,False,unavailable,,,(((....))),-8.0,False,,,,,,11,5,exact,0.023093199997674674,completed,
+seq_009,GGGCUAAAGCCC,12,larger GC hairpin candidate,synthetic,benchmark,False,unavailable,,,((((....)))),-12.0,False,,,,,,12,5,exact,0.023898799991002306,completed,
+seq_010,AUGCUUAGCAU,11,medium AU/GC mixed sequence,synthetic,benchmark,False,unavailable,,,((((...)))),-10.0,False,,,,,,12,3,exact,0.014332200022181496,completed,
+seq_011,CGGAAAUUCCG,11,larger symmetric candidate,synthetic,benchmark,False,unavailable,,,((((...)))),-11.0,False,,,,,,11,5,exact,0.02222579999943264,completed,
+seq_012,GGCAUAAUGCC,11,larger loop/stem candidate,synthetic,benchmark,False,unavailable,,,((((...)))),-11.0,False,,,,,,10,3,exact,0.01516259997151792,completed,

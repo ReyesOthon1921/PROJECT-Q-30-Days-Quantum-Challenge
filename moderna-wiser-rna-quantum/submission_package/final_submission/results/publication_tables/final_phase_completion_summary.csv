@@ -1,0 +1,45 @@
+phase,name,status,note
+Phase 0,Project setup,Complete,Included in final prototype package.
+Phase 1,Classical RNA foundation,Complete,Included in final prototype package.
+Phase 2,Flask dashboard foundation,Complete,Included in final prototype package.
+Phase 3,Sequence preprocessing,Complete,Included in final prototype package.
+Phase 4,Classical benchmark direction,Complete,Included in final prototype package.
+Phase 5,Candidate pair and stem generation,Complete,Included in final prototype package.
+Phase 6,Stem-based QUBO builder,Complete,Included in final prototype package.
+Phase 7,Greedy solver,Complete,Included in final prototype package.
+Phase 8,Evaluation metrics,Complete,Included in final prototype package.
+Phase 9,Scaling analysis,Complete,Included in final prototype package.
+Phase 10,Demo script,Complete,Included in final prototype package.
+Phase 11,Simulated annealing,Complete,Included in final prototype package.
+Phase 12,Solver comparison,Complete,Included in final prototype package.
+Phase 13,Documentation packaging,Complete,Included in final prototype package.
+Phase 14,Professional UI and RNA visualization,Complete,Included in final prototype package.
+Phase 15,Summary cards and results display,Complete,Included in final prototype package.
+Phase 16,QAOA readiness,Complete,Included in final prototype package.
+Phase 17,VQE readiness,Complete,Included in final prototype package.
+Phase 18,Deployment prep,Complete,Included in final prototype package.
+Phase 19,Scaling graphs,Complete,Included in final prototype package.
+Phase 20,Algorithm comparison graphs,Complete,Included in final prototype package.
+Phase 22,Bioinformatics metrics and resource layer,Complete,Included in final prototype package.
+Phase 23,Quantum benchmark layer,Complete,Included in final prototype package.
+Phase 25,QAOA circuit prototype,Complete,Included in final prototype package.
+Phase 26,VQE circuit prototype,Complete,Included in final prototype package.
+Phase 27,QAOA vs VQE circuit comparison,Complete,Included in final prototype package.
+Phase 28,Quantum circuit report,Complete,Included in final prototype package.
+Phase 29,QAOA parameter sweep,Complete,Included in final prototype package.
+Phase 30,VQE parameter sweep,Complete,Included in final prototype package.
+Phase 31,Measured bitstring energy,Complete,Included in final prototype package.
+Phase 32,Hardware readiness,Complete,Included in final prototype package.
+Phase 33-35,Variable compression research layer,Complete,Included in final prototype package.
+Phase 36,Guided research workbench,Complete,Included in final prototype package.
+Phase 37,Publication benchmark tables and figures,Complete,Included in final prototype package.
+Phase 38,Publication paper package,Complete,Included in final prototype package.
+Phase 39,Literature review and research gap matrix,Complete,Included in final prototype package.
+Phase 40,Mathematical traceability and exact validation,Complete,Included in final prototype package.
+Phase 41,Exact validation integration into final benchmark,Complete,Included in final prototype package.
+Phase 42,Dashboard integration for exact validation,Complete,Included in final prototype package.
+Phase 43,Exact-validation publication figures,Complete,Included in final prototype package.
+Phase 44,Graph-aware QRAO compression validation,Complete,Included in final prototype package.
+Phase 45,Dataset and external-validation expansion,Complete,Included in final prototype package.
+Phase 46,Manuscript assembly package,Complete,Included in final prototype package.
+Phase 47,"Final dashboard, README, demo, and deployment polish",Complete,Included in final prototype package.

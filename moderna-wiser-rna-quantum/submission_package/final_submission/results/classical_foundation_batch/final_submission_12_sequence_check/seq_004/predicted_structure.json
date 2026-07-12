@@ -1,0 +1,20 @@
+{
+  "predicted_dotbracket": "((....))",
+  "predicted_pairs": [
+    [
+      0,
+      7
+    ],
+    [
+      1,
+      6
+    ]
+  ],
+  "solver": "exact",
+  "qubo_energy": -4.0,
+  "selected_bitstring": [
+    1
+  ],
+  "candidate_stem_count": 1,
+  "candidate_pair_count": 3
+}

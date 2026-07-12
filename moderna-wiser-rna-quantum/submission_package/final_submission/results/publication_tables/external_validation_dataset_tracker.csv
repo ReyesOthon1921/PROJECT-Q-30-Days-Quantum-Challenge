@@ -1,0 +1,9 @@
+sequence_id,sequence,dataset_group,source_type,length,gc_content_percent,au_content_percent,candidate_pair_count,candidate_stem_count,reference_status,external_validation_status,notes
+EXACT_01_short_hairpin,GGGAAAUCC,exact_validation_control,controlled_demo,9,55.556,44.444,9,9,needs_rnafold_reference,planned,Small controlled instance already used for exact QUBO validation.
+EXACT_02_balanced_short,AUGCUAGCUA,exact_validation_control,controlled_demo,10,40.0,60.0,8,8,needs_rnafold_reference,planned,Balanced short RNA instance used for exact QUBO audit.
+EXACT_03_gc_rich,GCGCGAUUCGC,exact_validation_control,controlled_demo,11,72.727,27.273,12,12,needs_rnafold_reference,planned,GC-rich controlled instance for coefficient and conflict checking.
+EXACT_04_demo_subset,GGCGCAAAACUUGUCGAAU,exact_validation_control,controlled_demo,19,47.368,52.632,45,45,needs_rnafold_reference,planned,Truncated demo-style sequence used for exact validation.
+BIO_01_short_synthetic,GGGCUUAAAGCC,bioinformatics_expansion,synthetic_rna,12,58.333,41.667,13,13,needs_rnafold_reference,planned,Short synthetic RNA-like sequence for future RNAfold comparison.
+BIO_02_medium_synthetic,AUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGA,bioinformatics_expansion,synthetic_rna,36,58.333,41.667,207,207,needs_rnafold_reference,planned,Medium synthetic RNA-like sequence for scaling and validation planning.
+BIO_03_gc_balanced,GCAUCGGAUUACGCGAAUUCGAUCGC,bioinformatics_expansion,synthetic_rna,26,53.846,46.154,93,93,needs_rnafold_reference,planned,GC-balanced RNA-like sequence for candidate-pair/stem analysis.
+BIO_04_au_rich,AUAUAUGGAAUUCCAAUAUAUGGCUA,bioinformatics_expansion,synthetic_rna,26,26.923,73.077,103,103,needs_rnafold_reference,planned,AU-rich RNA-like sequence for checking pair diversity.

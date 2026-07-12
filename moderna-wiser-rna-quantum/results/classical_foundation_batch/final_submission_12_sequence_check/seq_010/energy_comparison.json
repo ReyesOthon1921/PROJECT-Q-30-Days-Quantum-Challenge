@@ -1,0 +1,10 @@
+{
+  "reference_energy": null,
+  "qubo_energy": -10.0,
+  "reference_available": false,
+  "qubo_available": true,
+  "comparison_available": false,
+  "energy_difference": null,
+  "absolute_energy_difference": null,
+  "note": "Diagnostic comparison only. ViennaRNA MFE energy and QUBO energy are different scoring systems and should not be treated as physically equivalent."
+}

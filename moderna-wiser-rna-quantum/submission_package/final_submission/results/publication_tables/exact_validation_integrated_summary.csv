@@ -1,0 +1,5 @@
+sequence_id,sequence,length,variable_count,assignment_count,exact_minimum_energy,degenerate_minimum_count,best_bitstring,feasible,dot_bracket,linear_energy,overlap_penalty_energy,crossing_penalty_energy,interaction_energy,total_energy,ising_constant_offset,ising_linear_field_count,ising_coupling_count,integration_note
+EXACT_01_short_hairpin,GGGAAAUCC,9,9,512,-7.0,1,bits_100000000,True,(((...))),-7.0,0.0,0.0,0.0,-7.0,65.125,9,36,Exact optimum and audit summary integrated into Phase 41 benchmark layer.
+EXACT_02_balanced_short,AUGCUAGCUA,10,8,256,-4.5,1,bits_01100000,True,(.(....)).,-4.5,0.0,0.0,0.0,-4.5,41.875,8,25,Exact optimum and audit summary integrated into Phase 41 benchmark layer.
+EXACT_03_gc_rich,GCGCGAUUCGC,11,12,4096,-9.0,2,bits_010000000000,True,..(((...))),-9.0,0.0,0.0,0.0,-9.0,118.5,12,63,Exact optimum and audit summary integrated into Phase 41 benchmark layer.
+EXACT_04_demo_subset,GGCGCAAAACUUGUCGAAU,19,16,65536,-13.0,1,bits_0101000000000000,True,..(((((...))).))...,-13.0,0.0,0.0,0.0,-13.0,208.125,16,102,Exact optimum and audit summary integrated into Phase 41 benchmark layer.

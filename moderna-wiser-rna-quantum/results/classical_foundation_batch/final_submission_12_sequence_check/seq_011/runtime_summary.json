@@ -1,0 +1,13 @@
+{
+  "step_count": 5,
+  "total_runtime_seconds": 0.02222579999943264,
+  "slowest_step": "solver_execution",
+  "slowest_step_runtime_seconds": 0.01864890000433661,
+  "step_timings": {
+    "vienna_rnafold": 0.0034764999873004854,
+    "candidate_pair_generation": 2.989999484270811e-05,
+    "candidate_stem_generation": 2.1899992134422064e-05,
+    "qubo_build": 4.8600020818412304e-05,
+    "solver_execution": 0.01864890000433661
+  }
+}

@@ -1,0 +1,4 @@
+solver,energy,bitstring
+exact,-4.0,[1]
+greedy,-4.0,[1]
+simulated_annealing,-4.0,[1]

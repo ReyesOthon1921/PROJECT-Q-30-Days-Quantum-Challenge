@@ -1,0 +1,13 @@
+sequence_id,sequence,description,source,expected_use
+seq_001,GGGAAAUCC,short smoke test,synthetic,debug
+seq_002,GCAUCUAUGC,short candidate test,synthetic,benchmark
+seq_003,GGGAAACCC,GC-rich short hairpin candidate,synthetic,benchmark
+seq_004,AUGCGCAU,short balanced sequence,synthetic,benchmark
+seq_005,GGCAAAUGCC,GC stem with loop,synthetic,benchmark
+seq_006,CCCUUUGGG,complementary stem candidate,synthetic,benchmark
+seq_007,AUGGCUACGU,medium wobble/canonical mix,synthetic,benchmark
+seq_008,GGAUACCUCC,medium candidate pair mix,synthetic,benchmark
+seq_009,GGGCUAAAGCCC,larger GC hairpin candidate,synthetic,benchmark
+seq_010,AUGCUUAGCAU,medium AU/GC mixed sequence,synthetic,benchmark
+seq_011,CGGAAAUUCCG,larger symmetric candidate,synthetic,benchmark
+seq_012,GGCAUAAUGCC,larger loop/stem candidate,synthetic,benchmark

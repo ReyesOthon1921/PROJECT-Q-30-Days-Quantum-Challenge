@@ -1,0 +1,7 @@
+term_type,var_i,var_j,coefficient,reason
+linear,0,0,-10.0,negative reward for selecting a candidate stem
+linear,1,1,-8.0,negative reward for selecting a candidate stem
+linear,2,2,-6.0,negative reward for selecting a candidate stem
+quadratic,0,1,10.0,overlap
+quadratic,0,2,10.0,overlap
+quadratic,1,2,10.0,overlap

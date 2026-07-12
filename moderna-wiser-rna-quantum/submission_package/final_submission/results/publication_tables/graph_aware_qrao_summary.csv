@@ -1,0 +1,5 @@
+sequence_id,sequence_length,variable_count,interaction_edge_count,qrao_color_count,direct_qubits,generic_2_to_1_qubits,generic_3_to_1_qubits,graph_aware_2_to_1_qubits,graph_aware_3_to_1_qubits,generic_2_to_1_reduction_percent,generic_3_to_1_reduction_percent,graph_aware_2_to_1_reduction_percent,graph_aware_3_to_1_reduction_percent,graph_aware_2_to_1_conflicts,graph_aware_3_to_1_conflicts,validation_status,interpretation
+EXACT_01_short_hairpin,9,9,36,9,9,5,3,9,9,44.444,66.667,0.0,0.0,0,0,pass,Graph-aware QRAO packing avoids assigning interacting QUBO variables to the same compressed qubit.
+EXACT_02_balanced_short,10,8,25,7,8,4,3,7,7,50.0,62.5,12.5,12.5,0,0,pass,Graph-aware QRAO packing avoids assigning interacting QUBO variables to the same compressed qubit.
+EXACT_03_gc_rich,11,12,63,10,12,6,4,10,10,50.0,66.667,16.667,16.667,0,0,pass,Graph-aware QRAO packing avoids assigning interacting QUBO variables to the same compressed qubit.
+EXACT_04_demo_subset,19,16,102,10,16,8,6,10,10,50.0,62.5,37.5,37.5,0,0,pass,Graph-aware QRAO packing avoids assigning interacting QUBO variables to the same compressed qubit.

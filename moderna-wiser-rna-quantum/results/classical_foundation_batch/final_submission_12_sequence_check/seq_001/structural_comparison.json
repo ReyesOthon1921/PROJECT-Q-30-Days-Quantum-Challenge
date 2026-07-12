@@ -1,0 +1,11 @@
+{
+  "comparison_available": false,
+  "reason": "ViennaRNA reference unavailable. CLI error: RNAfold command was not found. Install ViennaRNA or add RNAfold to PATH. Python fallback error: ViennaRNA Python RNA.fold returned an unexpected value.",
+  "reference_dotbracket": null,
+  "predicted_dotbracket": "(((...)))",
+  "exact_match": null,
+  "precision": null,
+  "recall": null,
+  "f1_score": null,
+  "base_pair_distance": null
+}

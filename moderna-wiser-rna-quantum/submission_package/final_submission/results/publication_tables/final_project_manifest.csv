@@ -1,0 +1,36 @@
+category,path,exists,size_bytes,description
+Application,app.py,True,13006,Main Flask dashboard application.
+Application,wsgi.py,True,206,Render/Gunicorn entry point.
+Application,Procfile,True,22,Deployment start command file.
+Application,requirements-deploy.txt,True,119,Deployment dependency list.
+Dashboard,templates/index.html,True,30809,Main dashboard HTML.
+Dashboard,static/css/style.css,True,16500,Dashboard styling.
+Dashboard,static/js/app.js,True,85941,Dashboard frontend logic.
+Classical RNA,src/classical/dotbracket.py,True,3459,Dot-bracket validation and parsing.
+Classical RNA,src/classical/sequence_tools.py,True,3281,RNA sequence preprocessing.
+QUBO,src/qubo/candidate_pairs.py,True,2904,Candidate base-pair generation.
+QUBO,src/qubo/candidate_stems.py,True,3579,Candidate stem generation.
+QUBO,src/qubo/build_qubo.py,True,4722,Stem-based QUBO construction.
+Solvers,src/solvers/greedy_solver.py,True,4471,Greedy QUBO solver.
+Solvers,src/solvers/simulated_annealing.py,True,10238,Simulated annealing solver.
+Evaluation,src/evaluation/exact_qubo_validator.py,True,21002,Exact small-instance QUBO validator.
+Evaluation,src/evaluation/qubo_energy_audit.py,True,11045,Term-by-term QUBO energy audit.
+Evaluation,src/evaluation/phase41_exact_validation_benchmark_integration.py,True,24155,Exact-validation benchmark integration.
+Evaluation,src/evaluation/exact_validation_dashboard.py,True,8376,Exact-validation dashboard API data module.
+Evaluation,src/evaluation/phase43_exact_validation_figures.py,True,14346,Exact-validation publication figures.
+Evaluation,src/evaluation/phase44_graph_aware_qrao_validation.py,True,20503,Graph-aware QRAO validation.
+Evaluation,src/evaluation/phase45_dataset_external_validation.py,True,19633,Dataset and external-validation planning.
+Evaluation,src/evaluation/phase46_manuscript_assembly_package.py,True,31200,Manuscript assembly package.
+Manuscript,docs/manuscript/full_manuscript_draft.md,True,11212,Full manuscript draft.
+Results,results/publication_tables/final_publication_benchmark_with_exact_validation.csv,True,4451,Final benchmark with exact validation.
+Results,results/publication_tables/exact_validation_integrated_summary.csv,True,1111,Exact-validation integrated summary.
+Results,results/publication_tables/graph_aware_qrao_summary.csv,True,1124,Graph-aware QRAO summary.
+Results,results/publication_tables/phase45_dataset_readiness_summary.csv,True,792,Dataset readiness summary.
+Figures,results/publication_figures/exact_minimum_energy.png,True,88354,Exact minimum energy figure.
+Figures,results/publication_figures/exact_assignment_growth.png,True,87637,Exact assignment growth figure.
+Figures,results/publication_figures/exact_energy_decomposition.png,True,109926,Exact energy decomposition figure.
+Figures,results/publication_figures/ising_coefficient_counts.png,True,100913,Ising coefficient count figure.
+Figures,results/publication_figures/graph_aware_qrao_qubit_reduction.png,True,108410,Graph-aware QRAO qubit-reduction figure.
+Figures,results/publication_figures/graph_aware_qrao_coloring_counts.png,True,99595,Graph-aware QRAO coloring-count figure.
+Figures,results/publication_figures/dataset_sequence_lengths.png,True,118257,Dataset sequence-length figure.
+Figures,results/publication_figures/dataset_gc_content.png,True,122509,Dataset GC-content figure.

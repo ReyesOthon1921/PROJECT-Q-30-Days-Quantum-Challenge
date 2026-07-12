@@ -1,0 +1,7 @@
+sequence_id,source,sequence,length,gc_content_percent,candidate_pair_count,candidate_stem_count,reference_pair_count_proxy,reference_dot_bracket_proxy,notes
+RNA_01_demo,project_demo_sequence,GGCGCAAAACUUGUCGAAUGAGAACAAAUAACAGAAUUUGCUUG,44,38.636,296,30,14,..(((((...))((...)))((..(((((...)...)))))))),Primary dashboard demonstration sequence
+RNA_02_short_hairpin,synthetic_control,GGGAAAUCC,9,55.556,9,4,3,(((...))),Small hairpin-like control for exact-size testing
+RNA_03_medium_control,synthetic_control,AUGGCUACGUAGCUA,15,46.667,26,9,5,.(((((....))))),Medium control sequence for QUBO and solver comparison
+RNA_04_gc_rich,synthetic_control,GCGCGAUUCGCGC,13,76.923,19,8,5,(((((...))))),GC-rich sequence for candidate-pair growth testing
+RNA_05_balanced,synthetic_control,AUGCUUCGGAUACGCUAGCUA,21,47.619,60,15,6,.((.((.((...).).))).),Balanced sequence for benchmark comparison
+RNA_06_longer_control,synthetic_control,GGAUACGUAGCUAGGCUAACGCUUAGC,27,51.852,106,30,9,.(.((((((((...)))).)).).).),Longer controlled sequence for scaling and compression estimates
