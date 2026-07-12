@@ -1,0 +1,151 @@
+{
+  "completed_at_utc": "2026-07-12T18:12:05.903929+00:00",
+  "final_test_consumed": true,
+  "final_test_receipt": {
+    "baseline_variant_id": "baseline_sum",
+    "branch": "phase50C-final-test",
+    "completed_at_utc": "2026-07-12T18:12:05.887536+00:00",
+    "evaluator_version": "phase50C-final-test-v1",
+    "final_test_consumed": true,
+    "lock_tag": "phase50B-objective-locked",
+    "locked_variant_id": "short2_penalty_3",
+    "objective_selection_performed": false,
+    "phase49_validation_used": false,
+    "phase50_development_used_for_retuning_after_lock": false,
+    "receipt_sha256": "c2f73d46285066c7e0480544fb12b7c9ff187bd1327a9eafa84fecddc72b075c",
+    "resumed_after_interruption": false,
+    "run_id": "phase50C_final_test_001",
+    "run_signature_sha256": "6074d17e827090b4046746d816008aa66f79fe5336ae0675ce33466f7b67267d",
+    "sequence_count": 8,
+    "status": "completed",
+    "summary_delta_locked_minus_baseline": {
+      "exact_match_rate": 0.125,
+      "exact_strict_failure_rate": -0.333333,
+      "false_negatives": -19.0,
+      "false_positives": -24.0,
+      "mean_best_observed_f1": 0.016853,
+      "mean_quadratic_term_count": 0.0,
+      "mean_qubo_variable_count": 0.0,
+      "mean_runtime_seconds": -0.034861,
+      "mean_sa_best_energy_hit_rate": -0.041667,
+      "mean_sa_unique_structure_count": 0.25,
+      "micro_f1": 0.314916,
+      "micro_precision": 0.306384,
+      "micro_recall": 0.322034,
+      "mixed_mean_best_known_f1": 0.346054
+    }
+  },
+  "output_dir": "C:\\Users\\reyes\\QuantumResearch\\quantum-education-research-lab\\moderna-wiser-rna-quantum\\results\\phase50C_final_test\\phase50C_final_test_001",
+  "run_id": "phase50C_final_test_001",
+  "run_signature_sha256": "6074d17e827090b4046746d816008aa66f79fe5336ae0675ce33466f7b67267d",
+  "signature_payload": {
+    "baseline_objective": {
+      "min_stem_length": 2,
+      "reward_mode": "sum",
+      "short_stem_length": 2,
+      "short_stem_penalty": 0.0
+    },
+    "budget": {
+      "run_local_refinement": true,
+      "sa_cooling_rate": 0.995,
+      "sa_final_temperature": 0.01,
+      "sa_initial_temperature": 10.0,
+      "sa_seeds": [
+        3,
+        7,
+        11,
+        19,
+        23,
+        29,
+        31,
+        37,
+        41,
+        43,
+        47,
+        53
+      ],
+      "sa_steps": 6000
+    },
+    "dataset": [
+      {
+        "category": "unstructured_control",
+        "notes": "Frozen Phase 50 final test control.",
+        "sequence": "UUUUUUUUUUUUUUUUUUUU",
+        "sequence_id": "test_control_u20",
+        "source_type": "synthetic_control",
+        "split": "final_test"
+      },
+      {
+        "category": "designed_hairpin",
+        "notes": "Frozen Phase 50 final test hairpin.",
+        "sequence": "GGGCCCGAAAAAGGGCCC",
+        "sequence_id": "test_hairpin_gc18",
+        "source_type": "synthetic_control",
+        "split": "final_test"
+      },
+      {
+        "category": "mixed_composition",
+        "notes": "Frozen Phase 50 final test sequence.",
+        "sequence": "UAACCCAAGCGUUCGGCUUCAC",
+        "sequence_id": "test_mixed_22",
+        "source_type": "deterministic_random",
+        "split": "final_test"
+      },
+      {
+        "category": "mixed_composition",
+        "notes": "Frozen Phase 50 final test sequence.",
+        "sequence": "CUGGCCCAAGCCUGUUUUACUUCAAUUGCA",
+        "sequence_id": "test_mixed_30",
+        "source_type": "deterministic_random",
+        "split": "final_test"
+      },
+      {
+        "category": "mixed_composition",
+        "notes": "Frozen Phase 50 final test sequence.",
+        "sequence": "UGCAAACACUCUGAUUCAAAAUUGCGGAAGUGUACUCU",
+        "sequence_id": "test_mixed_38",
+        "source_type": "deterministic_random",
+        "split": "final_test"
+      },
+      {
+        "category": "mixed_composition",
+        "notes": "Frozen Phase 50 final test sequence.",
+        "sequence": "AUCGGCCGUAGCGGGCAACUCCCGACAGAUACCUCCACUCUCGGCG",
+        "sequence_id": "test_mixed_46",
+        "source_type": "deterministic_random",
+        "split": "final_test"
+      },
+      {
+        "category": "mixed_composition",
+        "notes": "Frozen Phase 50 final test sequence.",
+        "sequence": "UCCAAGUCUCAACAACCUGCCGUUUAGCUUAUCUUGCAUGUUCCCUUUCAAGGG",
+        "sequence_id": "test_mixed_54",
+        "source_type": "deterministic_random",
+        "split": "final_test"
+      },
+      {
+        "category": "mixed_composition",
+        "notes": "Frozen Phase 50 final test sequence.",
+        "sequence": "AGCGUCCCUUGAGCGACACACUAUUCCGUCAAUCAGGAGAAGGUGGUCUGACCAAAACUAAG",
+        "sequence_id": "test_mixed_62",
+        "source_type": "deterministic_random",
+        "split": "final_test"
+      }
+    ],
+    "evaluator_version": "phase50C-final-test-v1",
+    "exact_max_variables": 20,
+    "lock_decision_sha256": "8225840e105697a240470d195f773bc47d151f17f80cb0d60b2b53bba9510c81",
+    "locked_config_sha256": "e27fb9929e76a2284e7bbc95b7ce81ac9f4bc8d1509b01c392566f9d117e202b",
+    "locked_objective": {
+      "min_stem_length": 2,
+      "reward_mode": "sum",
+      "short_stem_length": 2,
+      "short_stem_penalty": 3.0
+    },
+    "locked_variant_id": "short2_penalty_3",
+    "optimal_structure_capture_limit": 2048,
+    "required_tag": "phase50B-objective-locked"
+  },
+  "started_at_utc": "2026-07-12T18:11:59.860910+00:00",
+  "status": "completed"
+}
