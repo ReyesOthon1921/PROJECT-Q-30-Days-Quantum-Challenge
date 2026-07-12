@@ -1,0 +1,19 @@
+dataset_path: data/benchmarks/phase50_solver_diagnostics_sequences.csv
+strict_config_path: configs/phase50_locked_phase49_config.yaml
+output_root: results/phase50_solver_diagnostics
+resume: true
+fail_fast: false
+development_split: development
+
+# Multi-seed simulated-annealing diagnostics.
+sa_seeds: [3, 7, 11, 19, 23, 29, 31, 37, 41, 43, 47, 53]
+sa_steps: 6000
+sa_initial_temperature: 10.0
+sa_final_temperature: 0.01
+sa_cooling_rate: 0.995
+run_local_refinement: true
+
+# Exact enumeration is used only to distinguish solver and objective failures
+# on small QUBOs.
+exact_max_variables: 20
+energy_tolerance: 1.0e-9
