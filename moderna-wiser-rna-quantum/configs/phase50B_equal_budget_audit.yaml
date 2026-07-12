@@ -1,0 +1,44 @@
+dataset_path: data/benchmarks/phase50_solver_diagnostics_sequences.csv
+strict_config_path: configs/phase50_locked_phase49_config.yaml
+output_root: results/phase50B_equal_budget_audit
+resume: true
+exact_max_variables: 20
+optimal_structure_capture_limit: 2048
+
+budget:
+  sa_seeds: [3, 7, 11, 19, 23, 29, 31, 37, 41, 43, 47, 53]
+  sa_steps: 6000
+  sa_initial_temperature: 10.0
+  sa_final_temperature: 0.01
+  sa_cooling_rate: 0.995
+  run_local_refinement: true
+
+selection:
+  baseline_variant_id: baseline_sum
+  micro_f1_noninferiority_margin: 0.03
+  exact_failure_rate_noninferiority_margin: 0.0
+
+variants:
+  - id: baseline_sum
+    description: Frozen Phase 50A linear reward baseline under the full confirmation budget.
+    objective:
+      reward_mode: sum
+      short_stem_penalty: 0.0
+      short_stem_length: 2
+      min_stem_length: 2
+
+  - id: short2_penalty_3
+    description: Add a +3 penalty to every two-pair candidate stem.
+    objective:
+      reward_mode: sum
+      short_stem_penalty: 3.0
+      short_stem_length: 2
+      min_stem_length: 2
+
+  - id: min_stem_length_3
+    description: Remove all two-pair stems from the candidate space.
+    objective:
+      reward_mode: sum
+      short_stem_penalty: 0.0
+      short_stem_length: 2
+      min_stem_length: 3
