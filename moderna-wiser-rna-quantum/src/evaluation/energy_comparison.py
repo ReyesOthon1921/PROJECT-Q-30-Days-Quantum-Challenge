@@ -1,26 +1,64 @@
 """Diagnostic ViennaRNA-MFE versus QUBO-objective comparison."""
-
 from __future__ import annotations
 
-from typing import Any
+from typing import Dict, Optional
 
 
-def compare_energy(reference_energy: float, qubo_energy: float) -> dict[str, Any]:
-    """Compare numerical values without asserting physical equivalence."""
+ENERGY_NOTE = (
+    "Diagnostic comparison only. ViennaRNA MFE energy and QUBO energy are "
+    "different scoring systems and should not be treated as physically equivalent."
+)
 
-    reference = float(reference_energy)
-    qubo = float(qubo_energy)
-    difference = qubo - reference
+
+def compare_energy(
+    reference_energy: Optional[float],
+    qubo_energy: Optional[float],
+) -> Dict[str, object]:
+    reference_available = reference_energy is not None
+    qubo_available = qubo_energy is not None
+
+    if not reference_available or not qubo_available:
+        return {
+            "reference_energy": reference_energy,
+            "qubo_energy": qubo_energy,
+            "reference_available": reference_available,
+            "qubo_available": qubo_available,
+            "comparison_available": False,
+            "energy_difference": None,
+            "absolute_energy_difference": None,
+            "note": ENERGY_NOTE,
+        }
+
+    energy_difference = float(qubo_energy) - float(reference_energy)
+    absolute_energy_difference = abs(energy_difference)
 
     return {
-        "reference_energy": reference,
-        "qubo_energy": qubo,
-        "energy_difference": difference,
-        "absolute_energy_difference": abs(difference),
-        "note": (
-            "Diagnostic only: ViennaRNA MFE is a thermodynamic free-energy "
-            "estimate, while the QUBO value is an optimization objective in a "
-            "different scoring system. The values are not physically equivalent "
-            "and must not be interpreted as the same unit or model."
-        ),
+        "reference_energy": float(reference_energy),
+        "qubo_energy": float(qubo_energy),
+        "reference_available": True,
+        "qubo_available": True,
+        "comparison_available": True,
+        "energy_difference": energy_difference,
+        "absolute_energy_difference": absolute_energy_difference,
+        "note": ENERGY_NOTE,
     }
+
+
+if __name__ == "__main__":
+    import argparse
+    import json
+
+    parser = argparse.ArgumentParser(
+        description="Compare ViennaRNA reference energy against QUBO energy."
+    )
+    parser.add_argument("--reference-energy", type=float, required=True)
+    parser.add_argument("--qubo-energy", type=float, required=True)
+
+    args = parser.parse_args()
+
+    result = compare_energy(
+        reference_energy=args.reference_energy,
+        qubo_energy=args.qubo_energy,
+    )
+
+    print(json.dumps(result, indent=2))
