@@ -1,0 +1,27 @@
+sequence: GGGAAAUCC
+min_loop_length: 3
+allow_wobble: true
+candidate_mode: stems
+stem_min_length: 2
+overlap_penalty: 14.0
+crossing_penalty: 12.0
+solver_exact_max_variables: 20
+run_greedy: true
+run_simulated_annealing: true
+simulated_annealing_steps: 8000
+simulated_annealing_initial_temperature: 10.0
+simulated_annealing_final_temperature: 0.01
+simulated_annealing_cooling_rate: 0.995
+random_seed: 7
+rnafold_executable: RNAfold
+allow_vienna_python_fallback: true
+notes: Selected on the Phase 50 development split under an equal solver budget. The
+  Phase 50 final_test split remains frozen.
+phase50B_objective_variant_id: short2_penalty_3
+phase50B_objective:
+  reward_mode: sum
+  short_stem_penalty: 3.0
+  short_stem_length: 2
+  min_stem_length: 2
+phase50B1_equal_budget_audit_run_id: phase50B1_equal_budget_001
+phase50B1_lock_recommended: true
