@@ -1,0 +1,25 @@
+dataset_path: data/benchmarks/phase50_solver_diagnostics_sequences.csv
+locked_objective_config_path: configs/phase50B_locked_objective_config.yaml
+lock_decision_path: configs/phase50B_lock_decision.json
+output_root: results/phase50C_final_test
+required_lock_tag: phase50B-objective-locked
+required_branch: phase50C-final-test
+expected_final_test_count: 8
+expected_locked_variant_id: short2_penalty_3
+exact_max_variables: 20
+optimal_structure_capture_limit: 2048
+resume: true
+
+budget:
+  sa_seeds: [3, 7, 11, 19, 23, 29, 31, 37, 41, 43, 47, 53]
+  sa_steps: 6000
+  sa_initial_temperature: 10.0
+  sa_final_temperature: 0.01
+  sa_cooling_rate: 0.995
+  run_local_refinement: true
+
+baseline_objective:
+  reward_mode: sum
+  short_stem_penalty: 0.0
+  short_stem_length: 2
+  min_stem_length: 2
