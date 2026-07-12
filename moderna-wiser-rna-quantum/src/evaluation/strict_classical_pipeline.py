@@ -329,6 +329,7 @@ def run_pipeline(sequence: str, run_id: str, config: Dict[str, Any], output_root
         cleaned_sequence,
         timeout_seconds=int(config.get("rnafold_timeout_seconds", 15)),
         executable=str(config.get("rnafold_executable", "RNAfold")),
+        allow_python_fallback=bool(config.get("allow_vienna_python_fallback", True)),
     )
     tracker.stop()
 
@@ -431,6 +432,9 @@ def run_pipeline(sequence: str, run_id: str, config: Dict[str, Any], output_root
         "sequence": cleaned_sequence,
         "output_dir": str(output_dir),
         "vienna_success": vienna_reference.get("success"),
+        "vienna_method": vienna_reference.get("vienna_method"),
+        "vienna_structure": vienna_reference.get("reference_structure"),
+        "vienna_energy": vienna_reference.get("reference_energy"),
         "predicted_dotbracket": predicted_dotbracket,
         "best_solver": best["solver"],
         "best_qubo_energy": best["energy"],

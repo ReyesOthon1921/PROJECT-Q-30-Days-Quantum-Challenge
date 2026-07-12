@@ -1,49 +1,64 @@
 # Strict Classical Foundation
 
-## Goal
+## Purpose
 
-One command takes an RNA sequence and saves a reproducible classical benchmark report:
+This phase completes the strict classical benchmark bridge for the RNA-QUBO project.
+
+The foundation supports one-sequence and 12-sequence runs:
 
 ```text
 RNA input
-→ automatic ViennaRNA/RNAfold reference
-→ candidate base-pair/stem search space
-→ stem-based QUBO formulation
-→ classical solver result
-→ reconstructed dot-bracket structure
-→ structural comparison
-→ diagnostic energy comparison
-→ runtime summary
-→ saved report
+→ ViennaRNA reference structure/energy when available
+→ QUBO prediction
+→ direct structure/energy comparison when available
+→ saved reproducible report
 ```
 
-## Run
+## One-sequence command
 
 ```cmd
-python src\evaluation\strict_classical_pipeline.py --sequence GGGAAAUCC --run-id phase48_smoke_test
+python -m src.evaluation.strict_classical_pipeline --sequence GGGAAAUCC --run-id professor_check_final
 ```
 
-Outputs are saved in:
+Output:
 
 ```text
-results/classical_foundation/phase48_smoke_test/
+results/classical_foundation/professor_check_final/
 ```
 
-## Required Outputs
+## Batch command
 
-- `input_sequence.txt`
-- `vienna_reference.json`
-- `candidate_pairs.csv`
-- `candidate_stems.csv`
-- `qubo_summary.csv`
-- `solver_results.csv`
-- `predicted_structure.json`
-- `structural_comparison.json`
-- `energy_comparison.json`
-- `runtime_summary.json`
-- `experiment_report.md`
-- `artifact_manifest.csv`
+```cmd
+python -m src.evaluation.run_strict_classical_batch --dataset data\external\phase51_external_dataset.csv --batch-id professor_12_sequence_check
+```
 
-## Safe Claim Boundary
+Output:
 
-This foundation does not claim quantum advantage, clinical accuracy, or final biological validation. ViennaRNA MFE and QUBO objective values are diagnostic only and are not physically equivalent scoring systems.
+```text
+results/classical_foundation_batch/professor_12_sequence_check/
+```
+
+## ViennaRNA availability
+
+Run:
+
+```cmd
+python -m src.evaluation.vienna_preflight
+```
+
+The Vienna reference layer supports:
+
+1. RNAfold command-line executable.
+2. Python ViennaRNA fallback through `import RNA`.
+3. Safe unavailable status when neither method is installed.
+
+## Important limitation
+
+ViennaRNA MFE energy and QUBO objective value are different scoring systems. The energy comparison is diagnostic only and must not be treated as physical equivalence.
+
+## Safe claim boundary
+
+- No quantum advantage claim.
+- No clinical accuracy claim.
+- No final biological validation claim.
+- The strict classical framework is a reproducible benchmark and validation layer before deeper QAOA/VQE experiments.

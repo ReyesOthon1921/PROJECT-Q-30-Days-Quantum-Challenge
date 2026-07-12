@@ -76,6 +76,7 @@ def build_experiment_report(
         "## ViennaRNA Reference",
         "",
         f"- RNAfold success: `{vienna_reference.get('success')}`",
+        f"- Vienna method: `{_format_optional(vienna_reference.get('vienna_method'))}`",
         f"- Reference structure: `{_format_optional(vienna_reference.get('reference_structure'))}`",
         f"- Reference energy: `{_format_optional(vienna_reference.get('reference_energy'))}`",
         f"- Runtime seconds: `{_format_optional(vienna_reference.get('runtime_seconds'))}`",

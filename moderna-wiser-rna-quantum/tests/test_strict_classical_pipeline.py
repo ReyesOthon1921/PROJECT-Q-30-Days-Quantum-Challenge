@@ -1,7 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from src.evaluation.strict_classical_pipeline import generate_candidate_pairs, generate_candidate_stems, load_config, run_pipeline
+
+from src.evaluation.strict_classical_pipeline import (
+    generate_candidate_pairs,
+    generate_candidate_stems,
+    load_config,
+    run_pipeline,
+)
 
 
 def test_generate_candidate_pairs_returns_candidates():
@@ -22,6 +28,7 @@ def test_run_pipeline_creates_outputs(tmp_path: Path):
     config["simulated_annealing_steps"] = 25
     result = run_pipeline("GGGAAAUCC", "pytest_run", config, output_root=str(tmp_path))
     assert result["success"] is True
+    assert "vienna_method" in result
     assert Path(result["output_dir"]).exists()
     assert (Path(result["output_dir"]) / "experiment_report.md").exists()
     assert (Path(result["output_dir"]) / "candidate_pairs.csv").exists()
