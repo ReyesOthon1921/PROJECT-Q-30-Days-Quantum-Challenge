@@ -1,0 +1,89 @@
+PROJECT-Q Day 18 - Quantum Finance Lab
+================================================
+
+Objective
+---------
+Use four qubits to represent four investment choices
+and sample candidate portfolios from a parameterized
+quantum circuit.
+
+Important limitation
+--------------------
+This lab samples candidate portfolios.
+It does not yet perform full QAOA or VQE optimization.
+
+Asset Mapping
+-------------
+q0 = Asset A
+q1 = Asset B
+q2 = Asset C
+q3 = Asset D
+
+Portfolio strings are displayed in A-B-C-D order.
+
+Rotation Angles
+---------------
+Asset A: 0.8 radians
+Asset B: 1.2 radians
+Asset C: 0.5 radians
+Asset D: 1.0 radians
+
+Shots
+-----
+1024
+
+Most Frequently Sampled Portfolio
+---------------------------------
+Portfolio: 1111
+Selected assets: A, B, C, D
+Count: 582/1024
+Sampling probability: 56.84%
+
+All Measured Portfolios
+-----------------------
+1111: count=582, probability=56.84%, assets=A, B, C, D
+1101: count=212, probability=20.70%, assets=A, B, D
+0111: count=81, probability=7.91%, assets=B, C, D
+0101: count=45, probability=4.39%, assets=B, D
+1110: count=44, probability=4.30%, assets=A, B, C
+1011: count=19, probability=1.86%, assets=A, C, D
+1100: count=17, probability=1.66%, assets=A, B
+0110: count=9, probability=0.88%, assets=B, C
+1001: count=6, probability=0.59%, assets=A, D
+0011: count=3, probability=0.29%, assets=C, D
+0100: count=3, probability=0.29%, assets=B
+1010: count=2, probability=0.20%, assets=A, C
+0001: count=1, probability=0.10%, assets=D
+
+Validation
+----------
+PASS: Measurement counts equal 1024 requested shots.
+PASS: Every measured result is a valid four-bit portfolio.
+
+Workflow
+--------
+1. Create four investment qubits.
+2. Apply Hadamard gates to prepare candidate portfolios.
+3. Apply parameterized RY rotation gates.
+4. Measure the four-qubit circuit.
+5. Convert Qiskit output into Asset A-B-C-D order.
+6. Rank portfolios by their sampling frequency.
+
+Circuit
+-------
+        ┌───┐ ░ ┌─────────┐ ░  ░ ┌─┐         
+   q_0: ┤ H ├─░─┤ Ry(0.8) ├─░──░─┤M├─────────
+        ├───┤ ░ ├─────────┤ ░  ░ └╥┘┌─┐      
+   q_1: ┤ H ├─░─┤ Ry(1.2) ├─░──░──╫─┤M├──────
+        ├───┤ ░ ├─────────┤ ░  ░  ║ └╥┘┌─┐   
+   q_2: ┤ H ├─░─┤ Ry(0.5) ├─░──░──╫──╫─┤M├───
+        ├───┤ ░ └┬───────┬┘ ░  ░  ║  ║ └╥┘┌─┐
+   q_3: ┤ H ├─░──┤ Ry(1) ├──░──░──╫──╫──╫─┤M├
+        └───┘ ░  └───────┘  ░  ░  ║  ║  ║ └╥┘
+meas: 4/══════════════════════════╩══╩══╩══╩═
+                                  0  1  2  3 
+
+Disclaimer
+----------
+This is an educational quantum computing demonstration.
+It is not financial or investment advice.
