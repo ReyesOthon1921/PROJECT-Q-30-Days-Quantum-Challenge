@@ -74,11 +74,11 @@ def can_pair(left: str, right: str, allow_wobble: bool = True) -> bool:
 
 def pair_type(left: str, right: str) -> str:
     pair = (left.upper(), right.upper())
-    if pair in {("A", "U"), ("U", "A")}: 
+    if pair in {("A", "U"), ("U", "A")}:
         return "AU"
-    if pair in {("G", "C"), ("C", "G")}: 
+    if pair in {("G", "C"), ("C", "G")}:
         return "GC"
-    if pair in {("G", "U"), ("U", "G")}: 
+    if pair in {("G", "U"), ("U", "G")}:
         return "GU"
     return "invalid"
 
