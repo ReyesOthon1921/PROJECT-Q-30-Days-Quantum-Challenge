@@ -49,6 +49,22 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "allow_vienna_python_fallback": True,
 }
 
+REQUIRED_OUTPUTS = (
+    "input_sequence.txt",
+    "vienna_reference.json",
+    "candidate_pairs.csv",
+    "candidate_stems.csv",
+    "qubo_summary.csv",
+    "solver_results.csv",
+    "predicted_structure.json",
+    "structural_comparison.json",
+    "energy_comparison.json",
+    "runtime_summary.json",
+    "config_snapshot.json",
+    "artifact_manifest.csv",
+    "experiment_report.md",
+)
+
 
 def load_config(config_path: Optional[str]) -> Dict[str, Any]:
     config = dict(DEFAULT_CONFIG)
@@ -320,7 +336,36 @@ def serialize_stems(stems: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return rows
 
 
-def run_pipeline(sequence: str, run_id: str, config: Dict[str, Any], output_root: str = "results/classical_foundation") -> Dict[str, Any]:
+def run_pipeline(
+    sequence: str,
+    run_id: str,
+    config: Optional[Dict[str, Any]] = None,
+    output_root: str = "results/classical_foundation",
+    *,
+    config_path: Optional[str] = None,
+    output_folder: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Run the strict classical pipeline.
+
+    The modern interface accepts ``config`` and ``output_root``.
+    ``config_path`` and ``output_folder`` remain supported for
+    compatibility with the original Phase 48 integration interface.
+    """
+
+    if config is not None and config_path is not None:
+        raise ValueError(
+            "Provide either config or config_path, not both."
+        )
+
+    config = (
+        dict(config)
+        if config is not None
+        else load_config(config_path)
+    )
+
+    if output_folder is not None:
+        output_root = str(output_folder)
+
     tracker = RuntimeTracker()
     cleaned_sequence = validate_rna_sequence(sequence)
 
@@ -426,7 +471,17 @@ def run_pipeline(sequence: str, run_id: str, config: Dict[str, Any], output_root
         config=config,
     )
 
+    strict_complete = (
+        bool(vienna_reference.get("success"))
+        and bool(structural_comparison.get("comparison_available"))
+        and all(
+            (output_dir / filename).exists()
+            for filename in REQUIRED_OUTPUTS
+        )
+    )
+
     return {
+        "strict_complete": strict_complete,
         "success": True,
         "run_id": run_id,
         "sequence": cleaned_sequence,

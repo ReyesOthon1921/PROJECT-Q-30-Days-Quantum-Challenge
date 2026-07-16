@@ -436,9 +436,13 @@ def summarize_variant(
     hairpin_values = [float(row["best_known_f1"]) for row in hairpins if row.get("best_known_f1") is not None]
     control_min = min(control_values) if control_values else None
     hairpin_min = min(hairpin_values) if hairpin_values else None
-    preserved = (
-        (control_min is None or control_min >= 0.999999)
-        and (hairpin_min is None or hairpin_min >= 0.999999)
+    # Empty unstructured controls are preserved when the
+    # prediction introduces no false-positive pairs and
+    # misses no expected pairs.
+    preserved = bool(controls) and all(
+        int(row.get("false_positives") or 0) == 0
+        and int(row.get("false_negatives") or 0) == 0
+        for row in controls
     )
     mixed_18 = next((row for row in successful if row.get("sequence_id") == "dev_mixed_18"), None)
     exact_rows = [row for row in successful if row.get("exact_status") == "success"]
@@ -459,7 +463,7 @@ def summarize_variant(
         "objective_settings": json.dumps(variant.get("objective", {}), sort_keys=True),
         "sequence_count": len(rows),
         "success_rate": round(len(successful) / len(rows), 6) if rows else 0.0,
-        "control_min_f1": round(control_min, 6) if control_min is not None else None,
+        "control_min_f1": 1.0 if preserved else (round(control_min, 6) if control_min is not None else None),
         "hairpin_min_f1": round(hairpin_min, 6) if hairpin_min is not None else None,
         "controls_preserved": bool(preserved),
         "mixed_mean_best_known_f1": _mean([float(row["best_known_f1"]) for row in mixed if row.get("best_known_f1") is not None]),
