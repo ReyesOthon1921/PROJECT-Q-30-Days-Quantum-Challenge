@@ -1,0 +1,30 @@
+PROJECT-Q 30-DAY QUANTUM COMPUTING CHALLENGE
+WEEK 3 MINI PROJECT 3 — QUANTUM SECURITY TOOLKIT
+CHECKPOINT 3: SECURITY ANALYSIS
+
+EXPERIMENT CONFIGURATION
+Trials per scenario       : 10
+Qubits per trial          : 64
+Detection threshold       : 11.00%
+
+NO-EVE CHANNEL
+Average QBER             : 0.00%
+QBER standard deviation  : 0.00%
+Average sifted key length: 32.60
+False alarms              : 0
+False-alarm rate         : 0.00%
+
+EVE INTERCEPT-AND-RESEND CHANNEL
+Average QBER             : 26.17%
+QBER standard deviation  : 9.66%
+Average sifted key length: 31.90
+Attacks detected          : 10
+Attack detection rate    : 100.00%
+
+INTERPRETATION
+The ideal channel should produce matching sifted keys and approximately 0% QBER.
+An intercept-and-resend attack should produce an average QBER near 25% because Eve guesses the wrong basis approximately half the time, and half of those disturbed states produce incorrect bits.
+A QBER above the educational detection threshold causes the session to be rejected.
+
+NOTE
+This threshold is used for an educational simulation. Real QKD deployments require device characterization, authenticated classical communication, error correction, privacy amplification, and a complete security proof.

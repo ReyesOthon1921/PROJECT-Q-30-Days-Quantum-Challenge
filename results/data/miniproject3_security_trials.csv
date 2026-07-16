@@ -1,0 +1,21 @@
+scenario,trial,seed,qubits_transmitted,sifted_key_length,errors,qber,qber_percent,attack_detected
+No Eve,1,301,64,37,0,0.000000,0.00,False
+Eve Attack,1,100301,64,32,5,0.156250,15.62,True
+No Eve,2,302,64,36,0,0.000000,0.00,False
+Eve Attack,2,100302,64,26,3,0.115385,11.54,True
+No Eve,3,303,64,31,0,0.000000,0.00,False
+Eve Attack,3,100303,64,31,8,0.258065,25.81,True
+No Eve,4,304,64,25,0,0.000000,0.00,False
+Eve Attack,4,100304,64,33,11,0.333333,33.33,True
+No Eve,5,305,64,35,0,0.000000,0.00,False
+Eve Attack,5,100305,64,35,8,0.228571,22.86,True
+No Eve,6,306,64,33,0,0.000000,0.00,False
+Eve Attack,6,100306,64,38,15,0.394737,39.47,True
+No Eve,7,307,64,31,0,0.000000,0.00,False
+Eve Attack,7,100307,64,30,13,0.433333,43.33,True
+No Eve,8,308,64,30,0,0.000000,0.00,False
+Eve Attack,8,100308,64,37,9,0.243243,24.32,True
+No Eve,9,309,64,36,0,0.000000,0.00,False
+Eve Attack,9,100309,64,29,8,0.275862,27.59,True
+No Eve,10,310,64,32,0,0.000000,0.00,False
+Eve Attack,10,100310,64,28,5,0.178571,17.86,True

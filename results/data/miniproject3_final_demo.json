@@ -1,0 +1,82 @@
+{
+  "project": "Project-Q 30-Day Quantum Computing Challenge",
+  "mini_project": "Week 3 Mini Project 3: Quantum Security Toolkit",
+  "experiment_configuration": {
+    "qubits_per_scenario": 128,
+    "base_seed": 700,
+    "educational_qber_threshold": 0.11,
+    "simulator_method": "stabilizer"
+  },
+  "secure_channel": {
+    "scenario": "Secure BB84 channel without Eve",
+    "seed": 700,
+    "qubits_transmitted": 128,
+    "matching_bases": 66,
+    "discarded_positions": 62,
+    "sifted_key_length": 66,
+    "errors": 0,
+    "qber": 0.0,
+    "qber_percent": 0.0,
+    "detection_threshold": 0.11,
+    "session_decision": "ACCEPTED",
+    "alice_key_fingerprint": "d02a6eb2fee4c593",
+    "bob_key_fingerprint": "d02a6eb2fee4c593",
+    "key_fingerprints_match": true
+  },
+  "attacked_channel": {
+    "scenario": "BB84 intercept-and-resend attack",
+    "seed": 100700,
+    "qubits_transmitted": 128,
+    "qubits_intercepted_by_eve": 128,
+    "eve_alice_basis_matches": 57,
+    "matching_bases": 68,
+    "discarded_positions": 60,
+    "sifted_key_length": 68,
+    "error_positions": [
+      2,
+      8,
+      18,
+      19,
+      36,
+      44,
+      52,
+      53,
+      55,
+      58,
+      61,
+      87,
+      92,
+      97,
+      114,
+      118,
+      126
+    ],
+    "errors": 17,
+    "qber": 0.25,
+    "qber_percent": 25.0,
+    "detection_threshold": 0.11,
+    "session_decision": "REJECTED",
+    "eavesdropper_detected": true,
+    "alice_key_fingerprint": "1cd9f7e818b6c6ed",
+    "bob_key_fingerprint": "706e96d853dfbfdb",
+    "key_fingerprints_match": false
+  },
+  "comparison": {
+    "secure_channel_qber_percent": 0.0,
+    "attacked_channel_qber_percent": 25.0,
+    "qber_increase_percentage_points": 25.0,
+    "secure_channel_passed": true,
+    "attack_detected": true
+  },
+  "final_validation": {
+    "toolkit_passed": true,
+    "status": "PASS",
+    "conclusion": "The ideal BB84 channel generated matching sifted keys, while Eve's intercept-and-resend attack introduced a detectable increase in QBER."
+  },
+  "limitations": [
+    "This is an educational simulation rather than a production quantum communication system.",
+    "The classical communication channel is assumed to be authenticated.",
+    "Error correction and privacy amplification are not implemented.",
+    "The QBER threshold is an educational experiment setting and not a complete security proof."
+  ]
+}
