@@ -1,0 +1,4 @@
+label,sequence,audience_note
+Challenge demo,GGGAAAUCC,Small input for exact-validation style explanation
+Short GC-rich demo,GGGCCCAAAUCCCGGG,Shows more candidate structure and graph conflict behavior
+Mixed synthetic demo,AUGGCUACGGAUUCCGAU,Shows an investor-friendly synthetic example

@@ -1,0 +1,25 @@
+{
+  "label": "day24_challenge_demo",
+  "audience": "challenge",
+  "sequence": "GGGAAAUCC",
+  "sequence_length": 9,
+  "gc_content": 55.56,
+  "candidate_pair_count": 9,
+  "candidate_stem_count": 4,
+  "qubo_variable_count": 4,
+  "qubo_conflict_edge_count": 6,
+  "graph_density": 1.0,
+  "connected_components": 1,
+  "max_degree": 3,
+  "hub_variable_count": 4,
+  "graph_risk_label": "High graph risk",
+  "suggested_solver_path": "Run exact validation first, then compare greedy and simulated annealing.",
+  "three_minute_story": [
+    "Challenge goal: show a reproducible classical-to-quantum RNA optimization workflow.",
+    "Input: paste an RNA sequence or choose a sample sequence.",
+    "Pipeline: candidate stems become QUBO variables; conflicts become graph edges.",
+    "Output: report the solver path, graph risk, validation status, and next quantum-readiness step."
+  ],
+  "safe_claim": "This MVP is a computational benchmark and decision-intelligence prototype. It does not claim quantum advantage, clinical accuracy, or final biological validation.",
+  "next_milestone": "Connect this guided demo panel to the full Flask dashboard and route each metric to the existing strict classical, exact-validation, graph-diagnostic, and quantum-readiness outputs."
+}

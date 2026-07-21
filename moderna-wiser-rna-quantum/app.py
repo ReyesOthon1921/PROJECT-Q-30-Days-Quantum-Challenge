@@ -392,6 +392,56 @@ def exact_validation_dashboard_api():
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
 
+# === RNAQ Labs guided demo route BEGIN ===
+# Live route for the 3-minute guided MVP demo.
+# This keeps the main Flask dashboard deployed through wsgi:app,
+# while exposing the demo at /mvp-demo and /rnaq-demo.
+import json as _rnaq_json
+from dataclasses import asdict as _rnaq_asdict
+from flask import render_template_string as _rnaq_render_template_string, request as _rnaq_request
+
+from rnaq_labs_demo_app import (
+    PAGE as _RNAQ_DEMO_PAGE,
+    SAMPLES as _RNAQ_DEMO_SAMPLES,
+    AUDIENCE_GUIDE as _RNAQ_DEMO_AUDIENCE_GUIDE,
+)
+from src.reports.rnaq_labs_demo_packet import build_demo_packet as _rnaq_build_demo_packet
+
+
+@app.route('/mvp-demo', methods=['GET', 'POST'])
+@app.route('/rnaq-demo', methods=['GET', 'POST'])
+def rnaq_labs_guided_demo():
+    sequence = _rnaq_request.form.get('sequence', 'GGGAAAUCC')
+    audience = _rnaq_request.form.get('audience', 'challenge')
+
+    if audience not in _RNAQ_DEMO_AUDIENCE_GUIDE:
+        audience = 'challenge'
+
+    error = None
+    result = None
+    result_json = ''
+
+    if _rnaq_request.method == 'POST':
+        try:
+            packet_audience = audience if audience in {'challenge', 'investor', 'professor'} else 'investor'
+            result = _rnaq_build_demo_packet(sequence, audience=packet_audience, label='web_demo')
+            result_json = _rnaq_json.dumps(_rnaq_asdict(result), indent=2)
+        except Exception as exc:  # Keep the demo UI safe during live walkthroughs.
+            error = str(exc)
+
+    return _rnaq_render_template_string(
+        _RNAQ_DEMO_PAGE,
+        samples=_RNAQ_DEMO_SAMPLES,
+        sample_json=_rnaq_json.dumps(_RNAQ_DEMO_SAMPLES),
+        sequence=sequence,
+        audience=audience,
+        audience_guide=_RNAQ_DEMO_AUDIENCE_GUIDE,
+        guide=_RNAQ_DEMO_AUDIENCE_GUIDE[audience],
+        error=error,
+        result=result,
+        result_json=result_json,
+    )
+# === RNAQ Labs guided demo route END ===
 
 if __name__ == "__main__":
     app.run(debug=True)
