@@ -73,6 +73,7 @@ SYNC_RESOLVE_ROLES = ("administrator", "researcher")
 GATEWAY_VIEW_ROLES = REGISTRY_VIEW_ROLES
 GATEWAY_EDIT_ROLES = ("administrator", "researcher")
 DEVICE_STATUSES = frozenset({"registered", "online", "offline", "maintenance", "retired"})
+DEVICE_DIAGNOSTIC_RESULTS = frozenset({"pass", "warning", "fail", "not_run"})
 BACKUP_MANAGE_ROLES = ("administrator",)
 OUTAGE_MANAGE_ROLES = ("administrator",)
 
@@ -1722,6 +1723,85 @@ def gateway_status() -> str | Response | tuple[str, int]:
                            outage=current_outage_status(), outage_tests=outage_tests)
 
 
+@app.get("/gateway/devices/<device_id>")
+@roles_required(*GATEWAY_VIEW_ROLES)
+def gateway_device_detail(device_id: str) -> str | tuple[str, int]:
+    with get_db() as conn:
+        device = conn.execute("SELECT * FROM gateway_devices WHERE device_id=?", (device_id,)).fetchone()
+        if device is None:
+            return "Device not found", 404
+        events = conn.execute(
+            "SELECT * FROM device_health_events WHERE device_id=? ORDER BY recorded_at DESC, health_event_id DESC",
+            (device_id,),
+        ).fetchall()
+    return render_template("device_detail.html", device=device, events=events,
+                           statuses=sorted(DEVICE_STATUSES), diagnostics=sorted(DEVICE_DIAGNOSTIC_RESULTS))
+
+
+@app.post("/gateway/devices/<device_id>/status")
+@roles_required(*GATEWAY_EDIT_ROLES)
+def gateway_device_status_change(device_id: str) -> Response | tuple[str, int]:
+    new_status = request.form.get("status", "").strip()
+    reason = request.form.get("reason", "").strip()
+    if new_status not in DEVICE_STATUSES or not reason:
+        return "Valid status and reason are required", 400
+    with get_db() as conn:
+        device = conn.execute("SELECT * FROM gateway_devices WHERE device_id=?", (device_id,)).fetchone()
+        if device is None:
+            return "Device not found", 404
+        if device["status"] == "retired":
+            return "Retired devices cannot change status", 409
+        if new_status == "retired" and g.user["role"] != "administrator":
+            abort(403)
+        event_id = new_entity_id("DEVHEALTH")
+        conn.execute("UPDATE gateway_devices SET status=? WHERE device_id=?", (new_status, device_id))
+        conn.execute("""INSERT INTO device_health_events(
+            health_event_id,device_id,event_type,previous_status,reported_status,diagnostic_result,
+            firmware_version,notes,recorded_by,recorded_at
+        ) VALUES(?,?,?,?,?,?,?,?,?,?)""", (
+            event_id, device_id, "status_change", device["status"], new_status, "not_run",
+            device["firmware_version"], reason, g.user["user_id"], utc_now(),
+        ))
+    record_audit_event(g.user["user_id"], "gateway_device_status_changed", "gateway_device", device_id,
+                       json.dumps({"previous_status": device["status"], "new_status": new_status, "reason": reason}))
+    return redirect(url_for("gateway_device_detail", device_id=device_id))
+
+
+@app.post("/gateway/devices/<device_id>/inspections")
+@roles_required(*GATEWAY_EDIT_ROLES)
+def gateway_device_inspection(device_id: str) -> Response | tuple[str, int]:
+    diagnostic = request.form.get("diagnostic_result", "").strip()
+    notes = request.form.get("notes", "").strip()
+    if diagnostic not in DEVICE_DIAGNOSTIC_RESULTS or not notes:
+        return "Valid diagnostic result and notes are required", 400
+    try:
+        battery = float(request.form["battery_percent"]) if request.form.get("battery_percent", "").strip() else None
+        signal = float(request.form["signal_quality"]) if request.form.get("signal_quality", "").strip() else None
+    except ValueError:
+        return "Battery and signal values must be numeric", 400
+    if (battery is not None and not 0 <= battery <= 100) or (signal is not None and not 0 <= signal <= 100):
+        return "Battery and signal values must be between 0 and 100", 400
+    with get_db() as conn:
+        device = conn.execute("SELECT * FROM gateway_devices WHERE device_id=?", (device_id,)).fetchone()
+        if device is None:
+            return "Device not found", 404
+        if device["status"] == "retired":
+            return "Retired devices cannot be inspected", 409
+        firmware = request.form.get("firmware_version", "").strip() or device["firmware_version"]
+        event_id = new_entity_id("DEVHEALTH")
+        conn.execute("UPDATE gateway_devices SET firmware_version=? WHERE device_id=?", (firmware, device_id))
+        conn.execute("""INSERT INTO device_health_events(
+            health_event_id,device_id,event_type,previous_status,reported_status,diagnostic_result,
+            battery_percent,signal_quality,firmware_version,notes,recorded_by,recorded_at
+        ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""", (
+            event_id, device_id, "inspection", device["status"], device["status"], diagnostic,
+            battery, signal, firmware, notes, g.user["user_id"], utc_now(),
+        ))
+    record_audit_event(g.user["user_id"], "gateway_device_inspected", "gateway_device", device_id,
+                       json.dumps({"diagnostic_result": diagnostic, "health_event_id": event_id}))
+    return redirect(url_for("gateway_device_detail", device_id=device_id))
+
+
 @app.post("/gateway/outage-tests")
 @roles_required(*OUTAGE_MANAGE_ROLES)
 def gateway_outage_start() -> Response | tuple[str, int]:
@@ -1810,11 +1890,21 @@ def gateway_backup_verify(backup_id: str) -> Response | tuple[str, int]:
 @roles_required(*GATEWAY_EDIT_ROLES)
 def gateway_device_heartbeat(device_id: str) -> Response | tuple[str, int]:
     with get_db() as conn:
-        device = conn.execute("SELECT device_id FROM gateway_devices WHERE device_id=?", (device_id,)).fetchone()
+        device = conn.execute("SELECT * FROM gateway_devices WHERE device_id=?", (device_id,)).fetchone()
         if device is None:
             return "Device not found", 404
+        if device["status"] == "retired":
+            return "Retired devices cannot report heartbeats", 409
+        recorded_at = utc_now()
         conn.execute("UPDATE gateway_devices SET status='online', last_seen_at=? WHERE device_id=?",
-                     (utc_now(), device_id))
+                     (recorded_at, device_id))
+        conn.execute("""INSERT INTO device_health_events(
+            health_event_id,device_id,event_type,previous_status,reported_status,diagnostic_result,
+            firmware_version,notes,recorded_by,recorded_at
+        ) VALUES(?,?,?,?,?,?,?,?,?,?)""", (
+            new_entity_id("DEVHEALTH"), device_id, "heartbeat", device["status"], "online", "not_run",
+            device["firmware_version"], "Manual heartbeat recorded", g.user["user_id"], recorded_at,
+        ))
     record_audit_event(g.user["user_id"], "gateway_device_heartbeat", "gateway_device", device_id)
     return redirect(url_for("gateway_status"))
 
@@ -1842,6 +1932,7 @@ def export_csv(entity: str) -> tuple[str, int] | Response:
         "evidence_attachments": "SELECT * FROM evidence_attachments ORDER BY recorded_at",
         "sync_submissions": "SELECT * FROM sync_submissions ORDER BY submitted_at",
         "gateway_devices": "SELECT * FROM gateway_devices ORDER BY registered_at",
+        "device_health_events": "SELECT * FROM device_health_events ORDER BY recorded_at",
         "backup_runs": "SELECT * FROM backup_runs ORDER BY created_at",
         "outage_tests": "SELECT * FROM outage_tests ORDER BY started_at",
         "outage_checkpoints": "SELECT * FROM outage_checkpoints ORDER BY recorded_at",
@@ -1872,7 +1963,7 @@ def export_json() -> Response:
         "manual_task_evidence", "manual_task_approvals", "experiments", "treatments", "treatment_assignments",
         "experiment_status_history", "experiment_outcomes", "recommendations",
         "samples", "sample_status_history", "evidence_attachments",
-        "sync_submissions", "gateway_devices", "backup_runs", "outage_tests", "outage_checkpoints",
+        "sync_submissions", "gateway_devices", "device_health_events", "backup_runs", "outage_tests", "outage_checkpoints",
     ]
     data: dict[str, list[dict[str, Any]]] = {}
     with get_db() as conn:

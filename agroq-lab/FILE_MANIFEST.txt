@@ -32,6 +32,7 @@ static/service-worker.js
 static/style.css
 templates/base.html
 templates/dashboard.html
+templates/device_detail.html
 templates/asset_detail.html
 templates/asset_form.html
 templates/experiment_detail.html

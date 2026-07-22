@@ -155,6 +155,14 @@ binding to the LAN. Configure `AGROQ_BIND_HOST`, `AGROQ_PORT`, `AGROQ_DEPLOYMENT
 launcher after replacing its example secret. The gateway records 24-hour outage sessions and
 local workflow checkpoints. A test passes only after 24 measured hours with at least one checkpoint.
 
+## Phase 2D device health history and manual diagnostics
+
+The local device registry now provides a detail page for each gateway, prototype node, sensor,
+or workstation. Researchers and administrators can record attributed heartbeats, bounded manual
+diagnostic readings, firmware observations, and reasoned operational-status changes. Every event
+is append-only, audited, available offline, and included in research exports. Device retirement is
+administrator-only and retired devices cannot silently return to service through a heartbeat.
+
 ## Phase 1D experiments and treatments
 
 Experiments now have hypothesis and lifecycle records, reusable treatment definitions,

@@ -1029,3 +1029,79 @@ def test_phase2c_outage_permissions_and_export(client):
     payload = client.get("/api/export/all.json").get_json()
     assert len(payload["data"]["outage_tests"]) == 1
     assert "outage_checkpoints" in payload["data"]
+
+
+def register_phase2d_device(client, device_id="AGQ-DEVICE-2D"):
+    return client.post("/gateway", data={
+        "device_id": device_id, "name": "Field Node 2D", "device_type": "sensor node",
+        "status": "registered", "firmware_version": "1.0.0",
+    })
+
+
+def test_phase2d_device_detail_and_heartbeat_history(client):
+    login(client)
+    register_phase2d_device(client)
+    assert client.get("/gateway/devices/AGQ-DEVICE-2D").status_code == 200
+    assert client.post("/gateway/devices/AGQ-DEVICE-2D/heartbeat").status_code == 302
+    with get_db() as conn:
+        event = conn.execute("SELECT * FROM device_health_events").fetchone()
+    assert event["event_type"] == "heartbeat"
+    assert event["reported_status"] == "online"
+
+
+def test_phase2d_manual_inspection_records_bounded_diagnostics(client):
+    login(client)
+    register_phase2d_device(client)
+    response = client.post("/gateway/devices/AGQ-DEVICE-2D/inspections", data={
+        "diagnostic_result": "warning", "battery_percent": "48.5", "signal_quality": "71",
+        "firmware_version": "1.0.1", "notes": "Battery replacement should be scheduled",
+    })
+    assert response.status_code == 302
+    with get_db() as conn:
+        event = conn.execute("SELECT * FROM device_health_events").fetchone()
+        device = conn.execute("SELECT * FROM gateway_devices WHERE device_id='AGQ-DEVICE-2D'").fetchone()
+    assert event["battery_percent"] == 48.5
+    assert event["diagnostic_result"] == "warning"
+    assert device["firmware_version"] == "1.0.1"
+
+
+def test_phase2d_invalid_health_measurement_is_rejected(client):
+    login(client)
+    register_phase2d_device(client)
+    response = client.post("/gateway/devices/AGQ-DEVICE-2D/inspections", data={
+        "diagnostic_result": "pass", "battery_percent": "101", "notes": "invalid reading",
+    })
+    assert response.status_code == 400
+
+
+def test_phase2d_status_history_requires_reason(client):
+    login(client)
+    register_phase2d_device(client)
+    assert client.post("/gateway/devices/AGQ-DEVICE-2D/status", data={"status": "maintenance"}).status_code == 400
+    response = client.post("/gateway/devices/AGQ-DEVICE-2D/status", data={
+        "status": "maintenance", "reason": "Manual calibration due",
+    })
+    assert response.status_code == 302
+    with get_db() as conn:
+        event = conn.execute("SELECT * FROM device_health_events").fetchone()
+    assert event["previous_status"] == "registered"
+    assert event["reported_status"] == "maintenance"
+
+
+def test_phase2d_only_admin_can_retire_device(client):
+    login(client)
+    register_phase2d_device(client)
+    create_user("device_researcher", "password-123", "researcher")
+    client.post("/logout")
+    login(client, "device_researcher", "password-123")
+    assert client.post("/gateway/devices/AGQ-DEVICE-2D/status", data={
+        "status": "retired", "reason": "End of service",
+    }).status_code == 403
+
+
+def test_phase2d_health_events_are_exported(client):
+    login(client)
+    register_phase2d_device(client)
+    client.post("/gateway/devices/AGQ-DEVICE-2D/heartbeat")
+    payload = client.get("/api/export/all.json").get_json()
+    assert payload["data"]["device_health_events"][0]["device_id"] == "AGQ-DEVICE-2D"

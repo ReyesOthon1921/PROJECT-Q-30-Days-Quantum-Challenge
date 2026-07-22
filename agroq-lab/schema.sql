@@ -113,6 +113,26 @@ CREATE TABLE IF NOT EXISTS gateway_devices (
 CREATE INDEX IF NOT EXISTS idx_gateway_devices_status
 ON gateway_devices(status, last_seen_at);
 
+CREATE TABLE IF NOT EXISTS device_health_events (
+    health_event_id TEXT PRIMARY KEY,
+    device_id TEXT NOT NULL,
+    event_type TEXT NOT NULL CHECK(event_type IN ('heartbeat','inspection','status_change')),
+    previous_status TEXT,
+    reported_status TEXT NOT NULL CHECK(reported_status IN ('registered','online','offline','maintenance','retired')),
+    diagnostic_result TEXT CHECK(diagnostic_result IS NULL OR diagnostic_result IN ('pass','warning','fail','not_run')),
+    battery_percent REAL CHECK(battery_percent IS NULL OR (battery_percent >= 0 AND battery_percent <= 100)),
+    signal_quality REAL CHECK(signal_quality IS NULL OR (signal_quality >= 0 AND signal_quality <= 100)),
+    firmware_version TEXT,
+    notes TEXT,
+    recorded_by TEXT NOT NULL,
+    recorded_at TEXT NOT NULL,
+    FOREIGN KEY(device_id) REFERENCES gateway_devices(device_id),
+    FOREIGN KEY(recorded_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_device_health_events_device
+ON device_health_events(device_id, recorded_at);
+
 CREATE TABLE IF NOT EXISTS backup_runs (
     backup_id TEXT PRIMARY KEY,
     filename TEXT NOT NULL UNIQUE,
