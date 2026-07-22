@@ -40,6 +40,7 @@
   <a href="{{ url_for('manual_work') }}">Manual Work</a>
   {% endif %}
   <a href="{{ url_for('registry') }}">Registry</a>
+  <a href="{{ url_for('gateway_status') }}">Gateway</a>
   {% if g.user.role in ['administrator', 'researcher'] %}
   <a href="{{ url_for('recommendations') }}">Approvals</a>
   <a href="{{ url_for('sync_conflicts') }}">Sync Conflicts</a>

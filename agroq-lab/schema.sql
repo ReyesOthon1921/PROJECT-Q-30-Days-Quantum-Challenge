@@ -96,6 +96,23 @@ CREATE TABLE IF NOT EXISTS sync_submissions (
     FOREIGN KEY(resolved_by) REFERENCES users(user_id)
 );
 
+CREATE TABLE IF NOT EXISTS gateway_devices (
+    device_id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    device_type TEXT NOT NULL,
+    network_address TEXT,
+    status TEXT NOT NULL CHECK(status IN ('registered','online','offline','maintenance','retired')),
+    firmware_version TEXT,
+    notes TEXT,
+    last_seen_at TEXT,
+    registered_by TEXT NOT NULL,
+    registered_at TEXT NOT NULL,
+    FOREIGN KEY(registered_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_gateway_devices_status
+ON gateway_devices(status, last_seen_at);
+
 CREATE TABLE IF NOT EXISTS treatments (
     treatment_id TEXT PRIMARY KEY,
     experiment_id TEXT NOT NULL,

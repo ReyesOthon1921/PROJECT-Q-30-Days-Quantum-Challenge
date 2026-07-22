@@ -839,3 +839,56 @@ def test_phase1g_sync_records_are_exported(client):
     client.post("/api/sync/observations", json={"items": [sync_item()]})
     payload = client.get("/api/export/all.json").get_json()
     assert len(payload["data"]["sync_submissions"]) == 1
+
+
+def test_phase2a_health_reports_local_gateway(client):
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["status"] == "ok"
+    assert payload["internet_required"] is False
+    assert payload["database"]["available"] is True
+
+
+def test_phase2a_gateway_requires_login(client):
+    response = client.get("/gateway")
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
+def test_phase2a_admin_registers_device_and_heartbeat(client):
+    login(client)
+    response = client.post("/gateway", data={
+        "device_id": "AGQ-DEVICE-001", "name": "Field Gateway", "device_type": "gateway",
+        "network_address": "agroq.local", "status": "registered", "firmware_version": "1.0",
+    })
+    assert response.status_code == 302
+    heartbeat = client.post("/gateway/devices/AGQ-DEVICE-001/heartbeat")
+    assert heartbeat.status_code == 302
+    with get_db() as conn:
+        row = conn.execute("SELECT * FROM gateway_devices WHERE device_id='AGQ-DEVICE-001'").fetchone()
+        assert row["status"] == "online"
+        assert row["last_seen_at"]
+        assert conn.execute("SELECT COUNT(*) n FROM audit_events WHERE entity_type='gateway_device'").fetchone()["n"] == 2
+
+
+def test_phase2a_duplicate_device_is_rejected(client):
+    login(client)
+    data = {"device_id": "AGQ-DEVICE-001", "name": "Gateway", "device_type": "gateway", "status": "registered"}
+    assert client.post("/gateway", data=data).status_code == 302
+    assert client.post("/gateway", data=data).status_code == 409
+
+
+def test_phase2a_viewer_cannot_register_or_heartbeat(client):
+    create_user("gatewayviewer", "password-123", "viewer")
+    login(client, "gatewayviewer", "password-123")
+    assert client.get("/gateway").status_code == 200
+    assert client.post("/gateway", data={"device_id": "X", "name": "X", "device_type": "X", "status": "registered"}).status_code == 403
+    assert client.post("/gateway/devices/X/heartbeat").status_code == 403
+
+
+def test_phase2a_gateway_devices_are_exported(client):
+    login(client)
+    client.post("/gateway", data={"device_id": "AGQ-DEVICE-EXPORT", "name": "Export Gateway", "device_type": "gateway", "status": "registered"})
+    payload = client.get("/api/export/all.json").get_json()
+    assert payload["data"]["gateway_devices"][0]["device_id"] == "AGQ-DEVICE-EXPORT"

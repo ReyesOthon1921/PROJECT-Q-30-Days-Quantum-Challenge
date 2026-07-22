@@ -132,6 +132,13 @@ invalid linked records, and duplicate observation IDs are retained as conflicts 
 overwriting evidence. Administrators and researchers explicitly dismiss a conflict or accept
 its payload as a new immutable observation, with required decision notes and audit history.
 
+## Phase 2A local gateway configuration and system health
+
+The local gateway now exposes its configured name, site, deployment mode, bind host, database
+availability, and offline operating status. An authenticated health page includes a manually
+managed device registry and attributed heartbeat records. Set `AGROQ_GATEWAY_NAME`,
+`AGROQ_SITE_ID`, `AGROQ_DEPLOYMENT_MODE`, and `AGROQ_BIND_HOST` for the field computer.
+
 ## Phase 1D experiments and treatments
 
 Experiments now have hypothesis and lifecycle records, reusable treatment definitions,

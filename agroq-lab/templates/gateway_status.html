@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Local Gateway | AgroQ{% endblock %}
+{% block content %}
+<h1>Local Gateway</h1>
+<p>Operational identity and health for the offline-capable field computer.</p>
+<div class="grid cards">
+  <section class="card"><h2>{{ config.gateway_name }}</h2><p>Site: {{ config.site_id }}</p><p>Mode: {{ config.deployment_mode }}</p><p>Bind host: {{ config.bind_host }}</p></section>
+  <section class="card"><h2>Local readiness</h2><p>Database: {{ config.database_engine }}</p><p>Internet required: No</p><p>Secure secret: {{ 'Configured' if config.secret_configured else 'Development default — change before LAN deployment' }}</p></section>
+</div>
+<h2>Device registry</h2>
+{% if g.user.role in ['administrator', 'researcher'] %}
+<form method="post" class="card form-grid">
+  <label>Device ID<input name="device_id" required placeholder="AGQ-DEVICE-001"></label>
+  <label>Name<input name="name" required></label>
+  <label>Type<input name="device_type" required placeholder="gateway, sensor node, workstation"></label>
+  <label>Network address<input name="network_address"></label>
+  <label>Firmware version<input name="firmware_version"></label>
+  <label>Status<select name="status">{% for status in statuses %}<option>{{ status }}</option>{% endfor %}</select></label>
+  <label>Notes<textarea name="notes"></textarea></label>
+  <button type="submit">Register device</button>
+</form>
+{% endif %}
+<table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Status</th><th>Address</th><th>Last seen</th><th></th></tr></thead><tbody>
+{% for device in devices %}<tr><td>{{ device.device_id }}</td><td>{{ device.name }}</td><td>{{ device.device_type }}</td><td>{{ device.status }}</td><td>{{ device.network_address or '—' }}</td><td>{{ device.last_seen_at or 'Never' }}</td><td>{% if g.user.role in ['administrator','researcher'] and device.status != 'retired' %}<form method="post" action="{{ url_for('gateway_device_heartbeat', device_id=device.device_id) }}"><button>Record heartbeat</button></form>{% endif %}</td></tr>{% else %}<tr><td colspan="7">No devices registered.</td></tr>{% endfor %}
+</tbody></table>
+{% endblock %}

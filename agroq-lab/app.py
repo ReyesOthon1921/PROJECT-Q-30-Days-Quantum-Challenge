@@ -68,6 +68,9 @@ SAMPLE_MANAGE_ROLES = ("administrator", "researcher")
 ATTACHMENT_ENTITY_TYPES = frozenset({"sample", "observation", "manual_task", "experiment"})
 SYNC_CREATE_ROLES = ("administrator", "researcher", "field_operator")
 SYNC_RESOLVE_ROLES = ("administrator", "researcher")
+GATEWAY_VIEW_ROLES = REGISTRY_VIEW_ROLES
+GATEWAY_EDIT_ROLES = ("administrator", "researcher")
+DEVICE_STATUSES = frozenset({"registered", "online", "offline", "maintenance", "retired"})
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -80,6 +83,20 @@ def utc_now() -> str:
 
 def new_audit_id() -> str:
     return f"AGQ-AUDIT-{time.time_ns()}"
+
+
+def gateway_configuration() -> dict[str, Any]:
+    secret_configured = os.environ.get("AGROQ_SECRET_KEY", DEV_SECRET_KEY) != DEV_SECRET_KEY
+    return {
+        "gateway_name": os.environ.get("AGROQ_GATEWAY_NAME", "agroq-field-gateway"),
+        "site_id": os.environ.get("AGROQ_SITE_ID", "AGQ-SITE-001"),
+        "deployment_mode": os.environ.get("AGROQ_DEPLOYMENT_MODE", "development"),
+        "bind_host": os.environ.get("AGROQ_BIND_HOST", "127.0.0.1"),
+        "secret_configured": secret_configured,
+        "database_engine": "sqlite",
+        "database_path": str(DB_PATH),
+        "internet_required": False,
+    }
 
 
 @contextmanager
@@ -1516,7 +1533,72 @@ def recommendation_decision(recommendation_id: str) -> tuple[str, int] | Respons
 
 @app.get("/api/health")
 def health() -> Response:
-    return jsonify({"status": "ok", "time": utc_now(), "mode": "manual-first"})
+    database_ok = True
+    device_counts: dict[str, int] = {}
+    try:
+        with get_db() as conn:
+            conn.execute("SELECT 1").fetchone()
+            for row in conn.execute("SELECT status, COUNT(*) AS n FROM gateway_devices GROUP BY status"):
+                device_counts[row["status"]] = row["n"]
+    except sqlite3.Error:
+        database_ok = False
+    config = gateway_configuration()
+    return jsonify({
+        "status": "ok" if database_ok else "degraded",
+        "time": utc_now(),
+        "mode": "manual-first",
+        "gateway": config["gateway_name"],
+        "site_id": config["site_id"],
+        "database": {"engine": config["database_engine"], "available": database_ok},
+        "devices": device_counts,
+        "internet_required": False,
+    }), (200 if database_ok else 503)
+
+
+@app.route("/gateway", methods=["GET", "POST"])
+@roles_required(*GATEWAY_VIEW_ROLES)
+def gateway_status() -> str | Response | tuple[str, int]:
+    if request.method == "POST":
+        if g.user["role"] not in GATEWAY_EDIT_ROLES:
+            abort(403)
+        device_id = request.form.get("device_id", "").strip()
+        name = request.form.get("name", "").strip()
+        device_type = request.form.get("device_type", "").strip()
+        status = request.form.get("status", "registered").strip()
+        if not device_id or not name or not device_type or status not in DEVICE_STATUSES:
+            return "Device ID, name, type, and valid status are required", 400
+        try:
+            with get_db() as conn:
+                conn.execute("""INSERT INTO gateway_devices(
+                    device_id,name,device_type,network_address,status,firmware_version,notes,
+                    last_seen_at,registered_by,registered_at
+                ) VALUES(?,?,?,?,?,?,?,?,?,?)""", (
+                    device_id, name, device_type, request.form.get("network_address", "").strip() or None,
+                    status, request.form.get("firmware_version", "").strip() or None,
+                    request.form.get("notes", "").strip() or None,
+                    utc_now() if status == "online" else None, g.user["user_id"], utc_now(),
+                ))
+        except sqlite3.IntegrityError:
+            return "Device ID already exists", 409
+        record_audit_event(g.user["user_id"], "gateway_device_registered", "gateway_device", device_id)
+        return redirect(url_for("gateway_status"))
+    with get_db() as conn:
+        devices = conn.execute("SELECT * FROM gateway_devices ORDER BY registered_at DESC").fetchall()
+    return render_template("gateway_status.html", config=gateway_configuration(), devices=devices,
+                           statuses=sorted(DEVICE_STATUSES))
+
+
+@app.post("/gateway/devices/<device_id>/heartbeat")
+@roles_required(*GATEWAY_EDIT_ROLES)
+def gateway_device_heartbeat(device_id: str) -> Response | tuple[str, int]:
+    with get_db() as conn:
+        device = conn.execute("SELECT device_id FROM gateway_devices WHERE device_id=?", (device_id,)).fetchone()
+        if device is None:
+            return "Device not found", 404
+        conn.execute("UPDATE gateway_devices SET status='online', last_seen_at=? WHERE device_id=?",
+                     (utc_now(), device_id))
+    record_audit_event(g.user["user_id"], "gateway_device_heartbeat", "gateway_device", device_id)
+    return redirect(url_for("gateway_status"))
 
 
 @app.get("/api/export/<entity>.csv")
@@ -1541,6 +1623,7 @@ def export_csv(entity: str) -> tuple[str, int] | Response:
         "sample_status_history": "SELECT * FROM sample_status_history ORDER BY changed_at",
         "evidence_attachments": "SELECT * FROM evidence_attachments ORDER BY recorded_at",
         "sync_submissions": "SELECT * FROM sync_submissions ORDER BY submitted_at",
+        "gateway_devices": "SELECT * FROM gateway_devices ORDER BY registered_at",
         "recommendations": "SELECT * FROM recommendations ORDER BY created_at",
     }
     if entity not in allowed:
@@ -1568,7 +1651,7 @@ def export_json() -> Response:
         "manual_task_evidence", "manual_task_approvals", "experiments", "treatments", "treatment_assignments",
         "experiment_status_history", "experiment_outcomes", "recommendations",
         "samples", "sample_status_history", "evidence_attachments",
-        "sync_submissions",
+        "sync_submissions", "gateway_devices",
     ]
     data: dict[str, list[dict[str, Any]]] = {}
     with get_db() as conn:
