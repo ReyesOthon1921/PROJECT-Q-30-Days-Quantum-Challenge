@@ -7,23 +7,26 @@
 </section>
 
 <section class="panel">
-<h2>Plots</h2>
-<div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Area</th><th>Status</th></tr></thead>
-<tbody>{% for row in plots %}<tr><td>{{ row.plot_id }}</td><td>{{ row.name }}</td><td>{{ row.plot_type }}</td><td>{{ row.area }}</td><td>{{ row.status }}</td></tr>{% endfor %}</tbody>
-</table></div>
+  <div class="panel-heading"><h2>Plots</h2>
+    {% if g.user.role in ['administrator', 'researcher'] %}<a class="primary-button" href="{{ url_for('create_plot') }}">Add plot</a>{% endif %}
+  </div>
+  {% if plots %}<div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Area</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>{% for row in plots %}<tr><td><a href="{{ url_for('plot_detail', plot_id=row.plot_id) }}">{{ row.plot_id }}</a></td><td>{{ row.name }}</td><td>{{ row.plot_type }}</td><td>{{ row.area or '—' }}</td><td><span class="tag status-{{ row.status|lower }}">{{ row.status }}</span></td><td>{% if g.user.role in ['administrator', 'researcher'] %}<a href="{{ url_for('edit_plot', plot_id=row.plot_id) }}">Edit</a>{% else %}<a href="{{ url_for('plot_detail', plot_id=row.plot_id) }}">View</a>{% endif %}</td></tr>{% endfor %}</tbody>
+  </table></div>{% else %}<p class="empty-state">No plots have been registered.</p>{% endif %}
 </section>
 
 <section class="panel">
-<h2>Assets</h2>
-<div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Plot</th><th>Revision</th><th>Status</th></tr></thead>
-<tbody>{% for row in assets %}<tr><td>{{ row.asset_id }}</td><td>{{ row.name }}</td><td>{{ row.asset_type }}</td><td>{{ row.plot_id }}</td><td>{{ row.revision }}</td><td>{{ row.status }}</td></tr>{% endfor %}</tbody>
-</table></div>
+  <div class="panel-heading"><h2>Assets</h2>
+    {% if g.user.role in ['administrator', 'researcher'] %}<a class="primary-button" href="{{ url_for('create_asset') }}">Add asset</a>{% endif %}
+  </div>
+  {% if assets %}<div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Plot</th><th>Revision</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>{% for row in assets %}<tr><td><a href="{{ url_for('asset_detail', asset_id=row.asset_id) }}">{{ row.asset_id }}</a></td><td>{{ row.name }}</td><td>{{ row.asset_type }}</td><td>{{ row.plot_id or 'Unassigned' }}</td><td>{{ row.revision }}</td><td><span class="tag status-{{ row.status|lower }}">{{ row.status }}</span></td><td>{% if g.user.role in ['administrator', 'researcher'] %}<a href="{{ url_for('edit_asset', asset_id=row.asset_id) }}">Edit</a>{% else %}<a href="{{ url_for('asset_detail', asset_id=row.asset_id) }}">View</a>{% endif %}</td></tr>{% endfor %}</tbody>
+  </table></div>{% else %}<p class="empty-state">No assets have been registered.</p>{% endif %}
 </section>
 
 <section class="panel">
-<h2>Experiments</h2>
-{% for row in experiments %}
-<div class="list-row"><div><strong>{{ row.experiment_id }} — {{ row.title }}</strong><p>{{ row.hypothesis }}</p></div><span class="tag">{{ row.status }}</span></div>
-{% endfor %}
+  <h2>Experiments</h2>
+  {% for row in experiments %}<div class="list-row"><div><strong>{{ row.experiment_id }} — {{ row.title }}</strong><p>{{ row.hypothesis }}</p></div><span class="tag">{{ row.status }}</span></div>
+  {% else %}<p class="empty-state">No experiments have been registered.</p>{% endfor %}
 </section>
 {% endblock %}

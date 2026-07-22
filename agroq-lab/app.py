@@ -37,6 +37,13 @@ DEV_ADMIN_USERNAME = "admin"
 DEV_ADMIN_PASSWORD = "agroq-dev-change-me"
 
 VALID_ROLES = frozenset({"administrator", "researcher", "field_operator", "viewer"})
+PLOT_STATUSES = frozenset({"Active", "Retired"})
+PLOT_TYPES = frozenset({"control", "treatment", "calibration", "observation", "other"})
+ASSET_STATUSES = frozenset({"online", "available", "testing", "offline", "retired", "maintenance"})
+REGISTRY_VIEW_ROLES = ("administrator", "researcher", "field_operator", "viewer")
+REGISTRY_EDIT_ROLES = ("administrator", "researcher")
+REGISTRY_RETIRE_ROLES = ("administrator",)
+ASSET_OPERATIONAL_ROLES = ("administrator", "researcher", "field_operator")
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -79,6 +86,106 @@ def record_audit_event(
             ) VALUES(?,?,?,?,?,?,?)""",
             (new_audit_id(), user_id, action, entity_type, entity_id, details, utc_now()),
         )
+
+
+def new_plot_id() -> str:
+    return f"AGQ-PLOT-{int(datetime.now().timestamp() * 1000)}"
+
+
+def new_asset_id() -> str:
+    return f"AGQ-ASSET-{int(datetime.now().timestamp() * 1000)}"
+
+
+def next_revision(current: str) -> str:
+    if current.startswith("rev-") and len(current) == 5 and current[4].isalpha():
+        letter = current[4]
+        if letter == "z":
+            return "rev-aa"
+        return f"rev-{chr(ord(letter) + 1)}"
+    return "rev-b"
+
+
+def get_plot(conn: sqlite3.Connection, plot_id: str) -> sqlite3.Row | None:
+    return conn.execute("SELECT * FROM plots WHERE plot_id = ?", (plot_id,)).fetchone()
+
+
+def get_asset(conn: sqlite3.Connection, asset_id: str) -> sqlite3.Row | None:
+    return conn.execute("SELECT * FROM assets WHERE asset_id = ?", (asset_id,)).fetchone()
+
+
+def plot_exists(conn: sqlite3.Connection, plot_id: str | None) -> bool:
+    if not plot_id:
+        return True
+    return get_plot(conn, plot_id) is not None
+
+
+def validate_plot_payload(payload: dict[str, Any], *, require_status: bool = True) -> list[str]:
+    errors: list[str] = []
+    if not payload.get("name", "").strip():
+        errors.append("Name is required.")
+    plot_type = payload.get("plot_type", "").strip()
+    if not plot_type:
+        errors.append("Plot type is required.")
+    elif plot_type not in PLOT_TYPES:
+        errors.append(f"Plot type must be one of: {', '.join(sorted(PLOT_TYPES))}.")
+    status = payload.get("status", "").strip()
+    if require_status:
+        if not status:
+            errors.append("Status is required.")
+        elif status not in PLOT_STATUSES:
+            errors.append(f"Status must be one of: {', '.join(sorted(PLOT_STATUSES))}.")
+    elif status and status not in PLOT_STATUSES:
+        errors.append(f"Status must be one of: {', '.join(sorted(PLOT_STATUSES))}.")
+    return errors
+
+
+def validate_asset_payload(
+    conn: sqlite3.Connection,
+    payload: dict[str, Any],
+    *,
+    require_status: bool = True,
+) -> list[str]:
+    errors: list[str] = []
+    if not payload.get("name", "").strip():
+        errors.append("Name is required.")
+    if not payload.get("asset_type", "").strip():
+        errors.append("Asset type is required.")
+    plot_id = payload.get("plot_id") or None
+    if plot_id and not plot_exists(conn, plot_id):
+        errors.append("Assigned plot does not exist.")
+    status = payload.get("status", "").strip()
+    if require_status:
+        if not status:
+            errors.append("Status is required.")
+        elif status not in ASSET_STATUSES:
+            errors.append(f"Status must be one of: {', '.join(sorted(ASSET_STATUSES))}.")
+    elif status and status not in ASSET_STATUSES:
+        errors.append(f"Status must be one of: {', '.join(sorted(ASSET_STATUSES))}.")
+    return errors
+
+
+def plot_retire_blockers(conn: sqlite3.Connection, plot_id: str) -> list[str]:
+    blockers: list[str] = []
+    active_assets = conn.execute(
+        """SELECT COUNT(*) AS n FROM assets
+           WHERE plot_id = ? AND status NOT IN ('retired', 'offline')""",
+        (plot_id,),
+    ).fetchone()["n"]
+    if active_assets:
+        blockers.append(f"{active_assets} active asset(s) still assigned to this plot")
+    active_experiments = conn.execute(
+        "SELECT COUNT(*) AS n FROM experiments WHERE plot_id = ? AND status = 'active'",
+        (plot_id,),
+    ).fetchone()["n"]
+    if active_experiments:
+        blockers.append(f"{active_experiments} active experiment(s) linked to this plot")
+    open_tasks = conn.execute(
+        "SELECT COUNT(*) AS n FROM manual_tasks WHERE plot_id = ? AND status != 'completed'",
+        (plot_id,),
+    ).fetchone()["n"]
+    if open_tasks:
+        blockers.append(f"{open_tasks} open manual task(s) linked to this plot")
+    return blockers
 
 
 def seed_auth(conn: sqlite3.Connection) -> None:
@@ -483,6 +590,249 @@ def registry() -> str:
         assets = conn.execute("SELECT * FROM assets ORDER BY asset_id").fetchall()
         experiments = conn.execute("SELECT * FROM experiments ORDER BY experiment_id").fetchall()
     return render_template("registry.html", plots=plots, assets=assets, experiments=experiments)
+
+
+@app.route("/plots/new", methods=["GET", "POST"])
+@roles_required(*REGISTRY_EDIT_ROLES)
+def create_plot() -> str | Response:
+    values = request.form.to_dict() if request.method == "POST" else {"status": "Active"}
+    if request.method == "POST":
+        errors = validate_plot_payload(values)
+        plot_id = values.get("plot_id", "").strip() or new_plot_id()
+        if not errors:
+            try:
+                with get_db() as conn:
+                    conn.execute(
+                        """INSERT INTO plots(plot_id, name, plot_type, area, status, created_at)
+                           VALUES(?,?,?,?,?,?)""",
+                        (
+                            plot_id,
+                            values["name"].strip(),
+                            values["plot_type"].strip(),
+                            values.get("area", "").strip(),
+                            values["status"].strip(),
+                            utc_now(),
+                        ),
+                    )
+            except sqlite3.IntegrityError:
+                errors.append("That plot ID already exists.")
+            else:
+                record_audit_event(
+                    g.user["user_id"], "plot_created", "plot", plot_id,
+                    json.dumps({"name": values["name"].strip(), "status": values["status"]}),
+                )
+                flash("Plot created.", "info")
+                return redirect(url_for("plot_detail", plot_id=plot_id))
+        for error in errors:
+            flash(error, "error")
+    return render_template(
+        "plot_form.html", values=values, plot=None, plot_types=sorted(PLOT_TYPES),
+        statuses=sorted(PLOT_STATUSES),
+    )
+
+
+@app.get("/plots/<plot_id>")
+@roles_required(*REGISTRY_VIEW_ROLES)
+def plot_detail(plot_id: str) -> str:
+    with get_db() as conn:
+        plot = get_plot(conn, plot_id)
+        if plot is None:
+            abort(404)
+        assets = conn.execute(
+            "SELECT * FROM assets WHERE plot_id = ? ORDER BY asset_id", (plot_id,)
+        ).fetchall()
+        experiments = conn.execute(
+            "SELECT * FROM experiments WHERE plot_id = ? ORDER BY created_at DESC", (plot_id,)
+        ).fetchall()
+        observations = conn.execute(
+            """SELECT * FROM observations WHERE plot_id = ?
+               ORDER BY observed_at DESC LIMIT 10""",
+            (plot_id,),
+        ).fetchall()
+    return render_template(
+        "plot_detail.html", plot=plot, assets=assets, experiments=experiments,
+        observations=observations,
+    )
+
+
+@app.route("/plots/<plot_id>/edit", methods=["GET", "POST"])
+@roles_required(*REGISTRY_EDIT_ROLES)
+def edit_plot(plot_id: str) -> str | Response:
+    with get_db() as conn:
+        plot = get_plot(conn, plot_id)
+    if plot is None:
+        abort(404)
+    values = request.form.to_dict() if request.method == "POST" else dict(plot)
+    if request.method == "POST":
+        errors = validate_plot_payload(values)
+        if not errors:
+            with get_db() as conn:
+                conn.execute(
+                    """UPDATE plots SET name = ?, plot_type = ?, area = ?, status = ?
+                       WHERE plot_id = ?""",
+                    (
+                        values["name"].strip(), values["plot_type"].strip(),
+                        values.get("area", "").strip(), values["status"].strip(), plot_id,
+                    ),
+                )
+            record_audit_event(
+                g.user["user_id"], "plot_updated", "plot", plot_id,
+                json.dumps({"before": dict(plot), "after": values}),
+            )
+            flash("Plot updated.", "info")
+            return redirect(url_for("plot_detail", plot_id=plot_id))
+        for error in errors:
+            flash(error, "error")
+    return render_template(
+        "plot_form.html", values=values, plot=plot, plot_types=sorted(PLOT_TYPES),
+        statuses=sorted(PLOT_STATUSES),
+    )
+
+
+@app.post("/plots/<plot_id>/retire")
+@roles_required(*REGISTRY_RETIRE_ROLES)
+def retire_plot(plot_id: str) -> Response:
+    with get_db() as conn:
+        plot = get_plot(conn, plot_id)
+        if plot is None:
+            abort(404)
+        blockers = plot_retire_blockers(conn, plot_id)
+        if blockers:
+            for blocker in blockers:
+                flash(f"Plot cannot be retired: {blocker}.", "error")
+            return redirect(url_for("plot_detail", plot_id=plot_id))
+        conn.execute("UPDATE plots SET status = 'Retired' WHERE plot_id = ?", (plot_id,))
+    record_audit_event(
+        g.user["user_id"], "plot_retired", "plot", plot_id,
+        json.dumps({"previous_status": plot["status"], "status": "Retired"}),
+    )
+    flash("Plot retired. Its history remains available.", "info")
+    return redirect(url_for("plot_detail", plot_id=plot_id))
+
+
+@app.route("/assets/new", methods=["GET", "POST"])
+@roles_required(*REGISTRY_EDIT_ROLES)
+def create_asset() -> str | Response:
+    values = request.form.to_dict() if request.method == "POST" else {
+        "status": "available", "revision": "rev-a"
+    }
+    with get_db() as conn:
+        plots = conn.execute("SELECT * FROM plots ORDER BY plot_id").fetchall()
+        if request.method == "POST":
+            errors = validate_asset_payload(conn, values)
+        else:
+            errors = []
+    if request.method == "POST":
+        asset_id = values.get("asset_id", "").strip() or new_asset_id()
+        if not errors:
+            try:
+                with get_db() as conn:
+                    conn.execute(
+                        """INSERT INTO assets(
+                               asset_id, name, asset_type, plot_id, status, revision, created_at
+                           ) VALUES(?,?,?,?,?,?,?)""",
+                        (
+                            asset_id, values["name"].strip(), values["asset_type"].strip(),
+                            values.get("plot_id", "").strip() or None,
+                            values["status"].strip(), "rev-a", utc_now(),
+                        ),
+                    )
+            except sqlite3.IntegrityError:
+                errors.append("That asset ID already exists or its plot assignment is invalid.")
+            else:
+                record_audit_event(
+                    g.user["user_id"], "asset_created", "asset", asset_id,
+                    json.dumps({"name": values["name"].strip(), "plot_id": values.get("plot_id")}),
+                )
+                flash("Asset created.", "info")
+                return redirect(url_for("asset_detail", asset_id=asset_id))
+        for error in errors:
+            flash(error, "error")
+    return render_template(
+        "asset_form.html", values=values, asset=None, plots=plots,
+        statuses=sorted(ASSET_STATUSES),
+    )
+
+
+@app.get("/assets/<asset_id>")
+@roles_required(*REGISTRY_VIEW_ROLES)
+def asset_detail(asset_id: str) -> str:
+    with get_db() as conn:
+        asset = conn.execute(
+            """SELECT a.*, p.name AS plot_name FROM assets a
+               LEFT JOIN plots p ON p.plot_id = a.plot_id WHERE a.asset_id = ?""",
+            (asset_id,),
+        ).fetchone()
+        if asset is None:
+            abort(404)
+        observations = conn.execute(
+            """SELECT * FROM observations WHERE asset_id = ?
+               ORDER BY observed_at DESC LIMIT 10""",
+            (asset_id,),
+        ).fetchall()
+    return render_template("asset_detail.html", asset=asset, observations=observations)
+
+
+@app.route("/assets/<asset_id>/edit", methods=["GET", "POST"])
+@roles_required(*REGISTRY_EDIT_ROLES)
+def edit_asset(asset_id: str) -> str | Response:
+    with get_db() as conn:
+        asset = get_asset(conn, asset_id)
+        if asset is None:
+            abort(404)
+        plots = conn.execute("SELECT * FROM plots ORDER BY plot_id").fetchall()
+    values = request.form.to_dict() if request.method == "POST" else dict(asset)
+    if request.method == "POST":
+        with get_db() as conn:
+            errors = validate_asset_payload(conn, values)
+        if not errors:
+            changed = any(
+                (values.get(field, "").strip() or None) != (asset[field] or None)
+                for field in ("name", "asset_type", "plot_id", "status")
+            )
+            revision = next_revision(asset["revision"]) if changed else asset["revision"]
+            with get_db() as conn:
+                conn.execute(
+                    """UPDATE assets SET name = ?, asset_type = ?, plot_id = ?,
+                       status = ?, revision = ? WHERE asset_id = ?""",
+                    (
+                        values["name"].strip(), values["asset_type"].strip(),
+                        values.get("plot_id", "").strip() or None,
+                        values["status"].strip(), revision, asset_id,
+                    ),
+                )
+            record_audit_event(
+                g.user["user_id"], "asset_updated", "asset", asset_id,
+                json.dumps({"before": dict(asset), "after": values, "revision": revision}),
+            )
+            flash("Asset updated.", "info")
+            return redirect(url_for("asset_detail", asset_id=asset_id))
+        for error in errors:
+            flash(error, "error")
+    return render_template(
+        "asset_form.html", values=values, asset=asset, plots=plots,
+        statuses=sorted(ASSET_STATUSES),
+    )
+
+
+@app.post("/assets/<asset_id>/retire")
+@roles_required(*REGISTRY_RETIRE_ROLES)
+def retire_asset(asset_id: str) -> Response:
+    with get_db() as conn:
+        asset = get_asset(conn, asset_id)
+        if asset is None:
+            abort(404)
+        revision = next_revision(asset["revision"])
+        conn.execute(
+            "UPDATE assets SET status = 'retired', revision = ? WHERE asset_id = ?",
+            (revision, asset_id),
+        )
+    record_audit_event(
+        g.user["user_id"], "asset_retired", "asset", asset_id,
+        json.dumps({"previous_status": asset["status"], "revision": revision}),
+    )
+    flash("Asset retired. Its history remains available.", "info")
+    return redirect(url_for("asset_detail", asset_id=asset_id))
 
 
 @app.get("/recommendations")

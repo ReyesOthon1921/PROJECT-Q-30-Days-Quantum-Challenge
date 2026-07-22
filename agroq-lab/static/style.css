@@ -80,6 +80,14 @@ footer { padding: 24px; text-align: center; color: var(--muted); font-size: .84r
 .login-form { display: grid; gap: 14px; margin-top: 22px; }
 .login-submit { width: 100%; margin-top: 6px; }
 .login-footnote { margin-top: 18px; margin-bottom: 0; font-size: .84rem; }
+.detail-actions { margin-top: 22px; align-items: center; }
+.detail-actions form { margin: 0; }
+.empty-state { color: var(--muted); padding: 16px 0; }
+.field-hint { color: var(--muted); font-size: .78rem; font-weight: 500; }
+.field-label { display: block; font-weight: 650; font-size: .9rem; }
+.status-retired,.status-offline { background: #f5dddd; color: #742525; }
+.status-active,.status-online,.status-available { background: #dcefe0; color: #164d2c; }
+.status-testing,.status-maintenance { background: #fff0c7; color: #664d00; }
 @media (max-width: 900px) {
   .cards { grid-template-columns: repeat(2,1fr); }
   .two-column { grid-template-columns: 1fr; }
@@ -91,5 +99,5 @@ footer { padding: 24px; text-align: center; color: var(--muted); font-size: .84r
   .full { grid-column: auto; }
   .page { padding-top: 18px; }
   .panel { padding: 18px; }
-  .task,.recommendation { align-items: flex-start; flex-direction: column; }
+  .task,.recommendation,.panel-heading { align-items: flex-start; flex-direction: column; }
 }

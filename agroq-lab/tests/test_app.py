@@ -63,6 +63,30 @@ def create_user(username, password, role, user_id=None, display_name=None):
         )
 
 
+def plot_payload(**overrides):
+    values = {
+        "plot_id": "AGQ-PLOT-TEST",
+        "name": "Test Plot",
+        "plot_type": "observation",
+        "area": "0.05 acre",
+        "status": "Active",
+    }
+    values.update(overrides)
+    return values
+
+
+def asset_payload(**overrides):
+    values = {
+        "asset_id": "AGQ-ASSET-TEST",
+        "name": "Test Asset",
+        "asset_type": "manual-tool",
+        "plot_id": "AGQ-PLOT-001",
+        "status": "available",
+    }
+    values.update(overrides)
+    return values
+
+
 def test_dashboard_loads(client):
     login(client)
     response = client.get("/")
@@ -243,3 +267,141 @@ def test_login_creates_audit_event(client):
         ).fetchone()
     assert event is not None
     assert event["user_id"] == "AGQ-USER-001"
+
+
+def test_administrator_can_create_edit_and_retire_plot(client):
+    login(client)
+    created = client.post("/plots/new", data=plot_payload(), follow_redirects=False)
+    assert created.status_code == 302
+    edited = client.post(
+        "/plots/AGQ-PLOT-TEST/edit",
+        data=plot_payload(name="Updated Test Plot"),
+        follow_redirects=False,
+    )
+    assert edited.status_code == 302
+    retired = client.post("/plots/AGQ-PLOT-TEST/retire", follow_redirects=False)
+    assert retired.status_code == 302
+    with get_db() as conn:
+        plot = conn.execute(
+            "SELECT * FROM plots WHERE plot_id = 'AGQ-PLOT-TEST'"
+        ).fetchone()
+        actions = {
+            row["action"] for row in conn.execute(
+                "SELECT action FROM audit_events WHERE entity_id = 'AGQ-PLOT-TEST'"
+            ).fetchall()
+        }
+    assert plot["name"] == "Updated Test Plot"
+    assert plot["status"] == "Retired"
+    assert {"plot_created", "plot_updated", "plot_retired"} <= actions
+
+
+def test_researcher_can_create_and_edit_but_not_retire_plot(client):
+    create_user("researcher", "research-pass", "researcher")
+    login(client, "researcher", "research-pass")
+    assert client.post("/plots/new", data=plot_payload()).status_code == 302
+    assert client.post(
+        "/plots/AGQ-PLOT-TEST/edit", data=plot_payload(name="Research Plot")
+    ).status_code == 302
+    assert client.post("/plots/AGQ-PLOT-TEST/retire").status_code == 403
+
+
+def test_viewer_can_view_registry_but_cannot_create_or_edit_plot(client):
+    create_user("registry_viewer", "viewer-pass", "viewer")
+    login(client, "registry_viewer", "viewer-pass")
+    assert client.get("/registry").status_code == 200
+    assert client.get("/plots/AGQ-PLOT-001").status_code == 200
+    assert client.post("/plots/new", data=plot_payload()).status_code == 403
+    assert client.post(
+        "/plots/AGQ-PLOT-001/edit", data=plot_payload()
+    ).status_code == 403
+
+
+def test_plot_duplicate_id_is_rejected_safely(client):
+    login(client)
+    response = client.post(
+        "/plots/new", data=plot_payload(plot_id="AGQ-PLOT-001"), follow_redirects=True
+    )
+    assert response.status_code == 200
+    assert b"already exists" in response.data
+
+
+def test_missing_plot_returns_404(client):
+    login(client)
+    assert client.get("/plots/DOES-NOT-EXIST").status_code == 404
+
+
+def test_plot_retirement_is_post_only_and_dependencies_block_it(client):
+    login(client)
+    assert client.get("/plots/AGQ-PLOT-001/retire").status_code == 405
+    response = client.post("/plots/AGQ-PLOT-001/retire", follow_redirects=True)
+    assert response.status_code == 200
+    assert b"cannot be retired" in response.data
+    with get_db() as conn:
+        status = conn.execute(
+            "SELECT status FROM plots WHERE plot_id = 'AGQ-PLOT-001'"
+        ).fetchone()["status"]
+    assert status == "Active"
+
+
+def test_administrator_can_create_edit_and_retire_asset_with_revision(client):
+    login(client)
+    assert client.post("/assets/new", data=asset_payload()).status_code == 302
+    assert client.post(
+        "/assets/AGQ-ASSET-TEST/edit",
+        data=asset_payload(name="Updated Asset", status="testing"),
+    ).status_code == 302
+    with get_db() as conn:
+        updated = conn.execute(
+            "SELECT * FROM assets WHERE asset_id = 'AGQ-ASSET-TEST'"
+        ).fetchone()
+    assert updated["revision"] == "rev-b"
+    assert client.post("/assets/AGQ-ASSET-TEST/retire").status_code == 302
+    with get_db() as conn:
+        asset = conn.execute(
+            "SELECT * FROM assets WHERE asset_id = 'AGQ-ASSET-TEST'"
+        ).fetchone()
+        actions = {
+            row["action"] for row in conn.execute(
+                "SELECT action FROM audit_events WHERE entity_id = 'AGQ-ASSET-TEST'"
+            ).fetchall()
+        }
+    assert asset["status"] == "retired"
+    assert asset["revision"] == "rev-c"
+    assert {"asset_created", "asset_updated", "asset_retired"} <= actions
+
+
+def test_invalid_asset_plot_assignment_is_rejected(client):
+    login(client)
+    response = client.post(
+        "/assets/new", data=asset_payload(plot_id="MISSING-PLOT"), follow_redirects=True
+    )
+    assert response.status_code == 200
+    assert b"Assigned plot does not exist" in response.data
+
+
+def test_asset_duplicate_id_is_rejected_safely(client):
+    login(client)
+    response = client.post(
+        "/assets/new", data=asset_payload(asset_id="AGQ-ASSET-001"),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert b"already exists" in response.data
+
+
+def test_researcher_cannot_retire_asset(client):
+    create_user("asset_researcher", "research-pass", "researcher")
+    login(client, "asset_researcher", "research-pass")
+    assert client.post("/assets/AGQ-ASSET-001/retire").status_code == 403
+
+
+def test_field_operator_cannot_create_asset(client):
+    create_user("asset_operator", "operator-pass", "field_operator")
+    login(client, "asset_operator", "operator-pass")
+    assert client.post("/assets/new", data=asset_payload()).status_code == 403
+
+
+def test_missing_asset_returns_404_and_retirement_is_post_only(client):
+    login(client)
+    assert client.get("/assets/DOES-NOT-EXIST").status_code == 404
+    assert client.get("/assets/AGQ-ASSET-001/retire").status_code == 405

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit asset' if asset else 'Add asset' }} — AgroQ{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <p class="eyebrow">ASSET REGISTRY</p><h1>{{ 'Edit asset' if asset else 'Add asset' }}</h1>
+  <form method="post" class="form-grid">
+    {% if not asset %}<label>Asset ID <span class="field-hint">Optional; generated when blank</span><input name="asset_id" value="{{ values.get('asset_id', '') }}"></label>{% endif %}
+    <label>Name <input name="name" required value="{{ values.get('name', '') }}"></label>
+    <label>Asset type <input name="asset_type" required value="{{ values.get('asset_type', '') }}" placeholder="Example: sensor-node"></label>
+    <label>Assigned plot <select name="plot_id"><option value="">Unassigned</option>{% for plot_row in plots %}<option value="{{ plot_row.plot_id }}" {% if values.get('plot_id') == plot_row.plot_id %}selected{% endif %}>{{ plot_row.plot_id }} — {{ plot_row.name }}</option>{% endfor %}</select></label>
+    <label>Status <select name="status" required>{% for item in statuses %}<option value="{{ item }}" {% if values.get('status') == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></label>
+    {% if asset %}<div><span class="field-label">Current revision</span><p>{{ asset.revision }}</p></div>{% endif %}
+    <div class="full button-row"><button class="primary-button" type="submit">{{ 'Save changes' if asset else 'Create asset' }}</button><a class="secondary-button" href="{{ url_for('asset_detail', asset_id=asset.asset_id) if asset else url_for('registry') }}">Cancel</a></div>
+  </form>
+</section>
+{% endblock %}

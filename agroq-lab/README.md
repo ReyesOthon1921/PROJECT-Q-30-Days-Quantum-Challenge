@@ -107,6 +107,32 @@ Authorization is enforced on every protected route. Hidden navigation links do n
 
 Successful sign-in and sign-out events are recorded in the local `audit_events` table for traceability.
 
+## Plot and asset registry (Phase 1B)
+
+The registry now supports the complete local lifecycle for plots and assets:
+
+- List and detail views for every authenticated role.
+- Plot and asset creation and editing for administrators and researchers.
+- Administrator-only retirement with POST confirmation; records are never permanently deleted.
+- Validation for required values, allowed statuses, duplicate IDs, and asset-to-plot assignments.
+- Plot detail views with assigned assets, experiments, and recent observations.
+- Asset detail views with its assigned plot, revision, and recent observations.
+- Automatic asset revision increments after material edits and retirement.
+- Audit events for every create, update, and retire operation, attributed to the signed-in user.
+
+### Registry permissions
+
+| Role | Plot and asset permissions |
+| --- | --- |
+| `administrator` | View, create, edit, and retire. |
+| `researcher` | View, create, and edit; cannot retire. |
+| `field_operator` | View only. |
+| `viewer` | View only. |
+
+Retiring a plot is blocked while active assets, active experiments, or open manual tasks depend on it. Retired records and their scientific history remain available. Asset assignment is optional, but any supplied plot ID must exist.
+
+Current limitations: IDs are generated locally from timestamps, there is no multi-user conflict resolution, and plot geometry/map editing is deferred to a later phase. The registry remains offline and SQLite-based with no external services.
+
 ## Run tests
 
 ```bash
