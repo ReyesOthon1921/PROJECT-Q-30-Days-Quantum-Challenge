@@ -107,6 +107,14 @@ Authorization is enforced on every protected route. Hidden navigation links do n
 
 Successful sign-in and sign-out events are recorded in the local `audit_events` table for traceability.
 
+## Phase 1E manual work orders and interventions
+
+Manual work orders now link plots, assets, experiments, responsible users, due dates,
+completion evidence, reviewer decisions, and append-only status history. Tasks marked as
+requiring approval cannot be completed until an administrator or researcher records an
+approval. The application records audit events for creation, evidence, review, and status
+changes; it never executes a field intervention automatically.
+
 ## Phase 1D experiments and treatments
 
 Experiments now have hypothesis and lifecycle records, reusable treatment definitions,

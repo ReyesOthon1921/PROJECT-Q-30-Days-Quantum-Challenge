@@ -161,6 +161,56 @@ CREATE TABLE IF NOT EXISTS manual_tasks (
     FOREIGN KEY(plot_id) REFERENCES plots(plot_id)
 );
 
+CREATE TABLE IF NOT EXISTS manual_task_details (
+    task_id TEXT PRIMARY KEY,
+    asset_id TEXT,
+    experiment_id TEXT,
+    assigned_user_id TEXT,
+    due_at TEXT,
+    requires_approval INTEGER NOT NULL DEFAULT 0,
+    created_by TEXT NOT NULL,
+    FOREIGN KEY(task_id) REFERENCES manual_tasks(task_id),
+    FOREIGN KEY(asset_id) REFERENCES assets(asset_id),
+    FOREIGN KEY(experiment_id) REFERENCES experiments(experiment_id),
+    FOREIGN KEY(assigned_user_id) REFERENCES users(user_id),
+    FOREIGN KEY(created_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS manual_task_status_history (
+    status_event_id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL,
+    previous_status TEXT NOT NULL,
+    new_status TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    changed_by TEXT NOT NULL,
+    changed_at TEXT NOT NULL,
+    FOREIGN KEY(task_id) REFERENCES manual_tasks(task_id),
+    FOREIGN KEY(changed_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS manual_task_evidence (
+    evidence_id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL,
+    evidence_type TEXT NOT NULL,
+    reference TEXT NOT NULL,
+    notes TEXT,
+    recorded_by TEXT NOT NULL,
+    recorded_at TEXT NOT NULL,
+    FOREIGN KEY(task_id) REFERENCES manual_tasks(task_id),
+    FOREIGN KEY(recorded_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS manual_task_approvals (
+    approval_id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL,
+    decision TEXT NOT NULL CHECK(decision IN ('approved','rejected')),
+    reason TEXT NOT NULL,
+    reviewer_id TEXT NOT NULL,
+    reviewed_at TEXT NOT NULL,
+    FOREIGN KEY(task_id) REFERENCES manual_tasks(task_id),
+    FOREIGN KEY(reviewer_id) REFERENCES users(user_id)
+);
+
 CREATE TABLE IF NOT EXISTS recommendations (
     recommendation_id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
@@ -206,6 +256,15 @@ ON experiment_outcomes(experiment_id, recorded_at);
 
 CREATE INDEX IF NOT EXISTS idx_tasks_status
 ON manual_tasks(status);
+
+CREATE INDEX IF NOT EXISTS idx_task_history_task
+ON manual_task_status_history(task_id, changed_at);
+
+CREATE INDEX IF NOT EXISTS idx_task_evidence_task
+ON manual_task_evidence(task_id, recorded_at);
+
+CREATE INDEX IF NOT EXISTS idx_task_approvals_task
+ON manual_task_approvals(task_id, reviewed_at);
 
 CREATE INDEX IF NOT EXISTS idx_recommendations_approval
 ON recommendations(approval_status);

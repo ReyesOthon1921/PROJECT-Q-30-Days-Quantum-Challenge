@@ -7,6 +7,7 @@ import io
 import json
 import os
 import sqlite3
+import time
 from datetime import datetime, timezone
 from functools import wraps
 from pathlib import Path
@@ -52,6 +53,13 @@ OBSERVATION_CREATE_ROLES = ("administrator", "researcher", "field_operator")
 EXPERIMENT_STATUSES = frozenset({"draft", "planned", "active", "paused", "completed", "cancelled"})
 EXPERIMENT_VIEW_ROLES = REGISTRY_VIEW_ROLES
 EXPERIMENT_EDIT_ROLES = ("administrator", "researcher")
+TASK_VIEW_ROLES = REGISTRY_VIEW_ROLES
+TASK_CREATE_ROLES = ("administrator", "researcher", "field_operator")
+TASK_WORK_ROLES = ("administrator", "field_operator")
+TASK_APPROVAL_ROLES = ("administrator", "researcher")
+TASK_TYPES = frozenset({"fieldwork", "inspection", "sampling", "calibration", "maintenance", "repair", "treatment"})
+TASK_PRIORITIES = frozenset({"normal", "high", "critical"})
+TASK_STATUSES = frozenset({"open", "in_progress", "completed", "cancelled"})
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -63,7 +71,7 @@ def utc_now() -> str:
 
 
 def new_audit_id() -> str:
-    return f"AGQ-AUDIT-{int(datetime.now().timestamp() * 1000)}"
+    return f"AGQ-AUDIT-{time.time_ns()}"
 
 
 @contextmanager
@@ -113,7 +121,7 @@ def new_correction_id() -> str:
 
 
 def new_entity_id(prefix: str) -> str:
-    return f"AGQ-{prefix}-{int(datetime.now().timestamp() * 1000)}"
+    return f"AGQ-{prefix}-{time.time_ns()}"
 
 
 def validate_experiment_payload(conn: sqlite3.Connection, payload: dict[str, Any]) -> list[str]:
@@ -679,50 +687,156 @@ def create_observation_correction(observation_id: str) -> Response | tuple[str, 
 
 
 @app.get("/manual-work")
-@roles_required("administrator", "field_operator")
+@roles_required(*TASK_VIEW_ROLES)
 def manual_work() -> str:
     with get_db() as conn:
         tasks = conn.execute(
-            "SELECT * FROM manual_tasks ORDER BY CASE status WHEN 'open' THEN 0 ELSE 1 END, created_at DESC"
+            """SELECT t.*, d.asset_id, d.experiment_id, d.assigned_user_id, d.due_at,
+                      d.requires_approval, u.display_name AS assigned_user_name,
+                      (SELECT decision FROM manual_task_approvals a WHERE a.task_id=t.task_id
+                       ORDER BY reviewed_at DESC LIMIT 1) AS latest_decision
+                 FROM manual_tasks t LEFT JOIN manual_task_details d ON d.task_id=t.task_id
+                 LEFT JOIN users u ON u.user_id=d.assigned_user_id
+                 ORDER BY CASE t.status WHEN 'open' THEN 0 WHEN 'in_progress' THEN 1 ELSE 2 END,
+                          t.created_at DESC"""
         ).fetchall()
         plots = conn.execute("SELECT * FROM plots ORDER BY plot_id").fetchall()
-    return render_template("manual_work.html", tasks=tasks, plots=plots)
+        assets = conn.execute("SELECT * FROM assets WHERE status != 'retired' ORDER BY asset_id").fetchall()
+        experiments = conn.execute("SELECT * FROM experiments WHERE status != 'cancelled' ORDER BY experiment_id").fetchall()
+        users = conn.execute("SELECT * FROM users WHERE active=1 ORDER BY display_name").fetchall()
+    return render_template("manual_work.html", tasks=tasks, plots=plots, assets=assets,
+                           experiments=experiments, users=users)
 
 
 @app.post("/manual-work")
-@roles_required("administrator", "field_operator")
-def create_manual_task() -> Response:
+@roles_required(*TASK_CREATE_ROLES)
+def create_manual_task() -> Response | tuple[str, int]:
     form = request.form
-    task_id = f"AGQ-TASK-{int(datetime.now().timestamp() * 1000)}"
+    title = form.get("title", "").strip()
+    task_type = form.get("task_type", "fieldwork").strip()
+    priority = form.get("priority", "normal").strip()
+    if not title or task_type not in TASK_TYPES or priority not in TASK_PRIORITIES:
+        return "Title, valid work type, and valid priority are required", 400
+    task_id = form.get("task_id", "").strip() or new_entity_id("TASK")
+    plot_id = form.get("plot_id", "").strip() or None
+    asset_id = form.get("asset_id", "").strip() or None
+    experiment_id = form.get("experiment_id", "").strip() or None
+    assigned_user_id = form.get("assigned_user_id", "").strip() or None
     with get_db() as conn:
-        conn.execute(
-            """INSERT INTO manual_tasks(
-                task_id, title, task_type, plot_id, status, priority, assigned_to, notes, created_at
-            ) VALUES(?,?,?,?,?,?,?,?,?)""",
-            (
-                task_id,
-                form["title"],
-                form.get("task_type", "fieldwork"),
-                form.get("plot_id") or None,
-                "open",
-                form.get("priority", "normal"),
-                form.get("assigned_to", ""),
-                form.get("notes", ""),
-                utc_now(),
-            ),
-        )
-    return redirect(url_for("manual_work"))
+        if plot_id and not plot_exists(conn, plot_id):
+            return "Selected plot does not exist", 400
+        for table, column, value, message in (
+            ("assets", "asset_id", asset_id, "Selected asset does not exist"),
+            ("experiments", "experiment_id", experiment_id, "Selected experiment does not exist"),
+            ("users", "user_id", assigned_user_id, "Assigned user does not exist"),
+        ):
+            if value and conn.execute(f"SELECT 1 FROM {table} WHERE {column}=?", (value,)).fetchone() is None:
+                return message, 400
+        try:
+            conn.execute("""INSERT INTO manual_tasks(task_id,title,task_type,plot_id,status,priority,assigned_to,notes,created_at)
+                            VALUES(?,?,?,?,?,?,?,?,?)""",
+                         (task_id, title, task_type, plot_id, "open", priority,
+                          form.get("assigned_to", "").strip(), form.get("notes", "").strip(), utc_now()))
+            conn.execute("""INSERT INTO manual_task_details(task_id,asset_id,experiment_id,assigned_user_id,due_at,requires_approval,created_by)
+                            VALUES(?,?,?,?,?,?,?)""",
+                         (task_id, asset_id, experiment_id, assigned_user_id,
+                          form.get("due_at", "").strip() or None,
+                          1 if form.get("requires_approval") else 0, g.user["user_id"]))
+        except sqlite3.IntegrityError:
+            return "Task ID already exists or a linked record is invalid", 400
+    record_audit_event(g.user["user_id"], "manual_task_created", "manual_task", task_id,
+                       json.dumps({"plot_id": plot_id, "asset_id": asset_id, "experiment_id": experiment_id}))
+    return redirect(url_for("manual_task_detail", task_id=task_id))
+
+
+@app.get("/manual-work/<task_id>")
+@roles_required(*TASK_VIEW_ROLES)
+def manual_task_detail(task_id: str) -> str:
+    with get_db() as conn:
+        task = conn.execute("""SELECT t.*, d.asset_id, d.experiment_id, d.assigned_user_id, d.due_at,
+                                      d.requires_approval, u.display_name AS assigned_user_name
+                                 FROM manual_tasks t LEFT JOIN manual_task_details d ON d.task_id=t.task_id
+                                 LEFT JOIN users u ON u.user_id=d.assigned_user_id WHERE t.task_id=?""", (task_id,)).fetchone()
+        if task is None:
+            abort(404)
+        history = conn.execute("SELECT * FROM manual_task_status_history WHERE task_id=? ORDER BY changed_at DESC", (task_id,)).fetchall()
+        evidence = conn.execute("SELECT * FROM manual_task_evidence WHERE task_id=? ORDER BY recorded_at DESC", (task_id,)).fetchall()
+        approvals = conn.execute("SELECT * FROM manual_task_approvals WHERE task_id=? ORDER BY reviewed_at DESC", (task_id,)).fetchall()
+    return render_template("manual_task_detail.html", task=task, history=history, evidence=evidence,
+                           approvals=approvals, statuses=sorted(TASK_STATUSES))
+
+
+@app.post("/manual-work/<task_id>/status")
+@roles_required(*TASK_WORK_ROLES)
+def change_manual_task_status(task_id: str) -> Response | tuple[str, int]:
+    new_status = request.form.get("status", "").strip()
+    reason = request.form.get("reason", "").strip()
+    if new_status not in TASK_STATUSES or not reason:
+        return "Valid status and reason are required", 400
+    with get_db() as conn:
+        task = conn.execute("SELECT * FROM manual_tasks WHERE task_id=?", (task_id,)).fetchone()
+        if task is None:
+            abort(404)
+        if new_status == "completed":
+            detail = conn.execute("SELECT * FROM manual_task_details WHERE task_id=?", (task_id,)).fetchone()
+            if detail and detail["requires_approval"]:
+                approved = conn.execute("SELECT 1 FROM manual_task_approvals WHERE task_id=? AND decision='approved'", (task_id,)).fetchone()
+                if approved is None:
+                    return "This task requires approval before completion", 400
+        now = utc_now()
+        conn.execute("UPDATE manual_tasks SET status=?, completed_at=? WHERE task_id=?",
+                     (new_status, now if new_status == "completed" else None, task_id))
+        conn.execute("""INSERT INTO manual_task_status_history(status_event_id,task_id,previous_status,new_status,reason,changed_by,changed_at)
+                        VALUES(?,?,?,?,?,?,?)""",
+                     (new_entity_id("TASKSTATUS"), task_id, task["status"], new_status, reason, g.user["user_id"], now))
+    record_audit_event(g.user["user_id"], "manual_task_status_changed", "manual_task", task_id,
+                       json.dumps({"from": task["status"], "to": new_status, "reason": reason}))
+    return redirect(url_for("manual_task_detail", task_id=task_id))
+
+
+@app.post("/manual-work/<task_id>/evidence")
+@roles_required(*TASK_WORK_ROLES)
+def add_manual_task_evidence(task_id: str) -> Response | tuple[str, int]:
+    evidence_type = request.form.get("evidence_type", "").strip()
+    reference = request.form.get("reference", "").strip()
+    if evidence_type not in {"observation", "photo", "file", "note"} or not reference:
+        return "Valid evidence type and reference are required", 400
+    evidence_id = new_entity_id("EVID")
+    with get_db() as conn:
+        if conn.execute("SELECT 1 FROM manual_tasks WHERE task_id=?", (task_id,)).fetchone() is None:
+            abort(404)
+        if evidence_type == "observation" and conn.execute("SELECT 1 FROM observations WHERE observation_id=?", (reference,)).fetchone() is None:
+            return "Referenced observation does not exist", 400
+        conn.execute("""INSERT INTO manual_task_evidence(evidence_id,task_id,evidence_type,reference,notes,recorded_by,recorded_at)
+                        VALUES(?,?,?,?,?,?,?)""", (evidence_id, task_id, evidence_type, reference,
+                        request.form.get("notes", "").strip(), g.user["user_id"], utc_now()))
+    record_audit_event(g.user["user_id"], "manual_task_evidence_added", "manual_task_evidence", evidence_id,
+                       json.dumps({"task_id": task_id, "evidence_type": evidence_type}))
+    return redirect(url_for("manual_task_detail", task_id=task_id))
+
+
+@app.post("/manual-work/<task_id>/approval")
+@roles_required(*TASK_APPROVAL_ROLES)
+def review_manual_task(task_id: str) -> Response | tuple[str, int]:
+    decision = request.form.get("decision", "").strip()
+    reason = request.form.get("reason", "").strip()
+    if decision not in {"approved", "rejected"} or not reason:
+        return "Valid decision and reason are required", 400
+    approval_id = new_entity_id("TASKAPP")
+    with get_db() as conn:
+        if conn.execute("SELECT 1 FROM manual_tasks WHERE task_id=?", (task_id,)).fetchone() is None:
+            abort(404)
+        conn.execute("""INSERT INTO manual_task_approvals(approval_id,task_id,decision,reason,reviewer_id,reviewed_at)
+                        VALUES(?,?,?,?,?,?)""", (approval_id, task_id, decision, reason, g.user["user_id"], utc_now()))
+    record_audit_event(g.user["user_id"], "manual_task_reviewed", "manual_task_approval", approval_id,
+                       json.dumps({"task_id": task_id, "decision": decision}))
+    return redirect(url_for("manual_task_detail", task_id=task_id))
 
 
 @app.post("/manual-work/<task_id>/complete")
 @roles_required("administrator", "field_operator")
 def complete_manual_task(task_id: str) -> Response:
-    with get_db() as conn:
-        conn.execute(
-            "UPDATE manual_tasks SET status='completed', completed_at=? WHERE task_id=?",
-            (utc_now(), task_id),
-        )
-    return redirect(url_for("manual_work"))
+    return change_manual_task_status(task_id)
 
 
 @app.get("/registry")
@@ -1174,6 +1288,10 @@ def export_csv(entity: str) -> tuple[str, int] | Response:
         "observations": "SELECT * FROM observations ORDER BY observed_at",
         "observation_corrections": "SELECT * FROM observation_corrections ORDER BY created_at",
         "manual_tasks": "SELECT * FROM manual_tasks ORDER BY created_at",
+        "manual_task_details": "SELECT * FROM manual_task_details ORDER BY task_id",
+        "manual_task_status_history": "SELECT * FROM manual_task_status_history ORDER BY changed_at",
+        "manual_task_evidence": "SELECT * FROM manual_task_evidence ORDER BY recorded_at",
+        "manual_task_approvals": "SELECT * FROM manual_task_approvals ORDER BY reviewed_at",
         "experiments": "SELECT * FROM experiments ORDER BY experiment_id",
         "treatments": "SELECT * FROM treatments ORDER BY treatment_id",
         "treatment_assignments": "SELECT * FROM treatment_assignments ORDER BY assignment_id",
@@ -1202,7 +1320,8 @@ def export_csv(entity: str) -> tuple[str, int] | Response:
 def export_json() -> Response:
     entities = [
         "plots", "assets", "observations", "observation_corrections",
-        "manual_tasks", "experiments", "treatments", "treatment_assignments",
+        "manual_tasks", "manual_task_details", "manual_task_status_history",
+        "manual_task_evidence", "manual_task_approvals", "experiments", "treatments", "treatment_assignments",
         "experiment_status_history", "experiment_outcomes", "recommendations",
     ]
     data: dict[str, list[dict[str, Any]]] = {}

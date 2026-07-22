@@ -590,3 +590,98 @@ def test_viewer_can_view_but_cannot_design_experiment(client):
     assert client.get("/experiments/AGQ-EXP-001").status_code == 200
     assert client.post("/experiments/new", data=experiment_payload()).status_code == 403
     assert client.post("/experiments/AGQ-EXP-001/status", data={"status": "paused", "reason": "test"}).status_code == 403
+
+
+def task_payload(**overrides):
+    values = {
+        "task_id": "AGQ-TASK-PHASE1E",
+        "title": "Inspect treatment plot",
+        "task_type": "inspection",
+        "plot_id": "AGQ-PLOT-002",
+        "asset_id": "AGQ-ASSET-003",
+        "experiment_id": "AGQ-EXP-001",
+        "assigned_user_id": "AGQ-USER-001",
+        "due_at": "2026-07-25T09:00",
+        "priority": "high",
+        "requires_approval": "1",
+        "notes": "Record field evidence before closing.",
+    }
+    values.update(overrides)
+    return values
+
+
+def test_manual_task_links_field_context_and_assignee(client):
+    login(client)
+    response = client.post("/manual-work", data=task_payload())
+    assert response.status_code == 302
+    with get_db() as conn:
+        task = conn.execute("SELECT * FROM manual_tasks WHERE task_id='AGQ-TASK-PHASE1E'").fetchone()
+        detail = conn.execute("SELECT * FROM manual_task_details WHERE task_id='AGQ-TASK-PHASE1E'").fetchone()
+        audit = conn.execute("SELECT * FROM audit_events WHERE action='manual_task_created'").fetchone()
+    assert task["plot_id"] == "AGQ-PLOT-002"
+    assert detail["asset_id"] == "AGQ-ASSET-003"
+    assert detail["experiment_id"] == "AGQ-EXP-001"
+    assert detail["assigned_user_id"] == "AGQ-USER-001"
+    assert audit["entity_id"] == task["task_id"]
+
+
+def test_task_status_change_preserves_history_and_reason(client):
+    login(client)
+    client.post("/manual-work", data=task_payload(requires_approval=""))
+    response = client.post("/manual-work/AGQ-TASK-PHASE1E/status", data={"status": "in_progress", "reason": "Work started"})
+    assert response.status_code == 302
+    with get_db() as conn:
+        task = conn.execute("SELECT * FROM manual_tasks WHERE task_id='AGQ-TASK-PHASE1E'").fetchone()
+        history = conn.execute("SELECT * FROM manual_task_status_history WHERE task_id='AGQ-TASK-PHASE1E'").fetchone()
+    assert task["status"] == "in_progress"
+    assert history["previous_status"] == "open"
+    assert history["reason"] == "Work started"
+
+
+def test_completion_evidence_links_existing_observation(client):
+    login(client)
+    client.post("/manual-work", data=task_payload(requires_approval=""))
+    response = client.post("/manual-work/AGQ-TASK-PHASE1E/evidence", data={
+        "evidence_type": "observation", "reference": "AGQ-OBS-001", "notes": "Manual verification"
+    })
+    assert response.status_code == 302
+    with get_db() as conn:
+        evidence = conn.execute("SELECT * FROM manual_task_evidence WHERE task_id='AGQ-TASK-PHASE1E'").fetchone()
+        observation = conn.execute("SELECT * FROM observations WHERE observation_id='AGQ-OBS-001'").fetchone()
+    assert evidence["reference"] == observation["observation_id"]
+
+
+def test_approval_required_before_completion(client):
+    login(client)
+    client.post("/manual-work", data=task_payload())
+    blocked = client.post("/manual-work/AGQ-TASK-PHASE1E/status", data={"status": "completed", "reason": "Finished"})
+    assert blocked.status_code == 400
+    assert client.post("/manual-work/AGQ-TASK-PHASE1E/approval", data={"decision": "approved", "reason": "Evidence checked"}).status_code == 302
+    completed = client.post("/manual-work/AGQ-TASK-PHASE1E/status", data={"status": "completed", "reason": "Finished after review"})
+    assert completed.status_code == 302
+    with get_db() as conn:
+        task = conn.execute("SELECT * FROM manual_tasks WHERE task_id='AGQ-TASK-PHASE1E'").fetchone()
+    assert task["status"] == "completed"
+    assert task["completed_at"] is not None
+
+
+def test_field_operator_cannot_approve_and_researcher_cannot_complete(client):
+    create_user("task_operator", "operator-pass", "field_operator")
+    create_user("task_researcher", "research-pass", "researcher")
+    login(client)
+    client.post("/manual-work", data=task_payload(requires_approval=""))
+    client.post("/logout")
+    login(client, "task_operator", "operator-pass")
+    assert client.post("/manual-work/AGQ-TASK-PHASE1E/approval", data={"decision": "approved", "reason": "test"}).status_code == 403
+    client.post("/logout")
+    login(client, "task_researcher", "research-pass")
+    assert client.post("/manual-work/AGQ-TASK-PHASE1E/status", data={"status": "completed", "reason": "test"}).status_code == 403
+
+
+def test_viewer_can_view_task_but_cannot_create_or_change_it(client):
+    create_user("task_viewer", "viewer-pass", "viewer")
+    login(client, "task_viewer", "viewer-pass")
+    assert client.get("/manual-work").status_code == 200
+    assert client.get("/manual-work/AGQ-TASK-001").status_code == 200
+    assert client.post("/manual-work", data=task_payload()).status_code == 403
+    assert client.post("/manual-work/AGQ-TASK-001/status", data={"status": "completed", "reason": "test"}).status_code == 403
