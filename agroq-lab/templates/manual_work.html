@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Manual Work — AgroQ{% endblock %}
+{% block content %}
+<div class="two-column">
+<section class="panel">
+  <p class="eyebrow">HUMAN WORK IS SYSTEM DATA</p>
+  <h1>Manual work queue</h1>
+  <p>Inspections, sampling, calibration, repairs, planting, and measurements are first-class records.</p>
+  {% for task in tasks %}
+  <div class="task">
+    <div>
+      <strong>{{ task.title }}</strong>
+      <p>{{ task.task_type }} · {{ task.plot_id or "Site-wide" }} · {{ task.assigned_to or "Unassigned" }}</p>
+      <small>{{ task.notes }}</small>
+    </div>
+    {% if task.status != "completed" %}
+    <form method="post" action="{{ url_for('complete_manual_task', task_id=task.task_id) }}">
+      <button class="secondary-button" type="submit">Mark complete</button>
+    </form>
+    {% else %}
+    <span class="approval approved">completed</span>
+    {% endif %}
+  </div>
+  {% endfor %}
+</section>
+
+<section class="panel">
+  <h2>Create manual task</h2>
+  <form method="post" class="form-grid single">
+    <label>Title<input name="title" required></label>
+    <label>Work type
+      <select name="task_type">
+        <option>fieldwork</option><option>inspection</option><option>sampling</option>
+        <option>calibration</option><option>maintenance</option><option>repair</option>
+      </select>
+    </label>
+    <label>Plot
+      <select name="plot_id"><option value="">Site-wide</option>
+        {% for plot in plots %}<option value="{{ plot.plot_id }}">{{ plot.plot_id }} — {{ plot.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Priority<select name="priority"><option>normal</option><option>high</option><option>critical</option></select></label>
+    <label>Assigned to<input name="assigned_to"></label>
+    <label>Instructions<textarea name="notes" rows="5"></textarea></label>
+    <button class="primary-button" type="submit">Create task</button>
+  </form>
+</section>
+</div>
+{% endblock %}

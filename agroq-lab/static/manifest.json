@@ -1,0 +1,9 @@
+{
+  "name": "AgroQ Acre MVP",
+  "short_name": "AgroQ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f7f1",
+  "theme_color": "#163226",
+  "description": "Manual-first field operations and research MVP for the AgroQ living laboratory."
+}

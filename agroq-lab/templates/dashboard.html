@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — AgroQ{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">ONE-ACRE OPERATIONS</p>
+    <h1>Field evidence before automation</h1>
+    <p>Record the physical work, measurements, decisions, and outcomes first. Connect sensors and models through controlled adapters later.</p>
+  </div>
+  <a class="primary-button" href="{{ url_for('new_observation') }}">Record field observation</a>
+</section>
+
+<section class="cards">
+  <article class="metric"><span>Plots</span><strong>{{ counts.plots }}</strong></article>
+  <article class="metric"><span>Assets</span><strong>{{ counts.assets }}</strong></article>
+  <article class="metric"><span>Observations</span><strong>{{ counts.observations }}</strong></article>
+  <article class="metric"><span>Open manual tasks</span><strong>{{ counts.open_tasks }}</strong></article>
+  <article class="metric"><span>Pending approvals</span><strong>{{ counts.pending_recommendations }}</strong></article>
+</section>
+
+<div class="two-column">
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Recent observations</h2>
+    <a href="{{ url_for('new_observation') }}">Add</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Time</th><th>Plot</th><th>Measurement</th><th>Source</th><th>Quality</th></tr></thead>
+      <tbody>
+      {% for row in recent %}
+      <tr>
+        <td>{{ row.observed_at[:16].replace("T", " ") }}</td>
+        <td>{{ row.plot_name }}</td>
+        <td>{{ row.value }} {{ row.unit }} {{ row.observed_property }}</td>
+        <td><span class="tag">{{ row.source_type }}</span></td>
+        <td>{{ row.quality_flag }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Manual work queue</h2>
+    <a href="{{ url_for('manual_work') }}">Open</a>
+  </div>
+  {% for task in tasks %}
+  <div class="list-row">
+    <div>
+      <strong>{{ task.title }}</strong>
+      <p>{{ task.plot_id or "Site-wide" }} · {{ task.priority }}</p>
+    </div>
+    <span class="tag">{{ task.status }}</span>
+  </div>
+  {% endfor %}
+</section>
+</div>
+
+<section class="panel">
+  <div class="panel-heading"><h2>Decision gate</h2><a href="{{ url_for('recommendations') }}">Review all</a></div>
+  {% for rec in recommendations %}
+  <div class="recommendation">
+    <div>
+      <strong>{{ rec.title }}</strong>
+      <p>{{ rec.rationale }}</p>
+      <small>{{ rec.source_type }} · {{ rec.source_version }} · confidence {{ rec.confidence }}</small>
+    </div>
+    <span class="approval {{ rec.approval_status }}">{{ rec.approval_status }}</span>
+  </div>
+  {% endfor %}
+</section>
+
+<section class="panel export">
+  <h2>Research export</h2>
+  <p>Keep the project portable. Export structured records before adding external integrations.</p>
+  <div class="button-row">
+    <a class="secondary-button" href="/api/export/all.json">Export all JSON</a>
+    <a class="secondary-button" href="/api/export/observations.csv">Observations CSV</a>
+    <a class="secondary-button" href="/api/export/manual_tasks.csv">Manual work CSV</a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Registry — AgroQ{% endblock %}
+{% block content %}
+<section class="hero compact">
+  <div><p class="eyebrow">DIGITAL TWIN FOUNDATION</p><h1>Plots, assets, and experiments</h1>
+  <p>The registry represents the as-built and as-operated acre before a 3D interface is added.</p></div>
+</section>
+
+<section class="panel">
+<h2>Plots</h2>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Area</th><th>Status</th></tr></thead>
+<tbody>{% for row in plots %}<tr><td>{{ row.plot_id }}</td><td>{{ row.name }}</td><td>{{ row.plot_type }}</td><td>{{ row.area }}</td><td>{{ row.status }}</td></tr>{% endfor %}</tbody>
+</table></div>
+</section>
+
+<section class="panel">
+<h2>Assets</h2>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Plot</th><th>Revision</th><th>Status</th></tr></thead>
+<tbody>{% for row in assets %}<tr><td>{{ row.asset_id }}</td><td>{{ row.name }}</td><td>{{ row.asset_type }}</td><td>{{ row.plot_id }}</td><td>{{ row.revision }}</td><td>{{ row.status }}</td></tr>{% endfor %}</tbody>
+</table></div>
+</section>
+
+<section class="panel">
+<h2>Experiments</h2>
+{% for row in experiments %}
+<div class="list-row"><div><strong>{{ row.experiment_id }} — {{ row.title }}</strong><p>{{ row.hypothesis }}</p></div><span class="tag">{{ row.status }}</span></div>
+{% endfor %}
+</section>
+{% endblock %}

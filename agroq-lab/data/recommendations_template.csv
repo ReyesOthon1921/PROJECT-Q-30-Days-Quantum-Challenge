@@ -1,0 +1,2 @@
+recommendation_id,title,rationale,source_type,source_version,confidence,approval_status,plot_id
+AGQ-REC-001,Take verification reading,Sensor and last manual value differ,rule,baseline-rule-v1,medium,pending,AGQ-PLOT-002

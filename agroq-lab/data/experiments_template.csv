@@ -1,0 +1,2 @@
+experiment_id,title,hypothesis,status,plot_id,owner
+AGQ-EXP-001,Manual vs sensor moisture,Sensor and manual readings remain within defined tolerance,active,AGQ-PLOT-002,Research lead

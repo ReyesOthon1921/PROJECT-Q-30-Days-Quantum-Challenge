@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Record Observation — AgroQ{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <p class="eyebrow">MANUAL OR CONNECTED INPUT</p>
+  <h1>Record an observation</h1>
+  <p>This form remains available when the device loses its connection. Offline entries are queued in the browser and synchronized later.</p>
+  <div id="offline-queue-count" class="notice">Offline queue: 0</div>
+  <form id="observation-form" method="post" class="form-grid">
+    <label>Plot
+      <select name="plot_id" required>
+        {% for plot in plots %}<option value="{{ plot.plot_id }}">{{ plot.plot_id }} — {{ plot.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Asset or instrument
+      <select name="asset_id">
+        <option value="">Manual / none</option>
+        {% for asset in assets %}<option value="{{ asset.asset_id }}">{{ asset.asset_id }} — {{ asset.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Observed property
+      <select name="observed_property" required>
+        <option value="soil_moisture">Soil moisture</option>
+        <option value="soil_temperature">Soil temperature</option>
+        <option value="air_temperature">Air temperature</option>
+        <option value="plant_height">Plant height</option>
+        <option value="pest_count">Pest count</option>
+        <option value="beneficial_count">Beneficial-organism count</option>
+        <option value="visual_condition">Visual condition score</option>
+        <option value="other">Other</option>
+      </select>
+    </label>
+    <label>Value
+      <input name="value" type="number" step="any" required>
+    </label>
+    <label>Unit
+      <input name="unit" placeholder="%, °C, cm, count, score" required>
+    </label>
+    <label>Source
+      <select name="source_type" required>
+        <option value="manual">Manual</option>
+        <option value="sensor">Sensor</option>
+        <option value="laboratory">Laboratory</option>
+        <option value="import">Imported</option>
+      </select>
+    </label>
+    <label>Quality flag
+      <select name="quality_flag">
+        <option value="unverified">Unverified</option>
+        <option value="good">Good</option>
+        <option value="suspect">Suspect</option>
+        <option value="invalid">Invalid</option>
+      </select>
+    </label>
+    <label>Observed time
+      <input name="observed_at" type="datetime-local">
+    </label>
+    <label class="full">Notes
+      <textarea name="notes" rows="4" placeholder="Method, conditions, unusual events, person taking measurement"></textarea>
+    </label>
+    <div class="full button-row">
+      <button class="primary-button" type="submit">Save observation</button>
+      <button class="secondary-button" id="sync-offline" type="button">Synchronize offline queue</button>
+    </div>
+  </form>
+</section>
+{% endblock %}
