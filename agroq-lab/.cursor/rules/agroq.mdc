@@ -1,0 +1,17 @@
+---
+description: AgroQ manual-first engineering constraints
+alwaysApply: true
+---
+
+# AgroQ Engineering Rules
+
+- Read `AGENTS.md` before editing.
+- Preserve manual workflows when adding automation.
+- Keep core operation independent of internet, cloud AI, and quantum services.
+- Every generated recommendation requires provenance and an approval state.
+- Never add direct autonomous control for irrigation, biological treatment, organism release, or moving equipment.
+- Use adapters for external systems.
+- Add tests for database and approval behavior.
+- Do not overwrite raw observations.
+- Label compute type truthfully.
+- Update relevant documentation with architectural changes.

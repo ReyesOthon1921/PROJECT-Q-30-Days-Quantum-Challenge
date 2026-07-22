@@ -1,0 +1,2 @@
+task_id,title,task_type,plot_id,status,priority,assigned_to,notes
+AGQ-TASK-001,Inspect enclosure,inspection,AGQ-PLOT-001,open,high,Field team,Check gasket and cable gland

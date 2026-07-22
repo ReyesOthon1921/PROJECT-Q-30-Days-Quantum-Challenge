@@ -1,0 +1,2 @@
+observation_id,plot_id,asset_id,observed_property,value,unit,source_type,quality_flag,observed_at,notes
+AGQ-OBS-001,AGQ-PLOT-001,,soil_moisture,24.0,%,manual,good,2026-07-22T09:00:00-07:00,Example

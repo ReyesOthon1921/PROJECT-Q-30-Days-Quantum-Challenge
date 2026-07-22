@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Approvals — AgroQ{% endblock %}
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">HUMAN DECISION GATE</p>
+  <h1>Recommendations and approvals</h1>
+  <p>Rules, AI models, and optimizers propose actions. People approve, reject, or edit them and document why.</p>
+  {% for rec in recommendations %}
+  <article class="decision-card">
+    <div>
+      <h2>{{ rec.title }}</h2>
+      <p>{{ rec.rationale }}</p>
+      <div class="metadata">
+        <span>Plot: {{ rec.plot_id }}</span>
+        <span>Source: {{ rec.source_type }}</span>
+        <span>Version: {{ rec.source_version }}</span>
+        <span>Confidence: {{ rec.confidence }}</span>
+      </div>
+    </div>
+    <span class="approval {{ rec.approval_status }}">{{ rec.approval_status }}</span>
+    {% if rec.approval_status == "pending" %}
+    <form method="post" action="{{ url_for('recommendation_decision', recommendation_id=rec.recommendation_id) }}" class="decision-form">
+      <label>Reviewer<input name="decided_by" value="Field reviewer"></label>
+      <label>Decision notes<textarea name="decision_notes" rows="3" required></textarea></label>
+      <div class="button-row">
+        <button class="primary-button" name="decision" value="approved">Approve</button>
+        <button class="secondary-button" name="decision" value="edited">Approve with edit</button>
+        <button class="danger-button" name="decision" value="rejected">Reject</button>
+      </div>
+    </form>
+    {% else %}
+    <p><strong>Decision:</strong> {{ rec.approval_status }} by {{ rec.decided_by }}. {{ rec.decision_notes }}</p>
+    {% endif %}
+  </article>
+  {% endfor %}
+</section>
+{% endblock %}
