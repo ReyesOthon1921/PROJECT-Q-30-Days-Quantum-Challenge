@@ -501,3 +501,92 @@ def test_missing_asset_returns_404_and_retirement_is_post_only(client):
     login(client)
     assert client.get("/assets/DOES-NOT-EXIST").status_code == 404
     assert client.get("/assets/AGQ-ASSET-001/retire").status_code == 405
+
+
+def experiment_payload(**overrides):
+    values = {
+        "experiment_id": "AGQ-EXP-TEST",
+        "title": "Compost comparison",
+        "hypothesis": "Compost treatment improves soil moisture retention.",
+        "status": "draft",
+        "plot_id": "AGQ-PLOT-001",
+    }
+    values.update(overrides)
+    return values
+
+
+def test_researcher_can_create_experiment_and_treatment(client):
+    create_user("exp_researcher", "research-pass", "researcher")
+    login(client, "exp_researcher", "research-pass")
+    assert client.post("/experiments/new", data=experiment_payload()).status_code == 302
+    assert client.post(
+        "/experiments/AGQ-EXP-TEST/treatments",
+        data={"treatment_id": "AGQ-TRT-TEST", "name": "Compost", "description": "Standard rate"},
+    ).status_code == 302
+    with get_db() as conn:
+        experiment = conn.execute("SELECT * FROM experiments WHERE experiment_id='AGQ-EXP-TEST'").fetchone()
+        treatment = conn.execute("SELECT * FROM treatments WHERE treatment_id='AGQ-TRT-TEST'").fetchone()
+    assert experiment["owner"] == "AGQ-USER-EXP_RESEARCHER"
+    assert treatment["experiment_id"] == experiment["experiment_id"]
+
+
+def test_assignment_requires_treatment_from_same_experiment(client):
+    login(client)
+    response = client.post(
+        "/experiments/AGQ-EXP-001/assignments",
+        data={"treatment_id": "MISSING", "plot_id": "AGQ-PLOT-001", "responsible_user_id": "AGQ-USER-001"},
+    )
+    assert response.status_code == 400
+    assert b"does not belong" in response.data
+
+
+def test_treatment_assignment_records_plot_and_responsible_user(client):
+    login(client)
+    client.post("/experiments/AGQ-EXP-001/treatments", data={"treatment_id": "AGQ-TRT-ASSIGN", "name": "Control", "is_control": "1"})
+    response = client.post(
+        "/experiments/AGQ-EXP-001/assignments",
+        data={"assignment_id": "AGQ-ASN-TEST", "treatment_id": "AGQ-TRT-ASSIGN", "plot_id": "AGQ-PLOT-003",
+              "responsible_user_id": "AGQ-USER-001", "start_date": "2026-07-23"},
+    )
+    assert response.status_code == 302
+    with get_db() as conn:
+        row = conn.execute("SELECT * FROM treatment_assignments WHERE assignment_id='AGQ-ASN-TEST'").fetchone()
+    assert row["plot_id"] == "AGQ-PLOT-003"
+    assert row["responsible_user_id"] == "AGQ-USER-001"
+
+
+def test_status_change_preserves_history_and_requires_reason(client):
+    login(client)
+    assert client.post("/experiments/AGQ-EXP-001/status", data={"status": "paused", "reason": "Awaiting baseline readings"}).status_code == 302
+    assert client.post("/experiments/AGQ-EXP-001/status", data={"status": "active", "reason": ""}).status_code == 400
+    with get_db() as conn:
+        experiment = conn.execute("SELECT * FROM experiments WHERE experiment_id='AGQ-EXP-001'").fetchone()
+        history = conn.execute("SELECT * FROM experiment_status_history WHERE experiment_id='AGQ-EXP-001'").fetchone()
+    assert experiment["status"] == "paused"
+    assert history["previous_status"] == "active"
+    assert history["new_status"] == "paused"
+
+
+def test_outcome_links_immutable_observation_without_copying_value(client):
+    login(client)
+    with get_db() as conn:
+        before = dict(conn.execute("SELECT * FROM observations WHERE observation_id='AGQ-OBS-001'").fetchone())
+    response = client.post(
+        "/experiments/AGQ-EXP-001/outcomes",
+        data={"observation_id": "AGQ-OBS-001", "interpretation": "Baseline outcome"},
+    )
+    assert response.status_code == 302
+    with get_db() as conn:
+        after = dict(conn.execute("SELECT * FROM observations WHERE observation_id='AGQ-OBS-001'").fetchone())
+        outcome = conn.execute("SELECT * FROM experiment_outcomes WHERE experiment_id='AGQ-EXP-001'").fetchone()
+    assert before == after
+    assert outcome["observation_id"] == "AGQ-OBS-001"
+
+
+def test_viewer_can_view_but_cannot_design_experiment(client):
+    create_user("exp_viewer", "viewer-pass", "viewer")
+    login(client, "exp_viewer", "viewer-pass")
+    assert client.get("/experiments").status_code == 200
+    assert client.get("/experiments/AGQ-EXP-001").status_code == 200
+    assert client.post("/experiments/new", data=experiment_payload()).status_code == 403
+    assert client.post("/experiments/AGQ-EXP-001/status", data={"status": "paused", "reason": "test"}).status_code == 403

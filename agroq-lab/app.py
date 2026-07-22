@@ -49,6 +49,9 @@ OBSERVATION_QUALITY_FLAGS = frozenset({"unverified", "good", "suspect", "invalid
 CORRECTION_QUALITY_FLAGS = frozenset({"corrected", "good", "suspect", "invalid"})
 OBSERVATION_VIEW_ROLES = ("administrator", "researcher", "field_operator", "viewer")
 OBSERVATION_CREATE_ROLES = ("administrator", "researcher", "field_operator")
+EXPERIMENT_STATUSES = frozenset({"draft", "planned", "active", "paused", "completed", "cancelled"})
+EXPERIMENT_VIEW_ROLES = REGISTRY_VIEW_ROLES
+EXPERIMENT_EDIT_ROLES = ("administrator", "researcher")
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -107,6 +110,25 @@ def new_observation_id() -> str:
 
 def new_correction_id() -> str:
     return f"AGQ-CORR-{int(datetime.now().timestamp() * 1000)}"
+
+
+def new_entity_id(prefix: str) -> str:
+    return f"AGQ-{prefix}-{int(datetime.now().timestamp() * 1000)}"
+
+
+def validate_experiment_payload(conn: sqlite3.Connection, payload: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    if not str(payload.get("title", "")).strip():
+        errors.append("Title is required.")
+    if not str(payload.get("hypothesis", "")).strip():
+        errors.append("Hypothesis is required.")
+    status = str(payload.get("status", "draft")).strip()
+    if status not in EXPERIMENT_STATUSES:
+        errors.append("Experiment status is invalid.")
+    plot_id = str(payload.get("plot_id", "")).strip()
+    if plot_id and not plot_exists(conn, plot_id):
+        errors.append("Selected primary plot does not exist.")
+    return errors
 
 
 def next_revision(current: str) -> str:
@@ -964,6 +986,158 @@ def recommendations() -> str:
     return render_template("recommendations.html", recommendations=rows)
 
 
+@app.get("/experiments")
+@roles_required(*EXPERIMENT_VIEW_ROLES)
+def experiments() -> str:
+    with get_db() as conn:
+        rows = conn.execute(
+            """SELECT e.*, p.name AS plot_name,
+                      (SELECT COUNT(*) FROM treatments t WHERE t.experiment_id=e.experiment_id) AS treatment_count,
+                      (SELECT COUNT(*) FROM treatment_assignments a WHERE a.experiment_id=e.experiment_id) AS assignment_count
+               FROM experiments e LEFT JOIN plots p ON p.plot_id=e.plot_id
+               ORDER BY e.created_at DESC"""
+        ).fetchall()
+    return render_template("experiments.html", experiments=rows)
+
+
+@app.route("/experiments/new", methods=["GET", "POST"])
+@roles_required(*EXPERIMENT_EDIT_ROLES)
+def create_experiment() -> str | Response:
+    values = request.form.to_dict() if request.method == "POST" else {"status": "draft"}
+    with get_db() as conn:
+        plots = conn.execute("SELECT * FROM plots WHERE status='Active' ORDER BY plot_id").fetchall()
+        errors = validate_experiment_payload(conn, values) if request.method == "POST" else []
+    if request.method == "POST" and not errors:
+        experiment_id = values.get("experiment_id", "").strip() or new_entity_id("EXP")
+        try:
+            with get_db() as conn:
+                conn.execute(
+                    """INSERT INTO experiments(experiment_id,title,hypothesis,status,plot_id,owner,created_at)
+                       VALUES(?,?,?,?,?,?,?)""",
+                    (experiment_id, values["title"].strip(), values["hypothesis"].strip(),
+                     values["status"].strip(), values.get("plot_id", "").strip() or None,
+                     g.user["user_id"], utc_now()),
+                )
+        except sqlite3.IntegrityError:
+            errors.append("That experiment ID already exists or a linked record is invalid.")
+        else:
+            record_audit_event(g.user["user_id"], "experiment_created", "experiment", experiment_id, json.dumps(values))
+            return redirect(url_for("experiment_detail", experiment_id=experiment_id))
+    for error in errors:
+        flash(error, "error")
+    return render_template("experiment_form.html", values=values, plots=plots, statuses=sorted(EXPERIMENT_STATUSES))
+
+
+@app.get("/experiments/<experiment_id>")
+@roles_required(*EXPERIMENT_VIEW_ROLES)
+def experiment_detail(experiment_id: str) -> str:
+    with get_db() as conn:
+        experiment = conn.execute("SELECT * FROM experiments WHERE experiment_id=?", (experiment_id,)).fetchone()
+        if experiment is None:
+            abort(404)
+        treatments = conn.execute("SELECT * FROM treatments WHERE experiment_id=? ORDER BY created_at", (experiment_id,)).fetchall()
+        assignments = conn.execute(
+            """SELECT a.*, t.name AS treatment_name, p.name AS plot_name, u.display_name AS responsible_name
+               FROM treatment_assignments a JOIN treatments t ON t.treatment_id=a.treatment_id
+               JOIN plots p ON p.plot_id=a.plot_id JOIN users u ON u.user_id=a.responsible_user_id
+               WHERE a.experiment_id=? ORDER BY a.assigned_at""", (experiment_id,)
+        ).fetchall()
+        history = conn.execute("SELECT * FROM experiment_status_history WHERE experiment_id=? ORDER BY changed_at DESC", (experiment_id,)).fetchall()
+        outcomes = conn.execute(
+            """SELECT o.*, ob.observed_property, ob.value, ob.unit FROM experiment_outcomes o
+               JOIN observations ob ON ob.observation_id=o.observation_id
+               WHERE o.experiment_id=? ORDER BY o.recorded_at DESC""", (experiment_id,)
+        ).fetchall()
+        plots = conn.execute("SELECT * FROM plots WHERE status='Active' ORDER BY plot_id").fetchall()
+        users = conn.execute("SELECT * FROM users WHERE active=1 ORDER BY display_name").fetchall()
+        observations = conn.execute("SELECT * FROM observations ORDER BY observed_at DESC").fetchall()
+    return render_template("experiment_detail.html", experiment=experiment, treatments=treatments,
+        assignments=assignments, history=history, outcomes=outcomes, plots=plots, users=users,
+        observations=observations, statuses=sorted(EXPERIMENT_STATUSES))
+
+
+@app.post("/experiments/<experiment_id>/treatments")
+@roles_required(*EXPERIMENT_EDIT_ROLES)
+def add_treatment(experiment_id: str) -> Response | tuple[str, int]:
+    name = request.form.get("name", "").strip()
+    if not name:
+        return "Treatment name is required", 400
+    treatment_id = request.form.get("treatment_id", "").strip() or new_entity_id("TRT")
+    try:
+        with get_db() as conn:
+            if conn.execute("SELECT 1 FROM experiments WHERE experiment_id=?", (experiment_id,)).fetchone() is None:
+                abort(404)
+            conn.execute("""INSERT INTO treatments(treatment_id,experiment_id,name,description,is_control,created_by,created_at)
+                            VALUES(?,?,?,?,?,?,?)""", (treatment_id, experiment_id, name,
+                            request.form.get("description", "").strip(), 1 if request.form.get("is_control") else 0,
+                            g.user["user_id"], utc_now()))
+    except sqlite3.IntegrityError:
+        return "Treatment ID already exists or is invalid", 400
+    record_audit_event(g.user["user_id"], "treatment_created", "treatment", treatment_id, json.dumps({"experiment_id": experiment_id}))
+    return redirect(url_for("experiment_detail", experiment_id=experiment_id))
+
+
+@app.post("/experiments/<experiment_id>/assignments")
+@roles_required(*EXPERIMENT_EDIT_ROLES)
+def add_treatment_assignment(experiment_id: str) -> Response | tuple[str, int]:
+    assignment_id = request.form.get("assignment_id", "").strip() or new_entity_id("ASN")
+    treatment_id = request.form.get("treatment_id", "").strip()
+    plot_id = request.form.get("plot_id", "").strip()
+    responsible = request.form.get("responsible_user_id", "").strip()
+    try:
+        with get_db() as conn:
+            treatment = conn.execute("SELECT * FROM treatments WHERE treatment_id=? AND experiment_id=?", (treatment_id, experiment_id)).fetchone()
+            if treatment is None:
+                return "Treatment does not belong to this experiment", 400
+            conn.execute("""INSERT INTO treatment_assignments(assignment_id,experiment_id,treatment_id,plot_id,responsible_user_id,assigned_at,start_date,end_date,notes)
+                            VALUES(?,?,?,?,?,?,?,?,?)""", (assignment_id, experiment_id, treatment_id, plot_id, responsible,
+                            utc_now(), request.form.get("start_date") or None, request.form.get("end_date") or None,
+                            request.form.get("notes", "").strip()))
+    except sqlite3.IntegrityError:
+        return "Assignment is invalid, duplicated, or references a missing record", 400
+    record_audit_event(g.user["user_id"], "treatment_assigned", "treatment_assignment", assignment_id, json.dumps({"experiment_id": experiment_id, "plot_id": plot_id}))
+    return redirect(url_for("experiment_detail", experiment_id=experiment_id))
+
+
+@app.post("/experiments/<experiment_id>/status")
+@roles_required(*EXPERIMENT_EDIT_ROLES)
+def change_experiment_status(experiment_id: str) -> Response | tuple[str, int]:
+    new_status = request.form.get("status", "").strip()
+    reason = request.form.get("reason", "").strip()
+    if new_status not in EXPERIMENT_STATUSES or not reason:
+        return "Valid status and reason are required", 400
+    with get_db() as conn:
+        experiment = conn.execute("SELECT * FROM experiments WHERE experiment_id=?", (experiment_id,)).fetchone()
+        if experiment is None:
+            abort(404)
+        event_id = new_entity_id("STATUS")
+        conn.execute("UPDATE experiments SET status=? WHERE experiment_id=?", (new_status, experiment_id))
+        conn.execute("""INSERT INTO experiment_status_history(status_event_id,experiment_id,previous_status,new_status,reason,changed_by,changed_at)
+                        VALUES(?,?,?,?,?,?,?)""", (event_id, experiment_id, experiment["status"], new_status, reason, g.user["user_id"], utc_now()))
+    record_audit_event(g.user["user_id"], "experiment_status_changed", "experiment", experiment_id,
+                       json.dumps({"from": experiment["status"], "to": new_status, "reason": reason}))
+    return redirect(url_for("experiment_detail", experiment_id=experiment_id))
+
+
+@app.post("/experiments/<experiment_id>/outcomes")
+@roles_required(*EXPERIMENT_EDIT_ROLES)
+def add_experiment_outcome(experiment_id: str) -> Response | tuple[str, int]:
+    outcome_id = new_entity_id("OUT")
+    observation_id = request.form.get("observation_id", "").strip()
+    assignment_id = request.form.get("assignment_id", "").strip() or None
+    try:
+        with get_db() as conn:
+            if assignment_id and conn.execute("SELECT 1 FROM treatment_assignments WHERE assignment_id=? AND experiment_id=?", (assignment_id, experiment_id)).fetchone() is None:
+                return "Assignment does not belong to this experiment", 400
+            conn.execute("""INSERT INTO experiment_outcomes(outcome_id,experiment_id,assignment_id,observation_id,interpretation,recorded_by,recorded_at)
+                            VALUES(?,?,?,?,?,?,?)""", (outcome_id, experiment_id, assignment_id, observation_id,
+                            request.form.get("interpretation", "").strip(), g.user["user_id"], utc_now()))
+    except sqlite3.IntegrityError:
+        return "Outcome is duplicated or references a missing record", 400
+    record_audit_event(g.user["user_id"], "experiment_outcome_linked", "experiment_outcome", outcome_id, json.dumps({"experiment_id": experiment_id, "observation_id": observation_id}))
+    return redirect(url_for("experiment_detail", experiment_id=experiment_id))
+
+
 @app.post("/recommendations/<recommendation_id>/decision")
 @roles_required("administrator", "researcher")
 def recommendation_decision(recommendation_id: str) -> tuple[str, int] | Response:
@@ -1001,6 +1175,10 @@ def export_csv(entity: str) -> tuple[str, int] | Response:
         "observation_corrections": "SELECT * FROM observation_corrections ORDER BY created_at",
         "manual_tasks": "SELECT * FROM manual_tasks ORDER BY created_at",
         "experiments": "SELECT * FROM experiments ORDER BY experiment_id",
+        "treatments": "SELECT * FROM treatments ORDER BY treatment_id",
+        "treatment_assignments": "SELECT * FROM treatment_assignments ORDER BY assignment_id",
+        "experiment_status_history": "SELECT * FROM experiment_status_history ORDER BY changed_at",
+        "experiment_outcomes": "SELECT * FROM experiment_outcomes ORDER BY recorded_at",
         "recommendations": "SELECT * FROM recommendations ORDER BY created_at",
     }
     if entity not in allowed:
@@ -1024,7 +1202,8 @@ def export_csv(entity: str) -> tuple[str, int] | Response:
 def export_json() -> Response:
     entities = [
         "plots", "assets", "observations", "observation_corrections",
-        "manual_tasks", "experiments", "recommendations",
+        "manual_tasks", "experiments", "treatments", "treatment_assignments",
+        "experiment_status_history", "experiment_outcomes", "recommendations",
     ]
     data: dict[str, list[dict[str, Any]]] = {}
     with get_db() as conn:

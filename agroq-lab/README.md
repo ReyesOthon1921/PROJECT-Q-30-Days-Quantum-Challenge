@@ -107,6 +107,13 @@ Authorization is enforced on every protected route. Hidden navigation links do n
 
 Successful sign-in and sign-out events are recorded in the local `audit_events` table for traceability.
 
+## Phase 1D experiments and treatments
+
+Experiments now have hypothesis and lifecycle records, reusable treatment definitions,
+plot-level treatment assignments, responsible-user attribution, and outcome links to
+immutable observations. Status changes require a reason and are retained in history.
+Researchers and administrators may design experiments; field operators and viewers have
+read-only access. Export endpoints include all Phase 1D records.
 ## Plot and asset registry (Phase 1B)
 
 The registry now supports the complete local lifecycle for plots and assets:

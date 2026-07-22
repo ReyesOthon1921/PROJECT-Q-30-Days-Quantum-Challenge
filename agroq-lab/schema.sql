@@ -77,6 +77,62 @@ CREATE TABLE IF NOT EXISTS observations (
     FOREIGN KEY(asset_id) REFERENCES assets(asset_id)
 );
 
+CREATE TABLE IF NOT EXISTS treatments (
+    treatment_id TEXT PRIMARY KEY,
+    experiment_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT,
+    is_control INTEGER NOT NULL DEFAULT 0,
+    created_by TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(experiment_id) REFERENCES experiments(experiment_id),
+    FOREIGN KEY(created_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS treatment_assignments (
+    assignment_id TEXT PRIMARY KEY,
+    experiment_id TEXT NOT NULL,
+    treatment_id TEXT NOT NULL,
+    plot_id TEXT NOT NULL,
+    responsible_user_id TEXT NOT NULL,
+    assigned_at TEXT NOT NULL,
+    start_date TEXT,
+    end_date TEXT,
+    notes TEXT,
+    FOREIGN KEY(experiment_id) REFERENCES experiments(experiment_id),
+    FOREIGN KEY(treatment_id) REFERENCES treatments(treatment_id),
+    FOREIGN KEY(plot_id) REFERENCES plots(plot_id),
+    FOREIGN KEY(responsible_user_id) REFERENCES users(user_id),
+    UNIQUE(experiment_id, plot_id)
+);
+
+CREATE TABLE IF NOT EXISTS experiment_status_history (
+    status_event_id TEXT PRIMARY KEY,
+    experiment_id TEXT NOT NULL,
+    previous_status TEXT NOT NULL,
+    new_status TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    changed_by TEXT NOT NULL,
+    changed_at TEXT NOT NULL,
+    FOREIGN KEY(experiment_id) REFERENCES experiments(experiment_id),
+    FOREIGN KEY(changed_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS experiment_outcomes (
+    outcome_id TEXT PRIMARY KEY,
+    experiment_id TEXT NOT NULL,
+    assignment_id TEXT,
+    observation_id TEXT NOT NULL,
+    interpretation TEXT,
+    recorded_by TEXT NOT NULL,
+    recorded_at TEXT NOT NULL,
+    FOREIGN KEY(experiment_id) REFERENCES experiments(experiment_id),
+    FOREIGN KEY(assignment_id) REFERENCES treatment_assignments(assignment_id),
+    FOREIGN KEY(observation_id) REFERENCES observations(observation_id),
+    FOREIGN KEY(recorded_by) REFERENCES users(user_id),
+    UNIQUE(experiment_id, observation_id)
+);
+
 CREATE TABLE IF NOT EXISTS observation_corrections (
     correction_id TEXT PRIMARY KEY,
     observation_id TEXT NOT NULL,
@@ -135,6 +191,18 @@ ON observations(plot_id, observed_at);
 
 CREATE INDEX IF NOT EXISTS idx_observation_corrections_observation
 ON observation_corrections(observation_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_treatments_experiment
+ON treatments(experiment_id);
+
+CREATE INDEX IF NOT EXISTS idx_assignments_experiment
+ON treatment_assignments(experiment_id);
+
+CREATE INDEX IF NOT EXISTS idx_experiment_status_history
+ON experiment_status_history(experiment_id, changed_at);
+
+CREATE INDEX IF NOT EXISTS idx_experiment_outcomes
+ON experiment_outcomes(experiment_id, recorded_at);
 
 CREATE INDEX IF NOT EXISTS idx_tasks_status
 ON manual_tasks(status);

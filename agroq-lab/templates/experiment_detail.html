@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ experiment.experiment_id }} — AgroQ{% endblock %}
+{% block content %}
+<section class="panel"><p class="eyebrow">{{ experiment.experiment_id }}</p><h1>{{ experiment.title }}</h1><p><strong>Status:</strong> {{ experiment.status }} · <strong>Owner:</strong> {{ experiment.owner }}</p><p><strong>Hypothesis:</strong> {{ experiment.hypothesis }}</p></section>
+
+{% if g.user.role in ['administrator','researcher'] %}
+<section class="grid two">
+  <div class="panel"><h2>Add treatment</h2><form method="post" action="{{ url_for('add_treatment', experiment_id=experiment.experiment_id) }}" class="form-grid">
+    <label>Treatment ID (optional)<input name="treatment_id"></label><label>Name<input name="name" required></label>
+    <label class="full">Description<textarea name="description"></textarea></label><label><input type="checkbox" name="is_control" value="1"> Control treatment</label>
+    <div class="full"><button class="primary-button">Add treatment</button></div></form></div>
+  <div class="panel"><h2>Change status</h2><form method="post" action="{{ url_for('change_experiment_status', experiment_id=experiment.experiment_id) }}" class="form-grid">
+    <label>Status<select name="status">{% for status in statuses %}<option>{{ status }}</option>{% endfor %}</select></label>
+    <label>Reason<input name="reason" required></label><div class="full"><button class="primary-button">Record status change</button></div></form></div>
+</section>
+{% endif %}
+
+<section class="panel"><h2>Treatments</h2><div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>{% for t in treatments %}<tr><td>{{ t.treatment_id }}</td><td>{{ t.name }}</td><td>{{ 'Control' if t.is_control else 'Treatment' }}</td><td>{{ t.description or '—' }}</td></tr>{% endfor %}</tbody></table></div></section>
+
+{% if g.user.role in ['administrator','researcher'] and treatments %}
+<section class="panel"><h2>Assign treatment to plot</h2><form method="post" action="{{ url_for('add_treatment_assignment', experiment_id=experiment.experiment_id) }}" class="form-grid">
+  <label>Treatment<select name="treatment_id">{% for t in treatments %}<option value="{{ t.treatment_id }}">{{ t.name }}</option>{% endfor %}</select></label>
+  <label>Plot<select name="plot_id">{% for p in plots %}<option value="{{ p.plot_id }}">{{ p.plot_id }} — {{ p.name }}</option>{% endfor %}</select></label>
+  <label>Responsible user<select name="responsible_user_id">{% for u in users %}<option value="{{ u.user_id }}">{{ u.display_name }}</option>{% endfor %}</select></label>
+  <label>Start date<input type="date" name="start_date"></label><label>End date<input type="date" name="end_date"></label>
+  <label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="primary-button">Create assignment</button></div>
+</form></section>
+{% endif %}
+
+<section class="panel"><h2>Assignments</h2><div class="table-wrap"><table><thead><tr><th>ID</th><th>Treatment</th><th>Plot</th><th>Responsible</th><th>Dates</th></tr></thead><tbody>{% for a in assignments %}<tr><td>{{ a.assignment_id }}</td><td>{{ a.treatment_name }}</td><td>{{ a.plot_name }}</td><td>{{ a.responsible_name }}</td><td>{{ a.start_date or '—' }} → {{ a.end_date or '—' }}</td></tr>{% endfor %}</tbody></table></div></section>
+
+{% if g.user.role in ['administrator','researcher'] %}
+<section class="panel"><h2>Link outcome observation</h2><p>The measurement remains in the immutable observation record.</p><form method="post" action="{{ url_for('add_experiment_outcome', experiment_id=experiment.experiment_id) }}" class="form-grid">
+  <label>Observation<select name="observation_id">{% for o in observations %}<option value="{{ o.observation_id }}">{{ o.observation_id }} — {{ o.observed_property }} {{ o.value }} {{ o.unit }}</option>{% endfor %}</select></label>
+  <label>Assignment<select name="assignment_id"><option value="">Whole experiment</option>{% for a in assignments %}<option value="{{ a.assignment_id }}">{{ a.assignment_id }} — {{ a.treatment_name }}</option>{% endfor %}</select></label>
+  <label class="full">Interpretation<textarea name="interpretation"></textarea></label><div class="full"><button class="primary-button">Link outcome</button></div>
+</form></section>
+{% endif %}
+
+<section class="grid two"><div class="panel"><h2>Outcomes</h2>{% for o in outcomes %}<p><a href="{{ url_for('observation_detail', observation_id=o.observation_id) }}">{{ o.observation_id }}</a>: {{ o.observed_property }} {{ o.value }} {{ o.unit }}<br>{{ o.interpretation or '' }}</p>{% else %}<p>No outcomes linked.</p>{% endfor %}</div>
+<div class="panel"><h2>Status history</h2>{% for h in history %}<p>{{ h.previous_status }} → <strong>{{ h.new_status }}</strong><br>{{ h.reason }} · {{ h.changed_at }}</p>{% else %}<p>No status changes recorded.</p>{% endfor %}</div></section>
+{% endblock %}

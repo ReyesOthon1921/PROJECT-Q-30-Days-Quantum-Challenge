@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}New Experiment — AgroQ{% endblock %}
+{% block content %}
+<section class="panel narrow"><p class="eyebrow">EXPERIMENT DESIGN</p><h1>Create an experiment</h1>
+<form method="post" class="form-grid">
+  <label>Experiment ID (optional)<input name="experiment_id" value="{{ values.get('experiment_id','') }}" placeholder="Generated when blank"></label>
+  <label>Status<select name="status">{% for status in statuses %}<option value="{{ status }}" {% if values.get('status')==status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select></label>
+  <label class="full">Title<input name="title" required value="{{ values.get('title','') }}"></label>
+  <label class="full">Hypothesis<textarea name="hypothesis" required rows="4">{{ values.get('hypothesis','') }}</textarea></label>
+  <label>Primary plot<select name="plot_id"><option value="">None</option>{% for plot in plots %}<option value="{{ plot.plot_id }}">{{ plot.plot_id }} — {{ plot.name }}</option>{% endfor %}</select></label>
+  <div class="full button-row"><button class="primary-button" type="submit">Create experiment</button></div>
+</form></section>
+{% endblock %}

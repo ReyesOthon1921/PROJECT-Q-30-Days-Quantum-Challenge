@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Experiments — AgroQ{% endblock %}
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">EXPERIMENT REGISTRY</p>
+  <div class="section-heading"><div><h1>Experiments</h1><p>Hypotheses, treatments, assignments, status history, and linked outcomes.</p></div>
+  {% if g.user.role in ['administrator','researcher'] %}<a class="primary-button" href="{{ url_for('create_experiment') }}">New experiment</a>{% endif %}</div>
+  <div class="table-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Primary plot</th><th>Treatments</th><th>Assignments</th></tr></thead><tbody>
+  {% for row in experiments %}<tr><td><a href="{{ url_for('experiment_detail', experiment_id=row.experiment_id) }}">{{ row.experiment_id }}</a></td><td>{{ row.title }}</td><td>{{ row.status }}</td><td>{{ row.plot_name or '—' }}</td><td>{{ row.treatment_count }}</td><td>{{ row.assignment_count }}</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

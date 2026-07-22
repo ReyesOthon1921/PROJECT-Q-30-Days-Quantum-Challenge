@@ -34,6 +34,7 @@
   <a href="{{ url_for('new_observation') }}">Record Observation</a>
   {% endif %}
   <a href="{{ url_for('observations') }}">Observations</a>
+  <a href="{{ url_for('experiments') }}">Experiments</a>
   {% if g.user.role in ['administrator', 'field_operator'] %}
   <a href="{{ url_for('manual_work') }}">Manual Work</a>
   {% endif %}
