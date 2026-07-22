@@ -5,6 +5,24 @@
 <p>Operational identity and health for the offline-capable field computer.</p>
 <div class="grid cards">
   <section class="card"><h2>{{ config.gateway_name }}</h2><p>Site: {{ config.site_id }}</p><p>Mode: {{ config.deployment_mode }}</p><p>Bind host: {{ config.bind_host }}</p></section>
+  <section class="card">
+    <h2>LAN deployment readiness</h2>
+    <p>Address: {{ config.bind_host }}:{{ config.port }} · Shared network: {{ 'Yes' if config.shared_network else 'No' }} · Debug: {{ 'On' if config.debug_enabled else 'Off' }}</p>
+    <p>Status: <strong>{{ 'Ready' if config.deployment_ready else 'Action required' }}</strong></p>
+    {% for issue in config.safety_issues %}<p>{{ issue }}</p>{% endfor %}
+  </section>
+  <section class="card">
+    <h2>24-hour offline-outage test</h2>
+    <p>Status: {{ outage.status }} · Elapsed: {{ outage.elapsed_hours or 0 }} / 24 hours · Checkpoints: {{ outage.checkpoint_count }}</p>
+    {% if g.user.role == 'administrator' %}
+      {% if outage.status != 'running' %}<form method="post" action="{{ url_for('gateway_outage_start') }}"><label>Start notes<input name="notes" placeholder="Disconnect internet; keep LAN powered"></label><button>Start outage test</button></form>{% endif %}
+      {% if outage.status == 'running' %}
+        <form method="post" action="{{ url_for('gateway_outage_checkpoint', outage_id=outage.outage_test_id) }}"><label>Checkpoint notes<input name="notes" required></label><button>Record local-workflow checkpoint</button></form>
+        <form method="post" action="{{ url_for('gateway_outage_complete', outage_id=outage.outage_test_id) }}"><label>Result notes<input name="result_notes" required></label><button>Complete test</button></form>
+      {% endif %}
+    {% endif %}
+    <p>A pass requires at least 24 measured hours and one successful checkpoint. Completing early records a failed test.</p>
+  </section>
   <section class="card"><h2>Local readiness</h2><p>Database: {{ config.database_engine }}</p><p>Internet required: No</p><p>Secure secret: {{ 'Configured' if config.secret_configured else 'Development default — change before LAN deployment' }}</p></section>
 </div>
 <section class="card">

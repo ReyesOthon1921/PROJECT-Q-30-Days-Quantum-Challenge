@@ -147,6 +147,14 @@ history, and recovery-copy verification that never overwrites the active databas
 Administrators can create and re-verify backups from the gateway page. A due automatic backup is
 created during authenticated gateway use, so no internet service or external scheduler is required.
 
+## Phase 2C secure LAN deployment and outage verification
+
+Shared-network startup now checks the session secret, deployment mode, and debug setting before
+binding to the LAN. Configure `AGROQ_BIND_HOST`, `AGROQ_PORT`, `AGROQ_DEPLOYMENT_MODE`,
+`AGROQ_SECRET_KEY`, and `AGROQ_DEBUG`; use `run_gateway_windows.bat` as the field-computer
+launcher after replacing its example secret. The gateway records 24-hour outage sessions and
+local workflow checkpoints. A test passes only after 24 measured hours with at least one checkpoint.
+
 ## Phase 1D experiments and treatments
 
 Experiments now have hypothesis and lifecycle records, reusable treatment definitions,

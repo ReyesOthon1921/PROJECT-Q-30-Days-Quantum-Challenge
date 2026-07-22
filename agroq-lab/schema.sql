@@ -310,6 +310,32 @@ CREATE TABLE IF NOT EXISTS manual_task_approvals (
     FOREIGN KEY(reviewer_id) REFERENCES users(user_id)
 );
 
+CREATE TABLE IF NOT EXISTS outage_tests (
+    outage_test_id TEXT PRIMARY KEY,
+    status TEXT NOT NULL CHECK(status IN ('running','passed','failed')),
+    started_at TEXT NOT NULL,
+    started_by TEXT NOT NULL,
+    completed_at TEXT,
+    completed_by TEXT,
+    notes TEXT,
+    result_notes TEXT,
+    FOREIGN KEY(started_by) REFERENCES users(user_id),
+    FOREIGN KEY(completed_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS outage_checkpoints (
+    checkpoint_id TEXT PRIMARY KEY,
+    outage_test_id TEXT NOT NULL,
+    recorded_at TEXT NOT NULL,
+    database_ok INTEGER NOT NULL CHECK(database_ok IN (0,1)),
+    manual_workflow_ok INTEGER NOT NULL CHECK(manual_workflow_ok IN (0,1)),
+    backup_ok INTEGER NOT NULL CHECK(backup_ok IN (0,1)),
+    notes TEXT,
+    recorded_by TEXT NOT NULL,
+    FOREIGN KEY(outage_test_id) REFERENCES outage_tests(outage_test_id),
+    FOREIGN KEY(recorded_by) REFERENCES users(user_id)
+);
+
 CREATE TABLE IF NOT EXISTS recommendations (
     recommendation_id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
@@ -382,3 +408,9 @@ ON manual_task_approvals(task_id, reviewed_at);
 
 CREATE INDEX IF NOT EXISTS idx_recommendations_approval
 ON recommendations(approval_status);
+
+CREATE INDEX IF NOT EXISTS idx_outage_tests_started
+ON outage_tests(started_at);
+
+CREATE INDEX IF NOT EXISTS idx_outage_checkpoints_test
+ON outage_checkpoints(outage_test_id, recorded_at);

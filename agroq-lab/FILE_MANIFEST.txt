@@ -4,6 +4,7 @@
 AGENTS.md
 README.md
 app.py
+run_gateway_windows.bat
 data/assets_template.csv
 data/experiments_template.csv
 data/manual_tasks_template.csv

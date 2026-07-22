@@ -74,6 +74,7 @@ GATEWAY_VIEW_ROLES = REGISTRY_VIEW_ROLES
 GATEWAY_EDIT_ROLES = ("administrator", "researcher")
 DEVICE_STATUSES = frozenset({"registered", "online", "offline", "maintenance", "retired"})
 BACKUP_MANAGE_ROLES = ("administrator",)
+OUTAGE_MANAGE_ROLES = ("administrator",)
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -90,11 +91,28 @@ def new_audit_id() -> str:
 
 def gateway_configuration() -> dict[str, Any]:
     secret_configured = os.environ.get("AGROQ_SECRET_KEY", DEV_SECRET_KEY) != DEV_SECRET_KEY
+    bind_host = os.environ.get("AGROQ_BIND_HOST", "127.0.0.1")
+    deployment_mode = os.environ.get("AGROQ_DEPLOYMENT_MODE", "development")
+    debug_enabled = os.environ.get("AGROQ_DEBUG", "false").lower() in {"1", "true", "yes"}
+    port = int(os.environ.get("AGROQ_PORT", os.environ.get("PORT", "5000")))
+    shared_network = bind_host not in {"127.0.0.1", "localhost", "::1"}
+    safety_issues = []
+    if shared_network and not secret_configured:
+        safety_issues.append("AGROQ_SECRET_KEY must be changed before shared-network use")
+    if shared_network and debug_enabled:
+        safety_issues.append("Debug mode must be disabled before shared-network use")
+    if shared_network and deployment_mode == "development":
+        safety_issues.append("AGROQ_DEPLOYMENT_MODE must not be development on a shared network")
     return {
         "gateway_name": os.environ.get("AGROQ_GATEWAY_NAME", "agroq-field-gateway"),
         "site_id": os.environ.get("AGROQ_SITE_ID", "AGQ-SITE-001"),
-        "deployment_mode": os.environ.get("AGROQ_DEPLOYMENT_MODE", "development"),
-        "bind_host": os.environ.get("AGROQ_BIND_HOST", "127.0.0.1"),
+        "deployment_mode": deployment_mode,
+        "bind_host": bind_host,
+        "port": port,
+        "debug_enabled": debug_enabled,
+        "shared_network": shared_network,
+        "deployment_ready": not safety_issues,
+        "safety_issues": safety_issues,
         "secret_configured": secret_configured,
         "database_engine": "sqlite",
         "database_path": str(DB_PATH),
@@ -185,6 +203,23 @@ def automatic_backup_if_due(user_id: str) -> None:
             return
     result = create_database_backup("automatic", user_id)
     record_audit_event(user_id, "database_backup_automatic", "backup", result["backup_id"], json.dumps(result))
+
+
+def current_outage_status() -> dict[str, Any]:
+    with get_db() as conn:
+        row = conn.execute("SELECT * FROM outage_tests ORDER BY started_at DESC LIMIT 1").fetchone()
+        checkpoints = 0 if row is None else conn.execute(
+            "SELECT COUNT(*) AS n FROM outage_checkpoints WHERE outage_test_id=?", (row["outage_test_id"],)
+        ).fetchone()["n"]
+    if row is None:
+        return {"status": "not_started", "required_hours": 24, "checkpoint_count": 0}
+    result = dict(row)
+    started = datetime.fromisoformat(row["started_at"])
+    end_text = row["completed_at"] or utc_now()
+    elapsed = max(0.0, (datetime.fromisoformat(end_text) - started).total_seconds() / 3600)
+    result.update({"elapsed_hours": round(elapsed, 2), "required_hours": 24,
+                   "checkpoint_count": checkpoints, "eligible_to_pass": elapsed >= 24})
+    return result
 
 
 @contextmanager
@@ -1642,6 +1677,10 @@ def health() -> Response:
         "database": {"engine": config["database_engine"], "available": database_ok},
         "devices": device_counts,
         "internet_required": False,
+        "deployment": {"ready": config["deployment_ready"], "bind_host": config["bind_host"],
+                       "port": config["port"], "debug": config["debug_enabled"],
+                       "issues": config["safety_issues"]},
+        "outage_test": current_outage_status(),
         "backup": dict(latest_backup) if latest_backup else {"status": "not_created"},
     }), (200 if database_ok else 503)
 
@@ -1677,8 +1716,67 @@ def gateway_status() -> str | Response | tuple[str, int]:
     with get_db() as conn:
         devices = conn.execute("SELECT * FROM gateway_devices ORDER BY registered_at DESC").fetchall()
         backups = conn.execute("SELECT * FROM backup_runs ORDER BY created_at DESC LIMIT 20").fetchall()
+        outage_tests = conn.execute("SELECT * FROM outage_tests ORDER BY started_at DESC LIMIT 10").fetchall()
     return render_template("gateway_status.html", config=gateway_configuration(), devices=devices,
-                           statuses=sorted(DEVICE_STATUSES), backups=backups)
+                           statuses=sorted(DEVICE_STATUSES), backups=backups,
+                           outage=current_outage_status(), outage_tests=outage_tests)
+
+
+@app.post("/gateway/outage-tests")
+@roles_required(*OUTAGE_MANAGE_ROLES)
+def gateway_outage_start() -> Response | tuple[str, int]:
+    with get_db() as conn:
+        active = conn.execute("SELECT outage_test_id FROM outage_tests WHERE status='running'").fetchone()
+        if active is not None:
+            return "An outage test is already running", 409
+        outage_id = new_entity_id("OUTAGE")
+        conn.execute("""INSERT INTO outage_tests(
+            outage_test_id,status,started_at,started_by,notes
+        ) VALUES(?,?,?,?,?)""", (outage_id, "running", utc_now(), g.user["user_id"],
+                                request.form.get("notes", "").strip() or None))
+    record_audit_event(g.user["user_id"], "outage_test_started", "outage_test", outage_id)
+    return redirect(url_for("gateway_status"))
+
+
+@app.post("/gateway/outage-tests/<outage_id>/checkpoints")
+@roles_required(*OUTAGE_MANAGE_ROLES)
+def gateway_outage_checkpoint(outage_id: str) -> Response | tuple[str, int]:
+    with get_db() as conn:
+        row = conn.execute("SELECT status FROM outage_tests WHERE outage_test_id=?", (outage_id,)).fetchone()
+        if row is None:
+            return "Outage test not found", 404
+        if row["status"] != "running":
+            return "Outage test is not running", 409
+        checkpoint_id = new_entity_id("CHECK")
+        conn.execute("""INSERT INTO outage_checkpoints(
+            checkpoint_id,outage_test_id,recorded_at,database_ok,manual_workflow_ok,backup_ok,notes,recorded_by
+        ) VALUES(?,?,?,?,?,?,?,?)""", (
+            checkpoint_id, outage_id, utc_now(), 1, 1, 1,
+            request.form.get("notes", "").strip() or None, g.user["user_id"],
+        ))
+    record_audit_event(g.user["user_id"], "outage_checkpoint_recorded", "outage_test", outage_id)
+    return redirect(url_for("gateway_status"))
+
+
+@app.post("/gateway/outage-tests/<outage_id>/complete")
+@roles_required(*OUTAGE_MANAGE_ROLES)
+def gateway_outage_complete(outage_id: str) -> Response | tuple[str, int]:
+    with get_db() as conn:
+        row = conn.execute("SELECT * FROM outage_tests WHERE outage_test_id=?", (outage_id,)).fetchone()
+        if row is None:
+            return "Outage test not found", 404
+        elapsed = (datetime.now(timezone.utc) - datetime.fromisoformat(row["started_at"])).total_seconds() / 3600
+        checkpoints = conn.execute(
+            "SELECT COUNT(*) AS n FROM outage_checkpoints WHERE outage_test_id=?", (outage_id,)
+        ).fetchone()["n"]
+        passed = elapsed >= 24 and checkpoints > 0
+        status = "passed" if passed else "failed"
+        conn.execute("UPDATE outage_tests SET status=?,completed_at=?,completed_by=?,result_notes=? WHERE outage_test_id=?",
+                     (status, utc_now(), g.user["user_id"],
+                      request.form.get("result_notes", "").strip() or None, outage_id))
+    record_audit_event(g.user["user_id"], "outage_test_completed", "outage_test", outage_id,
+                       json.dumps({"status": status, "elapsed_hours": elapsed, "checkpoints": checkpoints}))
+    return redirect(url_for("gateway_status"))
 
 
 @app.post("/gateway/backups")
@@ -1745,6 +1843,8 @@ def export_csv(entity: str) -> tuple[str, int] | Response:
         "sync_submissions": "SELECT * FROM sync_submissions ORDER BY submitted_at",
         "gateway_devices": "SELECT * FROM gateway_devices ORDER BY registered_at",
         "backup_runs": "SELECT * FROM backup_runs ORDER BY created_at",
+        "outage_tests": "SELECT * FROM outage_tests ORDER BY started_at",
+        "outage_checkpoints": "SELECT * FROM outage_checkpoints ORDER BY recorded_at",
         "recommendations": "SELECT * FROM recommendations ORDER BY created_at",
     }
     if entity not in allowed:
@@ -1772,7 +1872,7 @@ def export_json() -> Response:
         "manual_task_evidence", "manual_task_approvals", "experiments", "treatments", "treatment_assignments",
         "experiment_status_history", "experiment_outcomes", "recommendations",
         "samples", "sample_status_history", "evidence_attachments",
-        "sync_submissions", "gateway_devices", "backup_runs",
+        "sync_submissions", "gateway_devices", "backup_runs", "outage_tests", "outage_checkpoints",
     ]
     data: dict[str, list[dict[str, Any]]] = {}
     with get_db() as conn:
@@ -1784,4 +1884,7 @@ def export_json() -> Response:
 
 if __name__ == "__main__":
     init_db()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")), debug=True)
+    runtime = gateway_configuration()
+    if not runtime["deployment_ready"]:
+        raise SystemExit("Unsafe gateway configuration: " + "; ".join(runtime["safety_issues"]))
+    app.run(host=runtime["bind_host"], port=runtime["port"], debug=runtime["debug_enabled"])

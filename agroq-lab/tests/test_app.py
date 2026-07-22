@@ -964,3 +964,68 @@ def test_phase2b_health_includes_latest_backup(client):
     client.post("/gateway/backups")
     payload = client.get("/api/health").get_json()
     assert payload["backup"]["status"] == "verified"
+
+
+def test_phase2c_health_reports_safe_local_deployment(client):
+    payload = client.get("/api/health").get_json()
+    assert payload["deployment"]["ready"] is True
+    assert payload["deployment"]["debug"] is False
+    assert payload["outage_test"]["status"] == "not_started"
+
+
+def test_phase2c_shared_lan_requires_safe_settings(monkeypatch):
+    from app import DEV_SECRET_KEY, gateway_configuration
+    monkeypatch.setenv("AGROQ_BIND_HOST", "0.0.0.0")
+    monkeypatch.setenv("AGROQ_DEPLOYMENT_MODE", "development")
+    monkeypatch.setenv("AGROQ_DEBUG", "true")
+    monkeypatch.setenv("AGROQ_SECRET_KEY", DEV_SECRET_KEY)
+    config = gateway_configuration()
+    assert config["deployment_ready"] is False
+    assert len(config["safety_issues"]) == 3
+
+
+def test_phase2c_admin_starts_and_checkpoints_outage(client):
+    login(client)
+    assert client.post("/gateway/outage-tests", data={"notes": "internet disconnected"}).status_code == 302
+    with get_db() as conn:
+        outage = conn.execute("SELECT * FROM outage_tests").fetchone()
+    assert outage["status"] == "running"
+    assert client.post(f"/gateway/outage-tests/{outage['outage_test_id']}/checkpoints",
+                       data={"notes": "manual entry and backup available"}).status_code == 302
+    with get_db() as conn:
+        assert conn.execute("SELECT COUNT(*) n FROM outage_checkpoints").fetchone()["n"] == 1
+
+
+def test_phase2c_outage_cannot_pass_early(client):
+    login(client)
+    client.post("/gateway/outage-tests")
+    with get_db() as conn:
+        outage_id = conn.execute("SELECT outage_test_id FROM outage_tests").fetchone()["outage_test_id"]
+    client.post(f"/gateway/outage-tests/{outage_id}/checkpoints", data={"notes": "ok"})
+    client.post(f"/gateway/outage-tests/{outage_id}/complete", data={"result_notes": "early"})
+    with get_db() as conn:
+        assert conn.execute("SELECT status FROM outage_tests").fetchone()["status"] == "failed"
+
+
+def test_phase2c_outage_passes_after_24_hours_with_checkpoint(client):
+    login(client)
+    client.post("/gateway/outage-tests")
+    with get_db() as conn:
+        outage_id = conn.execute("SELECT outage_test_id FROM outage_tests").fetchone()["outage_test_id"]
+        conn.execute("UPDATE outage_tests SET started_at='2026-01-01T00:00:00+00:00' WHERE outage_test_id=?", (outage_id,))
+    client.post(f"/gateway/outage-tests/{outage_id}/checkpoints", data={"notes": "ok"})
+    client.post(f"/gateway/outage-tests/{outage_id}/complete", data={"result_notes": "complete"})
+    with get_db() as conn:
+        assert conn.execute("SELECT status FROM outage_tests").fetchone()["status"] == "passed"
+
+
+def test_phase2c_outage_permissions_and_export(client):
+    create_user("outageviewer", "password-123", "viewer")
+    login(client, "outageviewer", "password-123")
+    assert client.post("/gateway/outage-tests").status_code == 403
+    client.post("/logout")
+    login(client)
+    client.post("/gateway/outage-tests")
+    payload = client.get("/api/export/all.json").get_json()
+    assert len(payload["data"]["outage_tests"]) == 1
+    assert "outage_checkpoints" in payload["data"]
