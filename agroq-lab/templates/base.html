@@ -42,6 +42,7 @@
   <a href="{{ url_for('registry') }}">Registry</a>
   {% if g.user.role in ['administrator', 'researcher'] %}
   <a href="{{ url_for('recommendations') }}">Approvals</a>
+  <a href="{{ url_for('sync_conflicts') }}">Sync Conflicts</a>
   {% endif %}
 </nav>
 {% endif %}

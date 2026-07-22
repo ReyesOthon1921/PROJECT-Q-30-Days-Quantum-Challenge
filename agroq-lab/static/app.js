@@ -1,4 +1,9 @@
-const queueKey = "agroqOfflineObservationQueue";
+const queueKey = "agroqOfflineObservationQueueV2";
+
+function newClientRequestId() {
+  if (crypto.randomUUID) return `agroq-${crypto.randomUUID()}`;
+  return `agroq-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
 
 function getQueue() {
   try { return JSON.parse(localStorage.getItem(queueKey) || "[]"); }
@@ -30,19 +35,18 @@ async function syncQueue() {
     alert("The device is still offline. Entries remain safely queued in this browser.");
     return;
   }
-  const remaining = [];
-  for (const item of queue) {
-    try {
-      const response = await fetch("/api/observations", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(item)
-      });
-      if (!response.ok) remaining.push(item);
-    } catch {
-      remaining.push(item);
+  let remaining = queue;
+  try {
+    const response = await fetch("/api/sync/observations", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({items: queue})
+    });
+    if (response.ok) {
+      const data = await response.json();
+      const completed = new Set(data.results.filter((r) => ["applied", "resolved"].includes(r.status)).map((r) => r.client_request_id));
+      remaining = queue.filter((item) => !completed.has(item.client_request_id));
     }
-  }
+  } catch { remaining = queue; }
   setQueue(remaining);
   alert(remaining.length ? `${remaining.length} entries could not synchronize.` : "Offline observations synchronized.");
 }
@@ -59,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = Object.fromEntries(new FormData(form).entries());
       if (!data.observed_at) data.observed_at = new Date().toISOString();
       const queue = getQueue();
-      queue.push(data);
+      queue.push({client_request_id: newClientRequestId(), queued_at: new Date().toISOString(), payload: data});
       setQueue(queue);
       form.reset();
       alert("Saved in the offline queue. Synchronize when the gateway is reachable.");

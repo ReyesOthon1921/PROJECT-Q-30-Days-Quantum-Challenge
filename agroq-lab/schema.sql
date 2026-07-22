@@ -77,6 +77,25 @@ CREATE TABLE IF NOT EXISTS observations (
     FOREIGN KEY(asset_id) REFERENCES assets(asset_id)
 );
 
+CREATE TABLE IF NOT EXISTS sync_submissions (
+    sync_id TEXT PRIMARY KEY,
+    client_request_id TEXT NOT NULL UNIQUE,
+    entity_type TEXT NOT NULL CHECK(entity_type IN ('observation')),
+    payload_json TEXT NOT NULL,
+    payload_sha256 TEXT NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('applied','conflict','rejected','resolved')),
+    result_entity_id TEXT,
+    conflict_reason TEXT,
+    submitted_by TEXT NOT NULL,
+    submitted_at TEXT NOT NULL,
+    resolved_by TEXT,
+    resolved_at TEXT,
+    resolution TEXT CHECK(resolution IS NULL OR resolution IN ('accepted_as_new','dismissed')),
+    resolution_notes TEXT,
+    FOREIGN KEY(submitted_by) REFERENCES users(user_id),
+    FOREIGN KEY(resolved_by) REFERENCES users(user_id)
+);
+
 CREATE TABLE IF NOT EXISTS treatments (
     treatment_id TEXT PRIMARY KEY,
     experiment_id TEXT NOT NULL,
@@ -283,6 +302,9 @@ ON users(site_id);
 
 CREATE INDEX IF NOT EXISTS idx_audit_events_created_at
 ON audit_events(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_sync_submissions_status
+ON sync_submissions(status, submitted_at);
 
 CREATE INDEX IF NOT EXISTS idx_observations_plot_time
 ON observations(plot_id, observed_at);

@@ -123,6 +123,15 @@ require a reason. Photo and file evidence is registered through portable attachm
 including its storage reference and optional SHA-256 checksum; binary files are not embedded
 in SQLite. All sample and attachment changes are attributed and included in exports.
 
+## Phase 1G offline synchronization and conflict handling
+
+Offline observations now carry stable browser-generated request IDs and synchronize through
+a bounded batch endpoint. The gateway stores a canonical SHA-256 payload fingerprint so exact
+retries are idempotent and never duplicate an observation. Reused IDs with different content,
+invalid linked records, and duplicate observation IDs are retained as conflicts instead of
+overwriting evidence. Administrators and researchers explicitly dismiss a conflict or accept
+its payload as a new immutable observation, with required decision notes and audit history.
+
 ## Phase 1D experiments and treatments
 
 Experiments now have hypothesis and lifecycle records, reusable treatment definitions,

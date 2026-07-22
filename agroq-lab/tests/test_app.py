@@ -767,3 +767,75 @@ def test_phase1f_records_are_in_json_export(client):
     assert response.status_code == 200
     assert response.get_json()["data"]["samples"][0]["sample_id"] == "AGQ-SAMPLE-PHASE1F"
     assert "evidence_attachments" in response.get_json()["data"]
+
+
+def sync_item(request_id="offline-001", **overrides):
+    payload = {
+        "plot_id": "AGQ-PLOT-001", "observed_property": "soil_moisture",
+        "value": 31.2, "unit": "percent", "source_type": "manual",
+        "quality_flag": "good", "notes": "Offline field entry",
+    }
+    payload.update(overrides)
+    return {"client_request_id": request_id, "payload": payload}
+
+
+def test_phase1g_sync_applies_offline_observation_once(client):
+    login(client)
+    response = client.post("/api/sync/observations", json={"items": [sync_item()]})
+    assert response.status_code == 200
+    result = response.get_json()["results"][0]
+    assert result["status"] == "applied"
+    with get_db() as conn:
+        assert conn.execute("SELECT COUNT(*) n FROM observations WHERE notes='Offline field entry'").fetchone()["n"] == 1
+
+
+def test_phase1g_exact_replay_is_idempotent(client):
+    login(client)
+    body = {"items": [sync_item()]}
+    first = client.post("/api/sync/observations", json=body).get_json()["results"][0]
+    second = client.post("/api/sync/observations", json=body).get_json()["results"][0]
+    assert second["idempotent_replay"] is True
+    assert second["observation_id"] == first["observation_id"]
+    with get_db() as conn:
+        assert conn.execute("SELECT COUNT(*) n FROM observations WHERE notes='Offline field entry'").fetchone()["n"] == 1
+
+
+def test_phase1g_changed_replay_creates_conflict(client):
+    login(client)
+    client.post("/api/sync/observations", json={"items": [sync_item()]})
+    response = client.post("/api/sync/observations", json={"items": [sync_item(value=99.0)]})
+    assert response.get_json()["results"][0]["status"] == "conflict"
+    with get_db() as conn:
+        assert conn.execute("SELECT COUNT(*) n FROM sync_submissions WHERE status='conflict'").fetchone()["n"] == 1
+
+
+def test_phase1g_rejects_invalid_batch(client):
+    login(client)
+    response = client.post("/api/sync/observations", json={"items": []})
+    assert response.status_code == 400
+
+
+def test_phase1g_viewer_cannot_sync_or_resolve(client):
+    create_user("syncviewer", "password-123", "viewer")
+    login(client, "syncviewer", "password-123")
+    assert client.post("/api/sync/observations", json={"items": [sync_item()]}).status_code == 403
+    assert client.get("/sync-conflicts").status_code == 403
+
+
+def test_phase1g_human_can_dismiss_conflict_with_audit(client):
+    login(client)
+    client.post("/api/sync/observations", json={"items": [sync_item()]})
+    changed = client.post("/api/sync/observations", json={"items": [sync_item(value=99.0)]}).get_json()["results"][0]
+    response = client.post(f"/sync-conflicts/{changed['sync_id']}/resolve", data={"resolution": "dismissed", "notes": "Confirmed duplicate device retry."})
+    assert response.status_code == 302
+    with get_db() as conn:
+        row = conn.execute("SELECT * FROM sync_submissions WHERE sync_id=?", (changed["sync_id"],)).fetchone()
+        assert row["status"] == "resolved" and row["resolution"] == "dismissed"
+        assert conn.execute("SELECT COUNT(*) n FROM audit_events WHERE action='sync_conflict_resolved'").fetchone()["n"] == 1
+
+
+def test_phase1g_sync_records_are_exported(client):
+    login(client)
+    client.post("/api/sync/observations", json={"items": [sync_item()]})
+    payload = client.get("/api/export/all.json").get_json()
+    assert len(payload["data"]["sync_submissions"]) == 1

@@ -3,6 +3,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from collections.abc import Iterator
 import csv
+import hashlib
 import io
 import json
 import os
@@ -65,6 +66,8 @@ SAMPLE_VIEW_ROLES = REGISTRY_VIEW_ROLES
 SAMPLE_CREATE_ROLES = ("administrator", "researcher", "field_operator")
 SAMPLE_MANAGE_ROLES = ("administrator", "researcher")
 ATTACHMENT_ENTITY_TYPES = frozenset({"sample", "observation", "manual_task", "experiment"})
+SYNC_CREATE_ROLES = ("administrator", "researcher", "field_operator")
+SYNC_RESOLVE_ROLES = ("administrator", "researcher")
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -127,6 +130,14 @@ def new_correction_id() -> str:
 
 def new_entity_id(prefix: str) -> str:
     return f"AGQ-{prefix}-{time.time_ns()}"
+
+
+def canonical_payload(payload: dict[str, Any]) -> str:
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def payload_sha256(payload_json: str) -> str:
+    return hashlib.sha256(payload_json.encode("utf-8")).hexdigest()
 
 
 def validate_experiment_payload(conn: sqlite3.Connection, payload: dict[str, Any]) -> list[str]:
@@ -617,6 +628,93 @@ def api_create_observation() -> tuple[Response, int] | Response:
     except ValueError as exc:
         return jsonify({"ok": False, "error": str(exc)}), 400
     return jsonify({"ok": True, "observation_id": observation_id}), 201
+
+
+@app.post("/api/sync/observations")
+@roles_required(*SYNC_CREATE_ROLES)
+def sync_observations() -> tuple[Response, int] | Response:
+    body = request.get_json(silent=True) or {}
+    items = body.get("items")
+    if not isinstance(items, list) or not items or len(items) > 100:
+        return jsonify({"ok": False, "error": "Provide 1 to 100 queued items."}), 400
+    results: list[dict[str, Any]] = []
+    for queued in items:
+        if not isinstance(queued, dict):
+            results.append({"status": "rejected", "error": "Queued item must be an object."})
+            continue
+        client_request_id = str(queued.get("client_request_id", "")).strip()
+        payload = queued.get("payload")
+        if not client_request_id or len(client_request_id) > 160 or not isinstance(payload, dict):
+            results.append({"client_request_id": client_request_id, "status": "rejected", "error": "Stable client_request_id and payload are required."})
+            continue
+        serialized = canonical_payload(payload)
+        digest = payload_sha256(serialized)
+        with get_db() as conn:
+            prior = conn.execute("SELECT * FROM sync_submissions WHERE client_request_id=?", (client_request_id,)).fetchone()
+        if prior is not None:
+            if prior["payload_sha256"] == digest:
+                results.append({"client_request_id": client_request_id, "status": prior["status"], "observation_id": prior["result_entity_id"], "idempotent_replay": True})
+                continue
+            conflict_id = new_entity_id("SYNC")
+            conflict_key = f"{client_request_id}:conflict:{digest[:16]}"
+            with get_db() as conn:
+                existing_conflict = conn.execute("SELECT * FROM sync_submissions WHERE client_request_id=?", (conflict_key,)).fetchone()
+                if existing_conflict is None:
+                    conn.execute("""INSERT INTO sync_submissions(sync_id,client_request_id,entity_type,payload_json,payload_sha256,status,conflict_reason,submitted_by,submitted_at)
+                                    VALUES(?,?,?,?,?,'conflict',?,?,?)""", (conflict_id, conflict_key, "observation", serialized, digest, "Client request ID was reused with different content.", g.user["user_id"], utc_now()))
+                else:
+                    conflict_id = existing_conflict["sync_id"]
+            record_audit_event(g.user["user_id"], "sync_conflict_detected", "sync_submission", conflict_id, client_request_id)
+            results.append({"client_request_id": client_request_id, "status": "conflict", "sync_id": conflict_id})
+            continue
+        sync_id = new_entity_id("SYNC")
+        try:
+            observation_id = create_observation(payload, g.user["user_id"])
+            status, reason = "applied", None
+        except ValueError as exc:
+            observation_id, status, reason = None, "conflict", str(exc)
+        with get_db() as conn:
+            conn.execute("""INSERT INTO sync_submissions(sync_id,client_request_id,entity_type,payload_json,payload_sha256,status,result_entity_id,conflict_reason,submitted_by,submitted_at)
+                            VALUES(?,?,?,?,?,?,?,?,?,?)""", (sync_id, client_request_id, "observation", serialized, digest, status, observation_id, reason, g.user["user_id"], utc_now()))
+        record_audit_event(g.user["user_id"], f"sync_{status}", "sync_submission", sync_id, client_request_id)
+        results.append({"client_request_id": client_request_id, "status": status, "observation_id": observation_id, "sync_id": sync_id})
+    return jsonify({"ok": True, "results": results})
+
+
+@app.get("/sync-conflicts")
+@roles_required(*SYNC_RESOLVE_ROLES)
+def sync_conflicts() -> str:
+    with get_db() as conn:
+        rows = conn.execute("""SELECT s.*, u.display_name AS submitted_by_name FROM sync_submissions s
+                               JOIN users u ON u.user_id=s.submitted_by WHERE s.status='conflict'
+                               ORDER BY s.submitted_at""").fetchall()
+    return render_template("sync_conflicts.html", conflicts=rows)
+
+
+@app.post("/sync-conflicts/<sync_id>/resolve")
+@roles_required(*SYNC_RESOLVE_ROLES)
+def resolve_sync_conflict(sync_id: str) -> Response | tuple[str, int]:
+    resolution = request.form.get("resolution", "")
+    notes = request.form.get("notes", "").strip()
+    if resolution not in {"accepted_as_new", "dismissed"} or not notes:
+        return "A valid resolution and notes are required.", 400
+    with get_db() as conn:
+        conflict = conn.execute("SELECT * FROM sync_submissions WHERE sync_id=? AND status='conflict'", (sync_id,)).fetchone()
+    if conflict is None:
+        abort(404)
+    result_entity_id = None
+    if resolution == "accepted_as_new":
+        payload = json.loads(conflict["payload_json"])
+        payload.pop("observation_id", None)
+        try:
+            result_entity_id = create_observation(payload, g.user["user_id"])
+        except ValueError as exc:
+            return str(exc), 400
+    with get_db() as conn:
+        conn.execute("""UPDATE sync_submissions SET status='resolved', result_entity_id=?, resolved_by=?, resolved_at=?, resolution=?, resolution_notes=?
+                        WHERE sync_id=?""", (result_entity_id, g.user["user_id"], utc_now(), resolution, notes, sync_id))
+    record_audit_event(g.user["user_id"], "sync_conflict_resolved", "sync_submission", sync_id, json.dumps({"resolution": resolution, "result_entity_id": result_entity_id}))
+    return redirect(url_for("sync_conflicts"))
 
 
 @app.get("/observations")
@@ -1442,6 +1540,7 @@ def export_csv(entity: str) -> tuple[str, int] | Response:
         "samples": "SELECT * FROM samples ORDER BY collected_at",
         "sample_status_history": "SELECT * FROM sample_status_history ORDER BY changed_at",
         "evidence_attachments": "SELECT * FROM evidence_attachments ORDER BY recorded_at",
+        "sync_submissions": "SELECT * FROM sync_submissions ORDER BY submitted_at",
         "recommendations": "SELECT * FROM recommendations ORDER BY created_at",
     }
     if entity not in allowed:
@@ -1469,6 +1568,7 @@ def export_json() -> Response:
         "manual_task_evidence", "manual_task_approvals", "experiments", "treatments", "treatment_assignments",
         "experiment_status_history", "experiment_outcomes", "recommendations",
         "samples", "sample_status_history", "evidence_attachments",
+        "sync_submissions",
     ]
     data: dict[str, list[dict[str, Any]]] = {}
     with get_db() as conn:

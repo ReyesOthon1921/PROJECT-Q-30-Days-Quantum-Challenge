@@ -48,4 +48,5 @@ templates/recommendations.html
 templates/registry.html
 templates/sample_detail.html
 templates/samples.html
+templates/sync_conflicts.html
 tests/test_app.py
