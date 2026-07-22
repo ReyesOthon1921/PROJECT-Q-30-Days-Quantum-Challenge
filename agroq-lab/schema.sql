@@ -113,6 +113,21 @@ CREATE TABLE IF NOT EXISTS gateway_devices (
 CREATE INDEX IF NOT EXISTS idx_gateway_devices_status
 ON gateway_devices(status, last_seen_at);
 
+CREATE TABLE IF NOT EXISTS backup_runs (
+    backup_id TEXT PRIMARY KEY,
+    filename TEXT NOT NULL UNIQUE,
+    trigger_type TEXT NOT NULL CHECK(trigger_type IN ('manual','automatic')),
+    status TEXT NOT NULL CHECK(status IN ('verified','failed')),
+    size_bytes INTEGER NOT NULL DEFAULT 0,
+    verification_message TEXT,
+    created_by TEXT,
+    created_at TEXT NOT NULL,
+    verified_at TEXT,
+    FOREIGN KEY(created_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_backup_runs_created_at ON backup_runs(created_at);
+
 CREATE TABLE IF NOT EXISTS treatments (
     treatment_id TEXT PRIMARY KEY,
     experiment_id TEXT NOT NULL,

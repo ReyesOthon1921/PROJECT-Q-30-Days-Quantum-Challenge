@@ -139,6 +139,14 @@ availability, and offline operating status. An authenticated health page include
 managed device registry and attributed heartbeat records. Set `AGROQ_GATEWAY_NAME`,
 `AGROQ_SITE_ID`, `AGROQ_DEPLOYMENT_MODE`, and `AGROQ_BIND_HOST` for the field computer.
 
+## Phase 2B automatic local backups and recovery verification
+
+The gateway creates consistent SQLite backups with integrity checks, bounded retention, audit
+history, and recovery-copy verification that never overwrites the active database. Configure
+`AGROQ_BACKUP_DIR`, `AGROQ_BACKUP_RETENTION`, and `AGROQ_BACKUP_INTERVAL_HOURS` locally.
+Administrators can create and re-verify backups from the gateway page. A due automatic backup is
+created during authenticated gateway use, so no internet service or external scheduler is required.
+
 ## Phase 1D experiments and treatments
 
 Experiments now have hypothesis and lifecycle records, reusable treatment definitions,

@@ -1,4 +1,5 @@
 import os
+import shutil
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,8 @@ os.environ["AGROQ_DB_PATH"] = str(Path(__file__).parent / "test_agroq.db")
 os.environ["AGROQ_SECRET_KEY"] = "test-secret-key-not-for-production"
 os.environ["AGROQ_ADMIN_USERNAME"] = "testadmin"
 os.environ["AGROQ_ADMIN_PASSWORD"] = "test-password-123"
+os.environ["AGROQ_BACKUP_DIR"] = str(Path(__file__).parent / "test_backups")
+os.environ["AGROQ_BACKUP_RETENTION"] = "2"
 
 from app import app, get_db, init_db  # noqa: E402
 
@@ -15,12 +18,17 @@ from app import app, get_db, init_db  # noqa: E402
 @pytest.fixture(autouse=True)
 def clean_db():
     db_path = Path(os.environ["AGROQ_DB_PATH"])
+    backup_path = Path(os.environ["AGROQ_BACKUP_DIR"])
     if db_path.exists():
         db_path.unlink()
+    if backup_path.exists():
+        shutil.rmtree(backup_path)
     init_db()
     yield
     if db_path.exists():
         db_path.unlink()
+    if backup_path.exists():
+        shutil.rmtree(backup_path)
 
 
 @pytest.fixture()
@@ -892,3 +900,67 @@ def test_phase2a_gateway_devices_are_exported(client):
     client.post("/gateway", data={"device_id": "AGQ-DEVICE-EXPORT", "name": "Export Gateway", "device_type": "gateway", "status": "registered"})
     payload = client.get("/api/export/all.json").get_json()
     assert payload["data"]["gateway_devices"][0]["device_id"] == "AGQ-DEVICE-EXPORT"
+
+
+def test_phase2b_manual_backup_is_verified_and_audited(client):
+    login(client)
+    response = client.post("/gateway/backups")
+    assert response.status_code == 302
+    with get_db() as conn:
+        backup = conn.execute("SELECT * FROM backup_runs WHERE trigger_type='manual'").fetchone()
+        audit = conn.execute("SELECT * FROM audit_events WHERE action='database_backup_created'").fetchone()
+    assert backup["status"] == "verified"
+    assert backup["size_bytes"] > 0
+    assert (Path(os.environ["AGROQ_BACKUP_DIR"]) / backup["filename"]).is_file()
+    assert audit["entity_id"] == backup["backup_id"]
+
+
+def test_phase2b_recovery_verification_does_not_replace_active_database(client):
+    login(client)
+    client.post("/gateway/backups")
+    with get_db() as conn:
+        backup = conn.execute("SELECT * FROM backup_runs WHERE trigger_type='manual'").fetchone()
+        conn.execute("INSERT INTO audit_events(audit_id, action, entity_type, created_at) VALUES('LIVE-MARKER','live','test','2026-01-01')")
+    response = client.post(f"/gateway/backups/{backup['backup_id']}/verify")
+    assert response.status_code == 302
+    with get_db() as conn:
+        assert conn.execute("SELECT audit_id FROM audit_events WHERE audit_id='LIVE-MARKER'").fetchone()
+        assert conn.execute("SELECT COUNT(*) n FROM audit_events WHERE action='database_backup_recovery_verified'").fetchone()["n"] == 1
+
+
+def test_phase2b_corrupt_backup_fails_recovery_verification(client):
+    login(client)
+    client.post("/gateway/backups")
+    with get_db() as conn:
+        backup = conn.execute("SELECT * FROM backup_runs WHERE trigger_type='manual'").fetchone()
+    (Path(os.environ["AGROQ_BACKUP_DIR"]) / backup["filename"]).write_bytes(b"not a sqlite database")
+    client.post(f"/gateway/backups/{backup['backup_id']}/verify")
+    with get_db() as conn:
+        updated = conn.execute("SELECT status FROM backup_runs WHERE backup_id=?", (backup["backup_id"],)).fetchone()
+    assert updated["status"] == "failed"
+
+
+def test_phase2b_backup_retention_keeps_configured_limit(client):
+    login(client)
+    for _ in range(3):
+        client.post("/gateway/backups")
+    files = list(Path(os.environ["AGROQ_BACKUP_DIR"]).glob("agroq-*.sqlite3"))
+    assert len(files) == 2
+
+
+def test_phase2b_backup_permissions_and_export(client):
+    create_user("backupviewer", "password-123", "viewer")
+    login(client, "backupviewer", "password-123")
+    assert client.post("/gateway/backups").status_code == 403
+    client.post("/logout")
+    login(client)
+    client.post("/gateway/backups")
+    payload = client.get("/api/export/all.json").get_json()
+    assert payload["data"]["backup_runs"][0]["status"] == "verified"
+
+
+def test_phase2b_health_includes_latest_backup(client):
+    login(client)
+    client.post("/gateway/backups")
+    payload = client.get("/api/health").get_json()
+    assert payload["backup"]["status"] == "verified"

@@ -7,7 +7,9 @@ import hashlib
 import io
 import json
 import os
+import shutil
 import sqlite3
+import tempfile
 import time
 from datetime import datetime, timezone
 from functools import wraps
@@ -71,6 +73,7 @@ SYNC_RESOLVE_ROLES = ("administrator", "researcher")
 GATEWAY_VIEW_ROLES = REGISTRY_VIEW_ROLES
 GATEWAY_EDIT_ROLES = ("administrator", "researcher")
 DEVICE_STATUSES = frozenset({"registered", "online", "offline", "maintenance", "retired"})
+BACKUP_MANAGE_ROLES = ("administrator",)
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -96,7 +99,92 @@ def gateway_configuration() -> dict[str, Any]:
         "database_engine": "sqlite",
         "database_path": str(DB_PATH),
         "internet_required": False,
+        "backup_directory": str(Path(os.environ.get("AGROQ_BACKUP_DIR", BASE_DIR / "backups"))),
+        "backup_retention": max(1, int(os.environ.get("AGROQ_BACKUP_RETENTION", "7"))),
+        "backup_interval_hours": max(1, int(os.environ.get("AGROQ_BACKUP_INTERVAL_HOURS", "24"))),
     }
+
+
+def backup_directory() -> Path:
+    path = Path(gateway_configuration()["backup_directory"]).resolve()
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def verify_sqlite_file(path: Path) -> tuple[bool, str]:
+    try:
+        connection = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        try:
+            result = connection.execute("PRAGMA integrity_check").fetchone()
+        finally:
+            connection.close()
+        return (result is not None and result[0] == "ok", result[0] if result else "no result")
+    except sqlite3.Error as exc:
+        return False, str(exc)
+
+
+def create_database_backup(trigger: str, created_by: str | None) -> dict[str, Any]:
+    directory = backup_directory()
+    backup_id = new_entity_id("BACKUP")
+    backup_path = directory / f"agroq-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{time.time_ns()}.sqlite3"
+    started_at = utc_now()
+    try:
+        source = sqlite3.connect(DB_PATH)
+        destination = sqlite3.connect(backup_path)
+        try:
+            source.backup(destination)
+        finally:
+            destination.close()
+            source.close()
+        verified, verification_message = verify_sqlite_file(backup_path)
+        status = "verified" if verified else "failed"
+        size_bytes = backup_path.stat().st_size if backup_path.exists() else 0
+    except (OSError, sqlite3.Error) as exc:
+        status, verification_message, size_bytes = "failed", str(exc), 0
+    with get_db() as conn:
+        conn.execute("""INSERT INTO backup_runs(
+            backup_id, filename, trigger_type, status, size_bytes, verification_message,
+            created_by, created_at, verified_at
+        ) VALUES(?,?,?,?,?,?,?,?,?)""", (
+            backup_id, backup_path.name, trigger, status, size_bytes, verification_message,
+            created_by, started_at, utc_now() if status == "verified" else None,
+        ))
+    if status == "verified":
+        backups = sorted(directory.glob("agroq-*.sqlite3"), key=lambda item: item.stat().st_mtime, reverse=True)
+        for expired in backups[gateway_configuration()["backup_retention"]:]:
+            expired.unlink()
+    return {"backup_id": backup_id, "filename": backup_path.name, "status": status,
+            "message": verification_message, "size_bytes": size_bytes}
+
+
+def verify_backup_recovery(filename: str) -> tuple[bool, str]:
+    safe_name = Path(filename).name
+    if safe_name != filename:
+        return False, "Invalid backup filename"
+    source = backup_directory() / safe_name
+    if not source.is_file():
+        return False, "Backup file not found"
+    verified, message = verify_sqlite_file(source)
+    if not verified:
+        return False, message
+    with tempfile.TemporaryDirectory(prefix="agroq-restore-check-") as temp_dir:
+        recovery_path = Path(temp_dir) / "recovery.sqlite3"
+        shutil.copy2(source, recovery_path)
+        return verify_sqlite_file(recovery_path)
+
+
+def automatic_backup_if_due(user_id: str) -> None:
+    with get_db() as conn:
+        latest = conn.execute(
+            "SELECT created_at FROM backup_runs WHERE status='verified' ORDER BY created_at DESC LIMIT 1"
+        ).fetchone()
+    if latest is not None:
+        created = datetime.fromisoformat(latest["created_at"])
+        age_hours = (datetime.now(timezone.utc) - created).total_seconds() / 3600
+        if age_hours < gateway_configuration()["backup_interval_hours"]:
+            return
+    result = create_database_backup("automatic", user_id)
+    record_audit_event(user_id, "database_backup_automatic", "backup", result["backup_id"], json.dumps(result))
 
 
 @contextmanager
@@ -1543,6 +1631,8 @@ def health() -> Response:
     except sqlite3.Error:
         database_ok = False
     config = gateway_configuration()
+    with get_db() as conn:
+        latest_backup = conn.execute("SELECT * FROM backup_runs ORDER BY created_at DESC LIMIT 1").fetchone()
     return jsonify({
         "status": "ok" if database_ok else "degraded",
         "time": utc_now(),
@@ -1552,6 +1642,7 @@ def health() -> Response:
         "database": {"engine": config["database_engine"], "available": database_ok},
         "devices": device_counts,
         "internet_required": False,
+        "backup": dict(latest_backup) if latest_backup else {"status": "not_created"},
     }), (200 if database_ok else 503)
 
 
@@ -1582,10 +1673,39 @@ def gateway_status() -> str | Response | tuple[str, int]:
             return "Device ID already exists", 409
         record_audit_event(g.user["user_id"], "gateway_device_registered", "gateway_device", device_id)
         return redirect(url_for("gateway_status"))
+    automatic_backup_if_due(g.user["user_id"])
     with get_db() as conn:
         devices = conn.execute("SELECT * FROM gateway_devices ORDER BY registered_at DESC").fetchall()
+        backups = conn.execute("SELECT * FROM backup_runs ORDER BY created_at DESC LIMIT 20").fetchall()
     return render_template("gateway_status.html", config=gateway_configuration(), devices=devices,
-                           statuses=sorted(DEVICE_STATUSES))
+                           statuses=sorted(DEVICE_STATUSES), backups=backups)
+
+
+@app.post("/gateway/backups")
+@roles_required(*BACKUP_MANAGE_ROLES)
+def gateway_backup_create() -> Response:
+    result = create_database_backup("manual", g.user["user_id"])
+    record_audit_event(g.user["user_id"], "database_backup_created", "backup",
+                       result["backup_id"], json.dumps(result))
+    flash("Backup verified." if result["status"] == "verified" else "Backup failed verification.")
+    return redirect(url_for("gateway_status"))
+
+
+@app.post("/gateway/backups/<backup_id>/verify")
+@roles_required(*BACKUP_MANAGE_ROLES)
+def gateway_backup_verify(backup_id: str) -> Response | tuple[str, int]:
+    with get_db() as conn:
+        backup = conn.execute("SELECT * FROM backup_runs WHERE backup_id=?", (backup_id,)).fetchone()
+    if backup is None:
+        return "Backup record not found", 404
+    verified, message = verify_backup_recovery(backup["filename"])
+    with get_db() as conn:
+        conn.execute("UPDATE backup_runs SET status=?, verification_message=?, verified_at=? WHERE backup_id=?",
+                     ("verified" if verified else "failed", message, utc_now(), backup_id))
+    record_audit_event(g.user["user_id"], "database_backup_recovery_verified", "backup",
+                       backup_id, json.dumps({"verified": verified, "message": message}))
+    flash("Recovery verification passed." if verified else "Recovery verification failed.")
+    return redirect(url_for("gateway_status"))
 
 
 @app.post("/gateway/devices/<device_id>/heartbeat")
@@ -1624,6 +1744,7 @@ def export_csv(entity: str) -> tuple[str, int] | Response:
         "evidence_attachments": "SELECT * FROM evidence_attachments ORDER BY recorded_at",
         "sync_submissions": "SELECT * FROM sync_submissions ORDER BY submitted_at",
         "gateway_devices": "SELECT * FROM gateway_devices ORDER BY registered_at",
+        "backup_runs": "SELECT * FROM backup_runs ORDER BY created_at",
         "recommendations": "SELECT * FROM recommendations ORDER BY created_at",
     }
     if entity not in allowed:
@@ -1651,7 +1772,7 @@ def export_json() -> Response:
         "manual_task_evidence", "manual_task_approvals", "experiments", "treatments", "treatment_assignments",
         "experiment_status_history", "experiment_outcomes", "recommendations",
         "samples", "sample_status_history", "evidence_attachments",
-        "sync_submissions", "gateway_devices",
+        "sync_submissions", "gateway_devices", "backup_runs",
     ]
     data: dict[str, list[dict[str, Any]]] = {}
     with get_db() as conn:

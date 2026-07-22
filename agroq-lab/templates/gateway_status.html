@@ -7,6 +7,15 @@
   <section class="card"><h2>{{ config.gateway_name }}</h2><p>Site: {{ config.site_id }}</p><p>Mode: {{ config.deployment_mode }}</p><p>Bind host: {{ config.bind_host }}</p></section>
   <section class="card"><h2>Local readiness</h2><p>Database: {{ config.database_engine }}</p><p>Internet required: No</p><p>Secure secret: {{ 'Configured' if config.secret_configured else 'Development default — change before LAN deployment' }}</p></section>
 </div>
+<section class="card">
+  <h2>Local backups</h2>
+  <p>Directory: {{ config.backup_directory }}</p>
+  <p>Retention: {{ config.backup_retention }} verified backups · Automatic interval: {{ config.backup_interval_hours }} hours</p>
+  {% if g.user.role == 'administrator' %}<form method="post" action="{{ url_for('gateway_backup_create') }}"><button>Create verified backup</button></form>{% endif %}
+  <table><thead><tr><th>Created</th><th>Trigger</th><th>Status</th><th>File</th><th>Size</th><th>Recovery test</th></tr></thead><tbody>
+  {% for backup in backups %}<tr><td>{{ backup.created_at }}</td><td>{{ backup.trigger_type }}</td><td>{{ backup.status }}</td><td>{{ backup.filename }}</td><td>{{ backup.size_bytes }}</td><td>{% if g.user.role == 'administrator' %}<form method="post" action="{{ url_for('gateway_backup_verify', backup_id=backup.backup_id) }}"><button>Verify recovery</button></form>{% else %}{{ backup.verified_at or 'Not verified' }}{% endif %}</td></tr>{% else %}<tr><td colspan="6">No backups recorded.</td></tr>{% endfor %}
+  </tbody></table>
+</section>
 <h2>Device registry</h2>
 {% if g.user.role in ['administrator', 'researcher'] %}
 <form method="post" class="card form-grid">
