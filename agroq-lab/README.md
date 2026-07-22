@@ -133,6 +133,18 @@ Retiring a plot is blocked while active assets, active experiments, or open manu
 
 Current limitations: IDs are generated locally from timestamps, there is no multi-user conflict resolution, and plot geometry/map editing is deferred to a later phase. The registry remains offline and SQLite-based with no external services.
 
+## Manual observations and corrections (Phase 1C)
+
+- Administrators, researchers, and field operators can record validated field observations.
+- All authenticated roles can review the observation register and individual records.
+- Raw observation rows are immutable through the application: no update or delete route exists.
+- Mistakes are handled with linked correction records containing a reason, corrected value, quality flag, author, and timestamp.
+- Observation creation and correction events are recorded in the audit trail.
+- Plot, asset, source-type, quality-flag, unit, and numeric-value validation occurs before storage.
+- JSON and CSV exports include correction history so evidence remains portable.
+
+The original observation remains authoritative raw evidence. A correction adds interpretation without erasing what was first recorded.
+
 ## Run tests
 
 ```bash

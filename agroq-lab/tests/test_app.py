@@ -379,6 +379,102 @@ def test_invalid_asset_plot_assignment_is_rejected(client):
     assert b"Assigned plot does not exist" in response.data
 
 
+def observation_payload(**overrides):
+    values = {
+        "observation_id": "AGQ-OBS-TEST",
+        "plot_id": "AGQ-PLOT-001",
+        "asset_id": "",
+        "observed_property": "soil_moisture",
+        "value": "31.5",
+        "unit": "%",
+        "source_type": "manual",
+        "quality_flag": "good",
+        "notes": "Manual field reading",
+        "observed_at": "2026-07-22T10:30",
+    }
+    values.update(overrides)
+    return values
+
+
+def test_field_operator_can_record_and_retrieve_manual_observation(client):
+    create_user("observer", "observer-pass", "field_operator")
+    login(client, "observer", "observer-pass")
+    created = client.post("/observations/new", data=observation_payload())
+    assert created.status_code == 302
+    detail = client.get("/observations/AGQ-OBS-TEST")
+    assert detail.status_code == 200
+    assert b"31.5" in detail.data
+    assert b"Manual field reading" in detail.data
+
+
+def test_observation_validation_rejects_bad_source_and_missing_plot(client):
+    login(client)
+    bad_source = client.post(
+        "/api/observations", json=observation_payload(source_type="unknown")
+    )
+    assert bad_source.status_code == 400
+    missing_plot = client.post(
+        "/api/observations", json=observation_payload(plot_id="MISSING")
+    )
+    assert missing_plot.status_code == 400
+
+
+def test_correction_preserves_raw_observation_and_creates_audit_record(client):
+    login(client)
+    with get_db() as conn:
+        before = dict(conn.execute(
+            "SELECT * FROM observations WHERE observation_id = 'AGQ-OBS-001'"
+        ).fetchone())
+    response = client.post(
+        "/observations/AGQ-OBS-001/corrections/new",
+        data={
+            "value": "25.0",
+            "unit": "%",
+            "quality_flag": "corrected",
+            "notes": "Transcription corrected from field sheet.",
+            "reason": "Original value was entered incorrectly.",
+        },
+    )
+    assert response.status_code == 302
+    with get_db() as conn:
+        after = dict(conn.execute(
+            "SELECT * FROM observations WHERE observation_id = 'AGQ-OBS-001'"
+        ).fetchone())
+        correction = conn.execute(
+            "SELECT * FROM observation_corrections WHERE observation_id = 'AGQ-OBS-001'"
+        ).fetchone()
+        audit = conn.execute(
+            "SELECT * FROM audit_events WHERE action = 'observation_corrected'"
+        ).fetchone()
+    assert after == before
+    assert correction["value"] == 25.0
+    assert correction["reason"] == "Original value was entered incorrectly."
+    assert audit["entity_id"] == correction["correction_id"]
+
+
+def test_correction_requires_reason_and_authorized_role(client):
+    login(client)
+    missing_reason = client.post(
+        "/observations/AGQ-OBS-001/corrections/new",
+        data={"value": "25", "unit": "%", "quality_flag": "corrected"},
+    )
+    assert missing_reason.status_code == 400
+    create_user("readonly", "readonly-pass", "viewer")
+    client.post("/logout")
+    login(client, "readonly", "readonly-pass")
+    forbidden = client.post(
+        "/observations/AGQ-OBS-001/corrections/new",
+        data={"value": "25", "unit": "%", "quality_flag": "corrected", "reason": "test"},
+    )
+    assert forbidden.status_code == 403
+
+
+def test_observation_routes_do_not_allow_update_or_delete(client):
+    login(client)
+    assert client.put("/observations/AGQ-OBS-001", data={"value": "0"}).status_code == 405
+    assert client.delete("/observations/AGQ-OBS-001").status_code == 405
+
+
 def test_asset_duplicate_id_is_rejected_safely(client):
     login(client)
     response = client.post(

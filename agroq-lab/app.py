@@ -44,6 +44,11 @@ REGISTRY_VIEW_ROLES = ("administrator", "researcher", "field_operator", "viewer"
 REGISTRY_EDIT_ROLES = ("administrator", "researcher")
 REGISTRY_RETIRE_ROLES = ("administrator",)
 ASSET_OPERATIONAL_ROLES = ("administrator", "researcher", "field_operator")
+OBSERVATION_SOURCE_TYPES = frozenset({"manual", "sensor", "laboratory", "import"})
+OBSERVATION_QUALITY_FLAGS = frozenset({"unverified", "good", "suspect", "invalid"})
+CORRECTION_QUALITY_FLAGS = frozenset({"corrected", "good", "suspect", "invalid"})
+OBSERVATION_VIEW_ROLES = ("administrator", "researcher", "field_operator", "viewer")
+OBSERVATION_CREATE_ROLES = ("administrator", "researcher", "field_operator")
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -94,6 +99,14 @@ def new_plot_id() -> str:
 
 def new_asset_id() -> str:
     return f"AGQ-ASSET-{int(datetime.now().timestamp() * 1000)}"
+
+
+def new_observation_id() -> str:
+    return f"AGQ-OBS-{int(datetime.now().timestamp() * 1000)}"
+
+
+def new_correction_id() -> str:
+    return f"AGQ-CORR-{int(datetime.now().timestamp() * 1000)}"
 
 
 def next_revision(current: str) -> str:
@@ -161,6 +174,37 @@ def validate_asset_payload(
             errors.append(f"Status must be one of: {', '.join(sorted(ASSET_STATUSES))}.")
     elif status and status not in ASSET_STATUSES:
         errors.append(f"Status must be one of: {', '.join(sorted(ASSET_STATUSES))}.")
+    return errors
+
+
+def validate_observation_payload(conn: sqlite3.Connection, payload: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    plot_id = str(payload.get("plot_id", "")).strip()
+    if not plot_id:
+        errors.append("Plot is required.")
+    elif not plot_exists(conn, plot_id):
+        errors.append("Selected plot does not exist.")
+    asset_id = str(payload.get("asset_id", "")).strip()
+    if asset_id:
+        asset = get_asset(conn, asset_id)
+        if asset is None:
+            errors.append("Selected asset does not exist.")
+        elif asset["plot_id"] and asset["plot_id"] != plot_id:
+            errors.append("Selected asset is assigned to a different plot.")
+    if not str(payload.get("observed_property", "")).strip():
+        errors.append("Observed property is required.")
+    try:
+        float(payload.get("value", ""))
+    except (TypeError, ValueError):
+        errors.append("Value must be numeric.")
+    if not str(payload.get("unit", "")).strip():
+        errors.append("Unit is required.")
+    source_type = str(payload.get("source_type", "")).strip()
+    if source_type not in OBSERVATION_SOURCE_TYPES:
+        errors.append("Source type is invalid.")
+    quality_flag = str(payload.get("quality_flag", "unverified")).strip()
+    if quality_flag not in OBSERVATION_QUALITY_FLAGS:
+        errors.append("Quality flag is invalid.")
     return errors
 
 
@@ -482,57 +526,134 @@ def dashboard() -> str:
 
 
 @app.route("/observations/new", methods=["GET", "POST"])
-@roles_required("administrator", "researcher", "field_operator")
+@roles_required(*OBSERVATION_CREATE_ROLES)
 def new_observation() -> str | Response:
     if request.method == "POST":
         payload = request.form.to_dict()
-        create_observation(payload)
-        return redirect(url_for("dashboard"))
+        try:
+            observation_id = create_observation(payload, g.user["user_id"])
+        except ValueError as exc:
+            flash(str(exc), "error")
+        else:
+            flash("Observation recorded. The raw record is now immutable.", "info")
+            return redirect(url_for("observation_detail", observation_id=observation_id))
     with get_db() as conn:
         plots = conn.execute("SELECT * FROM plots ORDER BY plot_id").fetchall()
         assets = conn.execute("SELECT * FROM assets ORDER BY asset_id").fetchall()
     return render_template("observation_form.html", plots=plots, assets=assets)
 
 
-def create_observation(payload: dict[str, Any]) -> str:
-    required = ["plot_id", "observed_property", "value", "unit", "source_type"]
-    missing = [key for key in required if payload.get(key) in (None, "")]
-    if missing:
-        raise ValueError(f"Missing required fields: {', '.join(missing)}")
-    observation_id = payload.get("observation_id") or f"AGQ-OBS-{int(datetime.now().timestamp() * 1000)}"
-    observed_at = payload.get("observed_at") or utc_now()
+def create_observation(payload: dict[str, Any], user_id: str | None = None) -> str:
     with get_db() as conn:
-        conn.execute(
-            """INSERT INTO observations(
-                observation_id, plot_id, asset_id, observed_property, value, unit,
-                source_type, quality_flag, notes, observed_at, created_at
-            ) VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
-            (
-                observation_id,
-                payload["plot_id"],
-                payload.get("asset_id") or None,
-                payload["observed_property"],
-                float(payload["value"]),
-                payload["unit"],
-                payload["source_type"],
-                payload.get("quality_flag", "unverified"),
-                payload.get("notes", ""),
-                observed_at,
-                utc_now(),
-            ),
-        )
+        errors = validate_observation_payload(conn, payload)
+    if errors:
+        raise ValueError(" ".join(errors))
+    observation_id = str(payload.get("observation_id") or new_observation_id()).strip()
+    observed_at = payload.get("observed_at") or utc_now()
+    try:
+        with get_db() as conn:
+            conn.execute(
+                """INSERT INTO observations(
+                    observation_id, plot_id, asset_id, observed_property, value, unit,
+                    source_type, quality_flag, notes, observed_at, created_at
+                ) VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    observation_id, str(payload["plot_id"]).strip(),
+                    str(payload.get("asset_id", "")).strip() or None,
+                    str(payload["observed_property"]).strip(), float(payload["value"]),
+                    str(payload["unit"]).strip(), str(payload["source_type"]).strip(),
+                    str(payload.get("quality_flag", "unverified")).strip(),
+                    str(payload.get("notes", "")).strip(), observed_at, utc_now(),
+                ),
+            )
+    except sqlite3.IntegrityError as exc:
+        raise ValueError("Observation ID already exists or a linked record is invalid.") from exc
+    record_audit_event(user_id, "observation_created", "observation", observation_id,
+                       json.dumps({"source_type": payload["source_type"], "plot_id": payload["plot_id"]}))
     return observation_id
 
 
 @app.post("/api/observations")
-@roles_required("administrator", "researcher", "field_operator")
+@roles_required(*OBSERVATION_CREATE_ROLES)
 def api_create_observation() -> tuple[Response, int] | Response:
     payload = request.get_json(silent=True) or {}
     try:
-        observation_id = create_observation(payload)
-    except (ValueError, sqlite3.IntegrityError) as exc:
+        observation_id = create_observation(payload, g.user["user_id"])
+    except ValueError as exc:
         return jsonify({"ok": False, "error": str(exc)}), 400
     return jsonify({"ok": True, "observation_id": observation_id}), 201
+
+
+@app.get("/observations")
+@roles_required(*OBSERVATION_VIEW_ROLES)
+def observations() -> str:
+    with get_db() as conn:
+        rows = conn.execute(
+            """SELECT o.*, p.name AS plot_name,
+                      (SELECT COUNT(*) FROM observation_corrections c
+                       WHERE c.observation_id = o.observation_id) AS correction_count
+               FROM observations o JOIN plots p ON p.plot_id = o.plot_id
+               ORDER BY o.observed_at DESC"""
+        ).fetchall()
+    return render_template("observations.html", observations=rows)
+
+
+@app.get("/observations/<observation_id>")
+@roles_required(*OBSERVATION_VIEW_ROLES)
+def observation_detail(observation_id: str) -> str:
+    with get_db() as conn:
+        observation = conn.execute(
+            """SELECT o.*, p.name AS plot_name, a.name AS asset_name
+               FROM observations o JOIN plots p ON p.plot_id = o.plot_id
+               LEFT JOIN assets a ON a.asset_id = o.asset_id
+               WHERE o.observation_id = ?""", (observation_id,),
+        ).fetchone()
+        if observation is None:
+            abort(404)
+        corrections = conn.execute(
+            """SELECT c.*, u.display_name AS created_by_name
+               FROM observation_corrections c JOIN users u ON u.user_id = c.created_by
+               WHERE c.observation_id = ? ORDER BY c.created_at""", (observation_id,),
+        ).fetchall()
+    return render_template("observation_detail.html", observation=observation, corrections=corrections)
+
+
+@app.post("/observations/<observation_id>/corrections/new")
+@roles_required(*OBSERVATION_CREATE_ROLES)
+def create_observation_correction(observation_id: str) -> Response | tuple[str, int]:
+    payload = request.form.to_dict()
+    reason = payload.get("reason", "").strip()
+    if not reason:
+        return "Correction reason is required", 400
+    try:
+        value = float(payload.get("value", ""))
+    except ValueError:
+        return "Corrected value must be numeric", 400
+    unit = payload.get("unit", "").strip()
+    quality_flag = payload.get("quality_flag", "").strip()
+    if not unit or quality_flag not in CORRECTION_QUALITY_FLAGS:
+        return "Unit and a valid quality flag are required", 400
+    correction_id = new_correction_id()
+    with get_db() as conn:
+        original = conn.execute(
+            "SELECT observation_id FROM observations WHERE observation_id = ?", (observation_id,)
+        ).fetchone()
+        if original is None:
+            abort(404)
+        conn.execute(
+            """INSERT INTO observation_corrections(
+                   correction_id, observation_id, value, unit, quality_flag, notes,
+                   reason, created_by, created_at
+               ) VALUES(?,?,?,?,?,?,?,?,?)""",
+            (correction_id, observation_id, value, unit, quality_flag,
+             payload.get("notes", "").strip(), reason, g.user["user_id"], utc_now()),
+        )
+    record_audit_event(
+        g.user["user_id"], "observation_corrected", "observation_correction", correction_id,
+        json.dumps({"observation_id": observation_id, "reason": reason}),
+    )
+    flash("Correction added. The original observation was not changed.", "info")
+    return redirect(url_for("observation_detail", observation_id=observation_id))
 
 
 @app.get("/manual-work")
@@ -877,6 +998,7 @@ def export_csv(entity: str) -> tuple[str, int] | Response:
         "plots": "SELECT * FROM plots ORDER BY plot_id",
         "assets": "SELECT * FROM assets ORDER BY asset_id",
         "observations": "SELECT * FROM observations ORDER BY observed_at",
+        "observation_corrections": "SELECT * FROM observation_corrections ORDER BY created_at",
         "manual_tasks": "SELECT * FROM manual_tasks ORDER BY created_at",
         "experiments": "SELECT * FROM experiments ORDER BY experiment_id",
         "recommendations": "SELECT * FROM recommendations ORDER BY created_at",
@@ -900,7 +1022,10 @@ def export_csv(entity: str) -> tuple[str, int] | Response:
 @app.get("/api/export/all.json")
 @roles_required("administrator", "researcher")
 def export_json() -> Response:
-    entities = ["plots", "assets", "observations", "manual_tasks", "experiments", "recommendations"]
+    entities = [
+        "plots", "assets", "observations", "observation_corrections",
+        "manual_tasks", "experiments", "recommendations",
+    ]
     data: dict[str, list[dict[str, Any]]] = {}
     with get_db() as conn:
         for entity in entities:

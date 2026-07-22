@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Observations — AgroQ{% endblock %}
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">IMMUTABLE FIELD EVIDENCE</p>
+  <div class="section-heading"><div><h1>Observations</h1><p>Raw entries remain unchanged; corrections are linked and traceable.</p></div>
+  {% if g.user.role != 'viewer' %}<a class="primary-button" href="{{ url_for('new_observation') }}">Record observation</a>{% endif %}</div>
+  <div class="table-wrap"><table><thead><tr><th>ID</th><th>Plot</th><th>Property</th><th>Raw value</th><th>Source</th><th>Quality</th><th>Corrections</th></tr></thead><tbody>
+  {% for row in observations %}<tr><td><a href="{{ url_for('observation_detail', observation_id=row.observation_id) }}">{{ row.observation_id }}</a></td><td>{{ row.plot_name }}</td><td>{{ row.observed_property }}</td><td>{{ row.value }} {{ row.unit }}</td><td>{{ row.source_type }}</td><td>{{ row.quality_flag }}</td><td>{{ row.correction_count }}</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

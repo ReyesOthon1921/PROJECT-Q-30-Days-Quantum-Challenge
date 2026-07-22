@@ -77,6 +77,20 @@ CREATE TABLE IF NOT EXISTS observations (
     FOREIGN KEY(asset_id) REFERENCES assets(asset_id)
 );
 
+CREATE TABLE IF NOT EXISTS observation_corrections (
+    correction_id TEXT PRIMARY KEY,
+    observation_id TEXT NOT NULL,
+    value REAL NOT NULL,
+    unit TEXT NOT NULL,
+    quality_flag TEXT NOT NULL,
+    notes TEXT,
+    reason TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(observation_id) REFERENCES observations(observation_id),
+    FOREIGN KEY(created_by) REFERENCES users(user_id)
+);
+
 CREATE TABLE IF NOT EXISTS manual_tasks (
     task_id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
@@ -118,6 +132,9 @@ ON audit_events(created_at);
 
 CREATE INDEX IF NOT EXISTS idx_observations_plot_time
 ON observations(plot_id, observed_at);
+
+CREATE INDEX IF NOT EXISTS idx_observation_corrections_observation
+ON observation_corrections(observation_id, created_at);
 
 CREATE INDEX IF NOT EXISTS idx_tasks_status
 ON manual_tasks(status);
