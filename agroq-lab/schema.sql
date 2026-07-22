@@ -133,6 +133,54 @@ CREATE TABLE IF NOT EXISTS experiment_outcomes (
     UNIQUE(experiment_id, observation_id)
 );
 
+CREATE TABLE IF NOT EXISTS samples (
+    sample_id TEXT PRIMARY KEY,
+    experiment_id TEXT NOT NULL,
+    assignment_id TEXT,
+    treatment_id TEXT,
+    plot_id TEXT NOT NULL,
+    sample_type TEXT NOT NULL,
+    collection_method TEXT NOT NULL,
+    collected_by TEXT NOT NULL,
+    collected_at TEXT NOT NULL,
+    storage_location TEXT,
+    status TEXT NOT NULL CHECK(status IN ('collected','stored','in_analysis','analyzed','disposed')),
+    notes TEXT,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(experiment_id) REFERENCES experiments(experiment_id),
+    FOREIGN KEY(assignment_id) REFERENCES treatment_assignments(assignment_id),
+    FOREIGN KEY(treatment_id) REFERENCES treatments(treatment_id),
+    FOREIGN KEY(plot_id) REFERENCES plots(plot_id),
+    FOREIGN KEY(collected_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS sample_status_history (
+    status_event_id TEXT PRIMARY KEY,
+    sample_id TEXT NOT NULL,
+    previous_status TEXT NOT NULL,
+    new_status TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    changed_by TEXT NOT NULL,
+    changed_at TEXT NOT NULL,
+    FOREIGN KEY(sample_id) REFERENCES samples(sample_id),
+    FOREIGN KEY(changed_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS evidence_attachments (
+    attachment_id TEXT PRIMARY KEY,
+    entity_type TEXT NOT NULL CHECK(entity_type IN ('sample','observation','manual_task','experiment')),
+    entity_id TEXT NOT NULL,
+    file_name TEXT NOT NULL,
+    media_type TEXT,
+    storage_reference TEXT NOT NULL,
+    sha256 TEXT,
+    description TEXT,
+    captured_at TEXT,
+    recorded_by TEXT NOT NULL,
+    recorded_at TEXT NOT NULL,
+    FOREIGN KEY(recorded_by) REFERENCES users(user_id)
+);
+
 CREATE TABLE IF NOT EXISTS observation_corrections (
     correction_id TEXT PRIMARY KEY,
     observation_id TEXT NOT NULL,
@@ -253,6 +301,18 @@ ON experiment_status_history(experiment_id, changed_at);
 
 CREATE INDEX IF NOT EXISTS idx_experiment_outcomes
 ON experiment_outcomes(experiment_id, recorded_at);
+
+CREATE INDEX IF NOT EXISTS idx_samples_experiment
+ON samples(experiment_id, collected_at);
+
+CREATE INDEX IF NOT EXISTS idx_samples_plot
+ON samples(plot_id, collected_at);
+
+CREATE INDEX IF NOT EXISTS idx_sample_status_history
+ON sample_status_history(sample_id, changed_at);
+
+CREATE INDEX IF NOT EXISTS idx_evidence_attachments_entity
+ON evidence_attachments(entity_type, entity_id, recorded_at);
 
 CREATE INDEX IF NOT EXISTS idx_tasks_status
 ON manual_tasks(status);

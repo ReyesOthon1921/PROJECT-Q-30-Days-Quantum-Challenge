@@ -46,4 +46,6 @@ templates/plot_detail.html
 templates/plot_form.html
 templates/recommendations.html
 templates/registry.html
+templates/sample_detail.html
+templates/samples.html
 tests/test_app.py

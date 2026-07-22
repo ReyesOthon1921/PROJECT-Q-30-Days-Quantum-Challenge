@@ -60,6 +60,11 @@ TASK_APPROVAL_ROLES = ("administrator", "researcher")
 TASK_TYPES = frozenset({"fieldwork", "inspection", "sampling", "calibration", "maintenance", "repair", "treatment"})
 TASK_PRIORITIES = frozenset({"normal", "high", "critical"})
 TASK_STATUSES = frozenset({"open", "in_progress", "completed", "cancelled"})
+SAMPLE_STATUSES = frozenset({"collected", "stored", "in_analysis", "analyzed", "disposed"})
+SAMPLE_VIEW_ROLES = REGISTRY_VIEW_ROLES
+SAMPLE_CREATE_ROLES = ("administrator", "researcher", "field_operator")
+SAMPLE_MANAGE_ROLES = ("administrator", "researcher")
+ATTACHMENT_ENTITY_TYPES = frozenset({"sample", "observation", "manual_task", "experiment"})
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -1252,6 +1257,143 @@ def add_experiment_outcome(experiment_id: str) -> Response | tuple[str, int]:
     return redirect(url_for("experiment_detail", experiment_id=experiment_id))
 
 
+@app.get("/samples")
+@roles_required(*SAMPLE_VIEW_ROLES)
+def samples() -> str:
+    with get_db() as conn:
+        rows = conn.execute(
+            """SELECT s.*, e.title AS experiment_title, p.name AS plot_name,
+                      u.display_name AS collector_name
+               FROM samples s JOIN experiments e ON e.experiment_id=s.experiment_id
+               JOIN plots p ON p.plot_id=s.plot_id
+               JOIN users u ON u.user_id=s.collected_by
+               ORDER BY s.collected_at DESC"""
+        ).fetchall()
+        experiments_rows = conn.execute("SELECT * FROM experiments ORDER BY experiment_id").fetchall()
+        plots = conn.execute("SELECT * FROM plots WHERE status='Active' ORDER BY plot_id").fetchall()
+        users = conn.execute("SELECT * FROM users WHERE active=1 ORDER BY display_name").fetchall()
+    return render_template("samples.html", samples=rows, experiments=experiments_rows,
+                           plots=plots, users=users, statuses=sorted(SAMPLE_STATUSES))
+
+
+@app.post("/samples")
+@roles_required(*SAMPLE_CREATE_ROLES)
+def create_sample() -> Response | tuple[str, int]:
+    values = request.form
+    required = ("experiment_id", "plot_id", "sample_type", "collection_method", "collected_by", "collected_at")
+    if any(not values.get(field, "").strip() for field in required):
+        return "Experiment, plot, sample type, method, collector, and collection time are required", 400
+    sample_id = values.get("sample_id", "").strip() or new_entity_id("SAMPLE")
+    assignment_id = values.get("assignment_id", "").strip() or None
+    treatment_id = values.get("treatment_id", "").strip() or None
+    experiment_id = values["experiment_id"].strip()
+    plot_id = values["plot_id"].strip()
+    try:
+        with get_db() as conn:
+            if assignment_id:
+                assignment = conn.execute(
+                    "SELECT * FROM treatment_assignments WHERE assignment_id=? AND experiment_id=? AND plot_id=?",
+                    (assignment_id, experiment_id, plot_id),
+                ).fetchone()
+                if assignment is None:
+                    return "Assignment does not match the selected experiment and plot", 400
+                if treatment_id and treatment_id != assignment["treatment_id"]:
+                    return "Treatment does not match the selected assignment", 400
+                treatment_id = assignment["treatment_id"]
+            elif treatment_id and conn.execute(
+                "SELECT 1 FROM treatments WHERE treatment_id=? AND experiment_id=?",
+                (treatment_id, experiment_id),
+            ).fetchone() is None:
+                return "Treatment does not belong to the selected experiment", 400
+            conn.execute(
+                """INSERT INTO samples(sample_id,experiment_id,assignment_id,treatment_id,plot_id,
+                   sample_type,collection_method,collected_by,collected_at,storage_location,status,notes,created_at)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (sample_id, experiment_id, assignment_id, treatment_id, plot_id,
+                 values["sample_type"].strip(), values["collection_method"].strip(),
+                 values["collected_by"].strip(), values["collected_at"].strip(),
+                 values.get("storage_location", "").strip() or None, "collected",
+                 values.get("notes", "").strip(), utc_now()),
+            )
+    except sqlite3.IntegrityError:
+        return "Sample ID already exists or a linked record is invalid", 400
+    record_audit_event(g.user["user_id"], "sample_created", "sample", sample_id,
+                       json.dumps({"experiment_id": experiment_id, "plot_id": plot_id}))
+    return redirect(url_for("sample_detail", sample_id=sample_id))
+
+
+@app.get("/samples/<sample_id>")
+@roles_required(*SAMPLE_VIEW_ROLES)
+def sample_detail(sample_id: str) -> str:
+    with get_db() as conn:
+        sample = conn.execute(
+            """SELECT s.*, e.title AS experiment_title, p.name AS plot_name,
+                      u.display_name AS collector_name, t.name AS treatment_name
+               FROM samples s JOIN experiments e ON e.experiment_id=s.experiment_id
+               JOIN plots p ON p.plot_id=s.plot_id JOIN users u ON u.user_id=s.collected_by
+               LEFT JOIN treatments t ON t.treatment_id=s.treatment_id WHERE s.sample_id=?""",
+            (sample_id,),
+        ).fetchone()
+        if sample is None:
+            abort(404)
+        history = conn.execute("SELECT * FROM sample_status_history WHERE sample_id=? ORDER BY changed_at DESC", (sample_id,)).fetchall()
+        attachments = conn.execute(
+            "SELECT * FROM evidence_attachments WHERE entity_type='sample' AND entity_id=? ORDER BY recorded_at DESC",
+            (sample_id,),
+        ).fetchall()
+    return render_template("sample_detail.html", sample=sample, history=history,
+                           attachments=attachments, statuses=sorted(SAMPLE_STATUSES))
+
+
+@app.post("/samples/<sample_id>/status")
+@roles_required(*SAMPLE_MANAGE_ROLES)
+def change_sample_status(sample_id: str) -> Response | tuple[str, int]:
+    new_status = request.form.get("status", "").strip()
+    reason = request.form.get("reason", "").strip()
+    if new_status not in SAMPLE_STATUSES or not reason:
+        return "Valid status and reason are required", 400
+    with get_db() as conn:
+        sample = conn.execute("SELECT * FROM samples WHERE sample_id=?", (sample_id,)).fetchone()
+        if sample is None:
+            abort(404)
+        conn.execute("UPDATE samples SET status=? WHERE sample_id=?", (new_status, sample_id))
+        conn.execute(
+            """INSERT INTO sample_status_history(status_event_id,sample_id,previous_status,new_status,reason,changed_by,changed_at)
+               VALUES(?,?,?,?,?,?,?)""",
+            (new_entity_id("SSTATUS"), sample_id, sample["status"], new_status, reason, g.user["user_id"], utc_now()),
+        )
+    record_audit_event(g.user["user_id"], "sample_status_changed", "sample", sample_id,
+                       json.dumps({"from": sample["status"], "to": new_status, "reason": reason}))
+    return redirect(url_for("sample_detail", sample_id=sample_id))
+
+
+@app.post("/samples/<sample_id>/attachments")
+@roles_required(*SAMPLE_CREATE_ROLES)
+def add_sample_attachment(sample_id: str) -> Response | tuple[str, int]:
+    file_name = request.form.get("file_name", "").strip()
+    storage_reference = request.form.get("storage_reference", "").strip()
+    if not file_name or not storage_reference:
+        return "File name and storage reference are required", 400
+    with get_db() as conn:
+        if conn.execute("SELECT 1 FROM samples WHERE sample_id=?", (sample_id,)).fetchone() is None:
+            abort(404)
+        attachment_id = new_entity_id("ATT")
+        conn.execute(
+            """INSERT INTO evidence_attachments(attachment_id,entity_type,entity_id,file_name,media_type,
+               storage_reference,sha256,description,captured_at,recorded_by,recorded_at)
+               VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
+            (attachment_id, "sample", sample_id, file_name,
+             request.form.get("media_type", "").strip() or None, storage_reference,
+             request.form.get("sha256", "").strip() or None,
+             request.form.get("description", "").strip() or None,
+             request.form.get("captured_at", "").strip() or None,
+             g.user["user_id"], utc_now()),
+        )
+    record_audit_event(g.user["user_id"], "attachment_recorded", "evidence_attachment", attachment_id,
+                       json.dumps({"entity_type": "sample", "entity_id": sample_id}))
+    return redirect(url_for("sample_detail", sample_id=sample_id))
+
+
 @app.post("/recommendations/<recommendation_id>/decision")
 @roles_required("administrator", "researcher")
 def recommendation_decision(recommendation_id: str) -> tuple[str, int] | Response:
@@ -1297,6 +1439,9 @@ def export_csv(entity: str) -> tuple[str, int] | Response:
         "treatment_assignments": "SELECT * FROM treatment_assignments ORDER BY assignment_id",
         "experiment_status_history": "SELECT * FROM experiment_status_history ORDER BY changed_at",
         "experiment_outcomes": "SELECT * FROM experiment_outcomes ORDER BY recorded_at",
+        "samples": "SELECT * FROM samples ORDER BY collected_at",
+        "sample_status_history": "SELECT * FROM sample_status_history ORDER BY changed_at",
+        "evidence_attachments": "SELECT * FROM evidence_attachments ORDER BY recorded_at",
         "recommendations": "SELECT * FROM recommendations ORDER BY created_at",
     }
     if entity not in allowed:
@@ -1323,6 +1468,7 @@ def export_json() -> Response:
         "manual_tasks", "manual_task_details", "manual_task_status_history",
         "manual_task_evidence", "manual_task_approvals", "experiments", "treatments", "treatment_assignments",
         "experiment_status_history", "experiment_outcomes", "recommendations",
+        "samples", "sample_status_history", "evidence_attachments",
     ]
     data: dict[str, list[dict[str, Any]]] = {}
     with get_db() as conn:

@@ -685,3 +685,85 @@ def test_viewer_can_view_task_but_cannot_create_or_change_it(client):
     assert client.get("/manual-work/AGQ-TASK-001").status_code == 200
     assert client.post("/manual-work", data=task_payload()).status_code == 403
     assert client.post("/manual-work/AGQ-TASK-001/status", data={"status": "completed", "reason": "test"}).status_code == 403
+
+
+def sample_payload(**overrides):
+    values = {
+        "sample_id": "AGQ-SAMPLE-PHASE1F", "experiment_id": "AGQ-EXP-001",
+        "plot_id": "AGQ-PLOT-002", "sample_type": "soil", "collection_method": "manual core",
+        "collected_by": "AGQ-USER-001", "collected_at": "2026-07-22T09:30",
+        "storage_location": "Field cooler A", "notes": "Baseline sample",
+    }
+    values.update(overrides)
+    return values
+
+
+def test_field_operator_can_register_traceable_sample(client):
+    create_user("sample_operator", "operator-pass", "field_operator")
+    login(client, "sample_operator", "operator-pass")
+    response = client.post("/samples", data=sample_payload(collected_by="AGQ-USER-SAMPLE_OPERATOR"))
+    assert response.status_code == 302
+    with get_db() as conn:
+        sample = conn.execute("SELECT * FROM samples WHERE sample_id='AGQ-SAMPLE-PHASE1F'").fetchone()
+        audit = conn.execute("SELECT * FROM audit_events WHERE action='sample_created'").fetchone()
+    assert sample["experiment_id"] == "AGQ-EXP-001"
+    assert sample["plot_id"] == "AGQ-PLOT-002"
+    assert sample["collected_by"] == "AGQ-USER-SAMPLE_OPERATOR"
+    assert audit["entity_id"] == sample["sample_id"]
+
+
+def test_sample_assignment_must_match_experiment_and_plot(client):
+    login(client)
+    client.post("/experiments/AGQ-EXP-001/treatments", data={"treatment_id": "AGQ-TRT-SAMPLE", "name": "Sample treatment"})
+    client.post("/experiments/AGQ-EXP-001/assignments", data={"assignment_id": "AGQ-ASN-SAMPLE", "treatment_id": "AGQ-TRT-SAMPLE", "plot_id": "AGQ-PLOT-003", "responsible_user_id": "AGQ-USER-001"})
+    response = client.post("/samples", data=sample_payload(assignment_id="AGQ-ASN-SAMPLE"))
+    assert response.status_code == 400
+    assert b"does not match" in response.data
+
+
+def test_sample_status_change_is_append_only_and_requires_reason(client):
+    login(client)
+    client.post("/samples", data=sample_payload())
+    assert client.post("/samples/AGQ-SAMPLE-PHASE1F/status", data={"status": "stored", "reason": "Moved to cold storage"}).status_code == 302
+    assert client.post("/samples/AGQ-SAMPLE-PHASE1F/status", data={"status": "analyzed", "reason": ""}).status_code == 400
+    with get_db() as conn:
+        sample = conn.execute("SELECT * FROM samples WHERE sample_id='AGQ-SAMPLE-PHASE1F'").fetchone()
+        history = conn.execute("SELECT * FROM sample_status_history WHERE sample_id='AGQ-SAMPLE-PHASE1F'").fetchone()
+    assert sample["status"] == "stored"
+    assert history["previous_status"] == "collected"
+
+
+def test_sample_attachment_records_portable_metadata(client):
+    login(client)
+    client.post("/samples", data=sample_payload())
+    response = client.post("/samples/AGQ-SAMPLE-PHASE1F/attachments", data={
+        "file_name": "soil-core.jpg", "media_type": "image/jpeg",
+        "storage_reference": "attachments/soil-core.jpg", "sha256": "a" * 64,
+        "description": "Collection-location photo",
+    })
+    assert response.status_code == 302
+    with get_db() as conn:
+        attachment = conn.execute("SELECT * FROM evidence_attachments WHERE entity_id='AGQ-SAMPLE-PHASE1F'").fetchone()
+    assert attachment["entity_type"] == "sample"
+    assert attachment["sha256"] == "a" * 64
+
+
+def test_viewer_can_view_samples_but_cannot_create_or_change(client):
+    login(client)
+    client.post("/samples", data=sample_payload())
+    client.post("/logout")
+    create_user("sample_viewer", "viewer-pass", "viewer")
+    login(client, "sample_viewer", "viewer-pass")
+    assert client.get("/samples").status_code == 200
+    assert client.get("/samples/AGQ-SAMPLE-PHASE1F").status_code == 200
+    assert client.post("/samples", data=sample_payload(sample_id="NOPE")).status_code == 403
+    assert client.post("/samples/AGQ-SAMPLE-PHASE1F/status", data={"status": "stored", "reason": "test"}).status_code == 403
+
+
+def test_phase1f_records_are_in_json_export(client):
+    login(client)
+    client.post("/samples", data=sample_payload())
+    response = client.get("/api/export/all.json")
+    assert response.status_code == 200
+    assert response.get_json()["data"]["samples"][0]["sample_id"] == "AGQ-SAMPLE-PHASE1F"
+    assert "evidence_attachments" in response.get_json()["data"]

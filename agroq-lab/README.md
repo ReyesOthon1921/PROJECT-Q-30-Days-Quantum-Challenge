@@ -115,6 +115,14 @@ requiring approval cannot be completed until an administrator or researcher reco
 approval. The application records audit events for creation, evidence, review, and status
 changes; it never executes a field intervention automatically.
 
+## Phase 1F sample tracking and evidence attachments
+
+Samples now retain experiment, treatment assignment, plot, collector, collection method,
+collection time, storage location, and lifecycle status. Status changes are append-only and
+require a reason. Photo and file evidence is registered through portable attachment metadata,
+including its storage reference and optional SHA-256 checksum; binary files are not embedded
+in SQLite. All sample and attachment changes are attributed and included in exports.
+
 ## Phase 1D experiments and treatments
 
 Experiments now have hypothesis and lifecycle records, reusable treatment definitions,
