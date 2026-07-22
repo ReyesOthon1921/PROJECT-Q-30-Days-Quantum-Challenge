@@ -61,17 +61,57 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Open `http://127.0.0.1:5000`.
+Open `http://127.0.0.1:5000`. You will be redirected to the local sign-in page.
+
+## Local login (Phase 1A)
+
+AgroQ now uses local username/password authentication with role-based access. Credentials are stored in the local SQLite database on this device. No external identity provider is used.
+
+### Environment variables
+
+| Variable | Purpose |
+| --- | --- |
+| `AGROQ_SECRET_KEY` | Flask session signing key. Required for production. |
+| `AGROQ_ADMIN_USERNAME` | Initial administrator username, seeded only when the users table is empty. |
+| `AGROQ_ADMIN_PASSWORD` | Initial administrator password, hashed before storage. Never logged or printed. |
+
+### Development defaults (local setup only)
+
+When the variables above are not set, the app uses development-only defaults:
+
+- `AGROQ_SECRET_KEY`: `agroq-dev-secret-key-change-before-deployment`
+- `AGROQ_ADMIN_USERNAME`: `admin`
+- `AGROQ_ADMIN_PASSWORD`: `agroq-dev-change-me`
+
+These defaults exist for local first-run convenience only. **Change all of them before any shared, staged, or production deployment.**
+
+### Sign-in procedure
+
+1. Start the app (`python app.py`).
+2. Open `http://127.0.0.1:5000`.
+3. Enter your local username and password on the sign-in page.
+4. Use **Sign out** in the header to end the session.
+
+The default site `AGQ-SITE-001` (AgroQ One-Acre Living Laboratory) and a single administrator account are seeded automatically on first database initialization.
+
+### Role permissions
+
+| Role | Access |
+| --- | --- |
+| `administrator` | Full application access: dashboard, observations, manual work, registry, approvals, and exports. |
+| `researcher` | Observations, registry, experiments (via registry), exports, and recommendation approvals. |
+| `field_operator` | Dashboard, observations, manual work, and registry viewing. |
+| `viewer` | Dashboard and registry viewing only. |
+
+Authorization is enforced on every protected route. Hidden navigation links do not grant access. No role may auto-execute a recommendation; human approval decisions remain limited to `approved`, `rejected`, or `edited`.
+
+Successful sign-in and sign-out events are recorded in the local `audit_events` table for traceability.
 
 ## Run tests
 
 ```bash
 pytest -q
 ```
-
-## Demo login
-
-This scaffold has no authentication yet. Authentication and role-based access are Phase 2 requirements before real deployment.
 
 ## Core files
 

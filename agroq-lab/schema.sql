@@ -1,3 +1,35 @@
+CREATE TABLE IF NOT EXISTS sites (
+    site_id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    location TEXT,
+    status TEXT NOT NULL,
+    owner TEXT,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS users (
+    user_id TEXT PRIMARY KEY,
+    username TEXT NOT NULL UNIQUE,
+    display_name TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL CHECK(role IN ('administrator', 'researcher', 'field_operator', 'viewer')),
+    site_id TEXT,
+    active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(site_id) REFERENCES sites(site_id)
+);
+
+CREATE TABLE IF NOT EXISTS audit_events (
+    audit_id TEXT PRIMARY KEY,
+    user_id TEXT,
+    action TEXT NOT NULL,
+    entity_type TEXT NOT NULL,
+    entity_id TEXT,
+    details TEXT,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(user_id)
+);
+
 CREATE TABLE IF NOT EXISTS plots (
     plot_id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -74,6 +106,15 @@ CREATE TABLE IF NOT EXISTS recommendations (
     decided_at TEXT,
     FOREIGN KEY(plot_id) REFERENCES plots(plot_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_users_username
+ON users(username);
+
+CREATE INDEX IF NOT EXISTS idx_users_site_id
+ON users(site_id);
+
+CREATE INDEX IF NOT EXISTS idx_audit_events_created_at
+ON audit_events(created_at);
 
 CREATE INDEX IF NOT EXISTS idx_observations_plot_time
 ON observations(plot_id, observed_at);

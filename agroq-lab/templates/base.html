@@ -14,16 +14,40 @@
     <div class="brand">AgroQ Acre MVP</div>
     <div class="subtitle">Manual-first living laboratory</div>
   </div>
-  <div id="connection-status" class="status-pill">Checking connection</div>
+  <div class="topbar-actions">
+    {% if g.user %}
+    <div class="user-identity">
+      <span class="user-display-name">{{ g.user.display_name }}</span>
+      <span class="user-role">{{ g.user.role.replace('_', ' ') }}</span>
+    </div>
+    <form class="logout-form" method="post" action="{{ url_for('logout') }}">
+      <button type="submit" class="logout-button">Sign out</button>
+    </form>
+    {% endif %}
+    <div id="connection-status" class="status-pill">Checking connection</div>
+  </div>
 </header>
+{% if g.user %}
 <nav class="nav">
   <a href="{{ url_for('dashboard') }}">Dashboard</a>
+  {% if g.user.role in ['administrator', 'researcher', 'field_operator'] %}
   <a href="{{ url_for('new_observation') }}">Record Observation</a>
+  {% endif %}
+  {% if g.user.role in ['administrator', 'field_operator'] %}
   <a href="{{ url_for('manual_work') }}">Manual Work</a>
+  {% endif %}
   <a href="{{ url_for('registry') }}">Registry</a>
+  {% if g.user.role in ['administrator', 'researcher'] %}
   <a href="{{ url_for('recommendations') }}">Approvals</a>
+  {% endif %}
 </nav>
+{% endif %}
 <main class="page">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash-message {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
   {% block content %}{% endblock %}
 </main>
 <footer>
