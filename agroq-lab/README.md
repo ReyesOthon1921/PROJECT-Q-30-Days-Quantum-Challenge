@@ -250,3 +250,8 @@ For each branch:
 4. Review the diff.
 5. Commit with a descriptive message.
 6. Merge only after the manual workflow still works.
+# Phase 2E acceptance
+
+After completing real field evidence, run `python scripts/phase2e_acceptance.py`.
+See `docs/11_PHASE2_FIELD_ACCEPTANCE.md`. A blocked report prevents Phase 3
+sensor integration; it is not an application failure.

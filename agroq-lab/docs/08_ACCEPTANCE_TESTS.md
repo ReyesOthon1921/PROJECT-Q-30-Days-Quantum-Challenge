@@ -21,3 +21,11 @@
 - Calibration traceability.
 - Image upload under weak connectivity.
 - Independent rebuild from controlled documentation.
+
+## Phase 2E release gate
+
+- Run the complete automated suite and retain its result.
+- Generate `results/phase2e/phase2e_acceptance.json` and `.md` with
+  `python scripts/phase2e_acceptance.py`.
+- Complete the operator checks in `docs/11_PHASE2_FIELD_ACCEPTANCE.md`.
+- Do not begin Phase 3 unless every automated gate passes and the manual review is signed.

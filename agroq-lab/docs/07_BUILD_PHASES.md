@@ -36,6 +36,9 @@ Checkpoint schedule:
 - Phase 2D — device health history, manual diagnostics, and lifecycle controls.
 - Phase 2E — Phase 2 field acceptance, migration decision, and release documentation.
 
+Phase 2E exit rule: the evidence report must say `ready_for_phase3`, the
+operator acceptance checks must be signed, and the repository must be clean.
+
 ## Phase 3 — First sensor adapter
 
 - Ingest one prototype node.

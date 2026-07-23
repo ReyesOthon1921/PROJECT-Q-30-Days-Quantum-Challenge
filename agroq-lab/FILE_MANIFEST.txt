@@ -53,3 +53,5 @@ templates/samples.html
 templates/sync_conflicts.html
 templates/gateway_status.html
 tests/test_app.py
+scripts/phase2e_acceptance.py
+docs/11_PHASE2_FIELD_ACCEPTANCE.md
