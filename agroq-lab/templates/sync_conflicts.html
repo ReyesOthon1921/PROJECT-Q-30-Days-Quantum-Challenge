@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Sync Conflicts — AgroQ{% endblock %}
+{% block content %}
+<h1>Offline synchronization conflicts</h1>
+<p>Conflicting field records are never overwritten automatically. Review the submitted payload and record a reasoned human decision.</p>
+{% for item in conflicts %}
+<section class="card">
+  <h2>{{ item.sync_id }}</h2>
+  <p><strong>Reason:</strong> {{ item.conflict_reason }}</p>
+  <p><strong>Submitted by:</strong> {{ item.submitted_by_name }} at {{ item.submitted_at }}</p>
+  <pre>{{ item.payload_json }}</pre>
+  <form method="post" action="{{ url_for('resolve_sync_conflict', sync_id=item.sync_id) }}">
+    <label>Resolution
+      <select name="resolution" required>
+        <option value="">Choose</option>
+        <option value="accepted_as_new">Accept as a new immutable observation</option>
+        <option value="dismissed">Dismiss duplicate or invalid submission</option>
+      </select>
+    </label>
+    <label>Decision notes <input name="notes" required></label>
+    <button type="submit">Record resolution</button>
+  </form>
+</section>
+{% else %}
+<p>No unresolved synchronization conflicts.</p>
+{% endfor %}
+{% endblock %}

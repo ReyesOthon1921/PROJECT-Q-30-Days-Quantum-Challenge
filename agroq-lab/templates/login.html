@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#163226">
+  <title>Sign in — AgroQ</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <section class="login-card">
+      <p class="eyebrow">LOCAL RESEARCH ACCESS</p>
+      <h1>Sign in to AgroQ</h1>
+      <p class="login-lead">
+        This is a local-first field research system. Credentials are stored on this device only.
+        No external identity provider is used.
+      </p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      {% if error %}
+        <div class="validation-message" role="alert">{{ error }}</div>
+      {% endif %}
+
+      <form class="login-form" method="post" action="{{ url_for('login', next=request.args.get('next')) }}">
+        <label>
+          Username
+          <input type="text" name="username" autocomplete="username" required autofocus>
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <button type="submit" class="primary-button login-submit">Sign in</button>
+      </form>
+
+      <p class="login-footnote">
+        Development deployments ship with local-only defaults. Change credentials before any shared or production use.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

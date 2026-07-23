@@ -4,9 +4,13 @@
 <section class="panel narrow">
   <p class="eyebrow">MANUAL OR CONNECTED INPUT</p>
   <h1>Record an observation</h1>
+  <div class="notice">Saved raw observations cannot be edited or deleted. If a mistake is found, add a traceable correction from the observation detail page.</div>
   <p>This form remains available when the device loses its connection. Offline entries are queued in the browser and synchronized later.</p>
   <div id="offline-queue-count" class="notice">Offline queue: 0</div>
   <form id="observation-form" method="post" class="form-grid">
+    <label>Observation ID (optional)
+      <input name="observation_id" placeholder="Generated automatically when blank">
+    </label>
     <label>Plot
       <select name="plot_id" required>
         {% for plot in plots %}<option value="{{ plot.plot_id }}">{{ plot.plot_id }} — {{ plot.name }}</option>{% endfor %}

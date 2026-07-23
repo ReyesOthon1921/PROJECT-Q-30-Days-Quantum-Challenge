@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ observation.observation_id }} — AgroQ{% endblock %}
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">RAW OBSERVATION · IMMUTABLE</p><h1>{{ observation.observation_id }}</h1>
+  <div class="detail-grid"><div><strong>Plot</strong><p>{{ observation.plot_id }} — {{ observation.plot_name }}</p></div><div><strong>Asset</strong><p>{{ observation.asset_id or 'Manual / none' }} {{ observation.asset_name or '' }}</p></div><div><strong>Property</strong><p>{{ observation.observed_property }}</p></div><div><strong>Raw value</strong><p>{{ observation.value }} {{ observation.unit }}</p></div><div><strong>Source</strong><p>{{ observation.source_type }}</p></div><div><strong>Quality</strong><p>{{ observation.quality_flag }}</p></div><div><strong>Observed</strong><p>{{ observation.observed_at }}</p></div><div><strong>Recorded</strong><p>{{ observation.created_at }}</p></div></div>
+  <h3>Original notes</h3><p>{{ observation.notes or 'None' }}</p>
+</section>
+<section class="panel"><h2>Correction history</h2>
+  {% for row in corrections %}<div class="list-row"><div><strong>{{ row.correction_id }} · {{ row.value }} {{ row.unit }}</strong><p>{{ row.reason }}</p><small>{{ row.quality_flag }} · {{ row.created_by_name }} · {{ row.created_at }}{% if row.notes %} · {{ row.notes }}{% endif %}</small></div></div>{% else %}<p>No corrections recorded.</p>{% endfor %}
+</section>
+{% if g.user.role != 'viewer' %}<section class="panel narrow"><h2>Add a correction</h2><p>This creates a linked record and does not overwrite the raw observation.</p>
+  <form method="post" action="{{ url_for('create_observation_correction', observation_id=observation.observation_id) }}" class="form-grid">
+    <label>Corrected value<input name="value" type="number" step="any" required></label><label>Unit<input name="unit" value="{{ observation.unit }}" required></label>
+    <label>Quality flag<select name="quality_flag"><option>corrected</option><option>good</option><option>suspect</option><option>invalid</option></select></label>
+    <label class="full">Reason<textarea name="reason" required></textarea></label><label class="full">Correction notes<textarea name="notes"></textarea></label>
+    <button class="primary-button" type="submit">Add traceable correction</button>
+  </form></section>{% endif %}
+{% endblock %}

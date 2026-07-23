@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ task.task_id }} — AgroQ{% endblock %}
+{% block content %}
+<section class="panel"><p class="eyebrow">{{ task.task_id }}</p><h1>{{ task.title }}</h1>
+<p><strong>Status:</strong> {{ task.status }} · <strong>Priority:</strong> {{ task.priority }} · <strong>Assigned:</strong> {{ task.assigned_user_name or task.assigned_to or 'Unassigned' }}</p>
+<p><strong>Links:</strong> {{ task.plot_id or 'Site-wide' }} · {{ task.asset_id or 'No asset' }} · {{ task.experiment_id or 'No experiment' }}</p>
+<p><strong>Due:</strong> {{ task.due_at or 'Not scheduled' }} · <strong>Approval required:</strong> {{ 'Yes' if task.requires_approval else 'No' }}</p><p>{{ task.notes }}</p></section>
+<div class="two-column">
+{% if g.user.role in ['administrator','field_operator'] %}<section class="panel"><h2>Record work</h2>
+<form method="post" action="{{ url_for('change_manual_task_status', task_id=task.task_id) }}" class="form-grid single"><label>Status<select name="status">{% for status in statuses %}<option>{{ status }}</option>{% endfor %}</select></label><label>Reason<textarea name="reason" required></textarea></label><button class="primary-button">Record status</button></form>
+<form method="post" action="{{ url_for('add_manual_task_evidence', task_id=task.task_id) }}" class="form-grid single"><h3>Add completion evidence</h3><label>Type<select name="evidence_type"><option>observation</option><option>photo</option><option>file</option><option>note</option></select></label><label>Observation ID or file/reference<input name="reference" required></label><label>Notes<textarea name="notes"></textarea></label><button class="secondary-button">Add evidence</button></form></section>{% endif %}
+{% if g.user.role in ['administrator','researcher'] %}<section class="panel"><h2>Human review</h2><form method="post" action="{{ url_for('review_manual_task', task_id=task.task_id) }}" class="form-grid single"><label>Decision<select name="decision"><option>approved</option><option>rejected</option></select></label><label>Reason<textarea name="reason" required></textarea></label><button class="primary-button">Record review</button></form></section>{% endif %}
+</div>
+<section class="panel"><h2>Evidence</h2>{% for row in evidence %}<div class="list-row"><strong>{{ row.evidence_type }} — {{ row.reference }}</strong><span>{{ row.recorded_at }}</span></div>{% else %}<p class="empty-state">No evidence recorded.</p>{% endfor %}</section>
+<section class="panel"><h2>Approval history</h2>{% for row in approvals %}<div class="list-row"><div><strong>{{ row.decision }}</strong><p>{{ row.reason }}</p></div><span>{{ row.reviewed_at }}</span></div>{% else %}<p class="empty-state">No reviews recorded.</p>{% endfor %}</section>
+<section class="panel"><h2>Status history</h2>{% for row in history %}<div class="list-row"><div><strong>{{ row.previous_status }} → {{ row.new_status }}</strong><p>{{ row.reason }}</p></div><span>{{ row.changed_at }}</span></div>{% else %}<p class="empty-state">No status changes recorded.</p>{% endfor %}</section>
+{% endblock %}

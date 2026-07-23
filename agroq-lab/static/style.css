@@ -62,6 +62,32 @@ button,.primary-button,.secondary-button,.danger-button { border: 0; border-radi
 .metadata { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font-size: .88rem; }
 .decision-form { margin-top: 16px; padding: 18px; background: #f7f8f5; border-radius: 16px; display: grid; gap: 12px; }
 footer { padding: 24px; text-align: center; color: var(--muted); font-size: .84rem; }
+.topbar-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
+.user-identity { display: grid; gap: 2px; text-align: right; }
+.user-display-name { font-weight: 700; font-size: .92rem; }
+.user-role { font-size: .76rem; opacity: .78; text-transform: capitalize; }
+.logout-form { margin: 0; }
+.logout-button { border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: 7px 12px; font: inherit; font-size: .82rem; font-weight: 700; color: white; background: rgba(255,255,255,.08); cursor: pointer; }
+.logout-button:hover { background: rgba(255,255,255,.16); }
+.flash-message,.validation-message { margin-bottom: 16px; padding: 12px 14px; border-radius: 12px; font-weight: 650; }
+.flash-message.info,.flash-message { background: #e8f0e4; color: var(--ink); }
+.flash-message.error,.validation-message { background: #f5dddd; color: #742525; }
+.login-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.login-shell { width: min(100%, 460px); }
+.login-card { background: var(--panel); border: 1px solid var(--line); border-radius: 24px; padding: 32px 28px; box-shadow: var(--shadow); }
+.login-card h1 { font-size: clamp(1.8rem, 5vw, 2.4rem); line-height: 1.05; margin: 8px 0 12px; }
+.login-lead,.login-footnote { color: var(--muted); line-height: 1.55; font-size: .92rem; }
+.login-form { display: grid; gap: 14px; margin-top: 22px; }
+.login-submit { width: 100%; margin-top: 6px; }
+.login-footnote { margin-top: 18px; margin-bottom: 0; font-size: .84rem; }
+.detail-actions { margin-top: 22px; align-items: center; }
+.detail-actions form { margin: 0; }
+.empty-state { color: var(--muted); padding: 16px 0; }
+.field-hint { color: var(--muted); font-size: .78rem; font-weight: 500; }
+.field-label { display: block; font-weight: 650; font-size: .9rem; }
+.status-retired,.status-offline { background: #f5dddd; color: #742525; }
+.status-active,.status-online,.status-available { background: #dcefe0; color: #164d2c; }
+.status-testing,.status-maintenance { background: #fff0c7; color: #664d00; }
 @media (max-width: 900px) {
   .cards { grid-template-columns: repeat(2,1fr); }
   .two-column { grid-template-columns: 1fr; }
@@ -73,5 +99,5 @@ footer { padding: 24px; text-align: center; color: var(--muted); font-size: .84r
   .full { grid-column: auto; }
   .page { padding-top: 18px; }
   .panel { padding: 18px; }
-  .task,.recommendation { align-items: flex-start; flex-direction: column; }
+  .task,.recommendation,.panel-heading { align-items: flex-start; flex-direction: column; }
 }

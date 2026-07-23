@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Samples — AgroQ{% endblock %}
+{% block content %}
+<section class="panel"><p class="eyebrow">SAMPLE REGISTRY</p><h1>Samples</h1><p>Trace samples from collection through storage and analysis without rewriting their field origin.</p></section>
+{% if g.user.role in ['administrator','researcher','field_operator'] %}
+<section class="panel"><h2>Register sample</h2><form method="post" action="{{ url_for('create_sample') }}" class="form-grid">
+  <label>Sample ID (optional)<input name="sample_id"></label>
+  <label>Experiment<select name="experiment_id" required>{% for e in experiments %}<option value="{{ e.experiment_id }}">{{ e.experiment_id }} — {{ e.title }}</option>{% endfor %}</select></label>
+  <label>Plot<select name="plot_id" required>{% for p in plots %}<option value="{{ p.plot_id }}">{{ p.plot_id }} — {{ p.name }}</option>{% endfor %}</select></label>
+  <label>Collector<select name="collected_by" required>{% for u in users %}<option value="{{ u.user_id }}">{{ u.display_name }}</option>{% endfor %}</select></label>
+  <label>Sample type<input name="sample_type" placeholder="soil, leaf, water" required></label>
+  <label>Collection method<input name="collection_method" required></label>
+  <label>Collected at<input type="datetime-local" name="collected_at" required></label>
+  <label>Storage location<input name="storage_location"></label>
+  <label>Assignment ID (optional)<input name="assignment_id"></label>
+  <label>Treatment ID (optional)<input name="treatment_id"></label>
+  <label class="full">Notes<textarea name="notes"></textarea></label>
+  <div class="full"><button class="primary-button">Register sample</button></div>
+</form></section>{% endif %}
+<section class="panel"><h2>Sample records</h2><div class="table-wrap"><table><thead><tr><th>ID</th><th>Type</th><th>Experiment</th><th>Plot</th><th>Collector</th><th>Collected</th><th>Status</th></tr></thead><tbody>
+{% for s in samples %}<tr><td><a href="{{ url_for('sample_detail', sample_id=s.sample_id) }}">{{ s.sample_id }}</a></td><td>{{ s.sample_type }}</td><td>{{ s.experiment_title }}</td><td>{{ s.plot_name }}</td><td>{{ s.collector_name }}</td><td>{{ s.collected_at }}</td><td><span class="tag">{{ s.status }}</span></td></tr>{% else %}<tr><td colspan="7">No samples registered.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

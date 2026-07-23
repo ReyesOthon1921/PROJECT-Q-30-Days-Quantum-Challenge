@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit plot' if plot else 'Add plot' }} — AgroQ{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <p class="eyebrow">PLOT REGISTRY</p><h1>{{ 'Edit plot' if plot else 'Add plot' }}</h1>
+  <form method="post" class="form-grid">
+    {% if not plot %}<label>Plot ID <span class="field-hint">Optional; generated when blank</span><input name="plot_id" value="{{ values.get('plot_id', '') }}"></label>{% endif %}
+    <label>Name <input name="name" required value="{{ values.get('name', '') }}"></label>
+    <label>Plot type <select name="plot_type" required><option value="">Select type</option>{% for item in plot_types %}<option value="{{ item }}" {% if values.get('plot_type') == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></label>
+    <label>Area <input name="area" value="{{ values.get('area', '') }}" placeholder="Example: 0.10 acre"></label>
+    <label>Status <select name="status" required>{% for item in statuses %}<option value="{{ item }}" {% if values.get('status') == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></label>
+    <div class="full button-row"><button class="primary-button" type="submit">{{ 'Save changes' if plot else 'Create plot' }}</button><a class="secondary-button" href="{{ url_for('plot_detail', plot_id=plot.plot_id) if plot else url_for('registry') }}">Cancel</a></div>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ asset.name }} — AgroQ{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="panel-heading"><div><p class="eyebrow">{{ asset.asset_id }}</p><h1>{{ asset.name }}</h1></div><span class="tag status-{{ asset.status|lower }}">{{ asset.status }}</span></div>
+  <div class="metadata"><span>Type: {{ asset.asset_type }}</span><span>Revision: {{ asset.revision }}</span><span>Plot: {% if asset.plot_id %}<a href="{{ url_for('plot_detail', plot_id=asset.plot_id) }}">{{ asset.plot_id }} — {{ asset.plot_name }}</a>{% else %}Unassigned{% endif %}</span><span>Created: {{ asset.created_at }}</span></div>
+  <div class="button-row detail-actions"><a class="secondary-button" href="{{ url_for('registry') }}">Back to registry</a>{% if g.user.role in ['administrator', 'researcher'] %}<a class="primary-button" href="{{ url_for('edit_asset', asset_id=asset.asset_id) }}">Edit asset</a>{% endif %}{% if g.user.role == 'administrator' and asset.status != 'retired' %}<form method="post" action="{{ url_for('retire_asset', asset_id=asset.asset_id) }}" onsubmit="return confirm('Retire this asset? Existing history will be preserved.');"><button class="danger-button" type="submit">Retire asset</button></form>{% endif %}</div>
+</section>
+<section class="panel"><h2>Recent observations</h2>{% if observations %}<div class="table-wrap"><table><thead><tr><th>Time</th><th>Property</th><th>Value</th><th>Source</th><th>Quality</th></tr></thead><tbody>{% for row in observations %}<tr><td>{{ row.observed_at }}</td><td>{{ row.observed_property }}</td><td>{{ row.value }} {{ row.unit }}</td><td>{{ row.source_type }}</td><td>{{ row.quality_flag }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="empty-state">No observations are linked to this asset.</p>{% endif %}</section>
+{% endblock %}
