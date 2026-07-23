@@ -60,9 +60,10 @@ Campaign IDs and evidence paths must not be reused for reruns. A failed attempt 
 | Field operator |  |  | YES / NO |  |
 | Independent reviewer |  |  | YES / NO |  |
 | Site/safety contact |  |  | YES / NO |  |
+| Adult/lab supervisor |  |  | YES / NO |  |
 | Backup/recovery witness |  |  | YES / NO |  |
 
-The person granting final preflight authorization must be separate from the field operator. The site/safety contact must confirm that the planned WAN outage affects no shared, production, emergency, or safety-critical service.
+The person granting final preflight authorization must be separate from the field operator. The site/safety contact must confirm that the planned WAN outage affects no shared, production, emergency, or safety-critical service. An adult or qualified lab supervisor must approve and supervise any physical or network action. The same formally authorized person may serve as both site/safety contact and adult/lab supervisor.
 
 ## 5. Planned test window
 
@@ -163,17 +164,19 @@ The `results\` evidence package remains untracked. It must not be added to a sou
 
 Record evidence from the field computer:
 
+The baseline checks use `P2E-BL-01` through `P2E-BL-09`. These identifiers are separate from the final `PF-01` through `PF-15` authorization checklist in Section 15.
+
 | ID | Check | Required result | Evidence reference | Result |
 |---|---|---|---|---|
-| PF-01 | `git log -1 --oneline` | Reviewed `main` commit recorded |  |  |
-| PF-02 | `git status --short` | No unexplained tracked changes |  |  |
-| PF-03 | `python -m pytest -q` | Complete suite passes |  |  |
-| PF-04 | Field launcher/README reviewed | Independent operator can follow it |  |  |
-| PF-05 | System date, time, and time zone checked | Correct and recorded |  |  |
-| PF-06 | Debug mode | `false` |  |  |
-| PF-07 | Deployment mode | `field` |  |  |
-| PF-08 | Unique non-development secret configured | Confirmed without revealing value |  |  |
-| PF-09 | Gateway database available | Dedicated field path confirmed |  |  |
+| P2E-BL-01 | `git log -1 --oneline` | Reviewed `main` commit recorded |  |  |
+| P2E-BL-02 | `git status --short` | No unexplained tracked changes |  |  |
+| P2E-BL-03 | `python -m pytest -q` | Complete suite passes |  |  |
+| P2E-BL-04 | Field launcher/README reviewed | Field operator can follow it |  |  |
+| P2E-BL-05 | System date, time, and time zone checked | Correct and recorded |  |  |
+| P2E-BL-06 | Debug mode | `false` |  |  |
+| P2E-BL-07 | Deployment mode | `field` |  |  |
+| P2E-BL-08 | Unique non-development secret configured | Confirmed without revealing value |  |  |
+| P2E-BL-09 | Gateway database available | Dedicated field path confirmed |  |  |
 
 Untracked simulation artifacts may remain outside the commit, but they must not be copied into the field evidence package or field database.
 
@@ -282,6 +285,10 @@ Decision notes: ____________________
 | Field operator |  | ACCEPTED / BLOCKED |  |  |
 | Independent reviewer |  | AUTHORIZED / BLOCKED |  |  |
 | Site/safety contact |  | APPROVED / BLOCKED |  |  |
+| Adult/lab supervisor |  | APPROVED / BLOCKED |  |  |
+| Backup/recovery witness |  | ACKNOWLEDGED / BLOCKED |  |  |
+
+Authorization requires every role above to record its required positive decision. The independent reviewer must remain separate from the field operator. The same person may complete both the site/safety-contact and adult/lab-supervisor rows only when formally authorized to hold both roles.
 
 ## 16. Boundary after preflight
 

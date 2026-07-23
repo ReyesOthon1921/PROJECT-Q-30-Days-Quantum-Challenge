@@ -356,10 +356,11 @@ Run the complete automated suite on the field computer and save its output:
 python -m pytest -q
 ```
 
-Then run acceptance against the dedicated field database:
+Then run the preliminary technical acceptance against the dedicated field
+database. Use the already authorized private preflight-readiness summary:
 
 ```bat
-python -m scripts.phase2e_acceptance --evidence-mode field --db "instance\agroq_phase2_field_validation.db" --output "results\phase2e_field\%CAMPAIGN_ID%\10_acceptance"
+python -m scripts.phase2e_acceptance --evidence-mode field --readiness "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_readiness_private.json" --db "instance\agroq_phase2_field_validation.db" --output "results\phase2e_field\%CAMPAIGN_ID%\10_acceptance"
 ```
 
 Display and preserve both generated reports:
@@ -369,16 +370,19 @@ type "results\phase2e_field\%CAMPAIGN_ID%\10_acceptance\phase2e_acceptance.md"
 type "results\phase2e_field\%CAMPAIGN_ID%\10_acceptance\phase2e_acceptance.json"
 ```
 
-Expected technical result only after genuine field evidence exists:
+Expected preliminary technical result only after genuine field evidence exists:
 
 ```json
 "evidence_mode": "field",
 "technical_acceptance_passed": true,
-"release_status": "ready_for_phase3",
-"phase3_sensor_integration_allowed": true
+"release_status": "blocked",
+"phase3_sensor_integration_allowed": false
 ```
 
-Do not edit the report. A `blocked` result is a valid safety outcome and must remain preserved with the evidence bundle.
+The preliminary report remains blocked because the post-field manual release and
+independent authorization have not yet been entered. Do not edit the report. A
+`blocked` result is a valid safety outcome and must remain preserved with the
+evidence bundle.
 
 ## 11. Final gate checklist
 
@@ -431,3 +435,26 @@ Final decision:
 | Site/safety contact |  | APPROVED / BLOCKED |  |  |
 
 Phase 3 authorization reference (leave blank unless every condition passes): ____________________
+
+After every final gate and approval above genuinely passes, create a private
+machine-readable post-field summary from the blocked template:
+
+```bat
+copy /Y "config\phase2e_field_release.example.json" "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_field_release_private.json"
+notepad "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_field_release_private.json"
+python -m scripts.phase2e_field_release --input "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_field_release_private.json"
+```
+
+The JSON file records only check results, role decisions, and control booleans.
+Do not put names, signatures, addresses, credentials, IP information, private
+paths, or the authorization reference itself in the JSON file.
+
+Run the final combined release gate only after the validator says `APPROVED`:
+
+```bat
+python -m scripts.phase2e_acceptance --evidence-mode field --readiness "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_readiness_private.json" --field-release "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_field_release_private.json" --db "instance\agroq_phase2_field_validation.db" --output "results\phase2e_field\%CAMPAIGN_ID%\10_acceptance"
+```
+
+The final report may say `ready_for_phase3` only when the technical gates pass,
+both private summaries validate, their sanitized campaign references match, the
+post-field decision is approved, and no blocking deviation remains.

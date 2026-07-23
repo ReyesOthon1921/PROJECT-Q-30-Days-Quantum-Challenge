@@ -6,6 +6,8 @@ Applies to: AgroQ Phase 2E verified-field validation
 
 Purpose: Test whether `docs/13_PHASE2E_FIELD_TEST_PREFLIGHT_RECORD.md` contains enough verified information and authorization to schedule the genuine 24-hour field test. This document does not start the field test and does not authorize physical Phase 3 integration.
 
+Identifier rule: This readiness test uses `P2E-RD-01` through `P2E-RD-15`. Document 13 uses `P2E-BL-01` through `P2E-BL-09` for repository/software baseline checks and `PF-01` through `PF-15` for its final preflight checklist. The baseline checks and both 15-item checklists must pass before authorization.
+
 ## 1. Safety boundary
 
 - Run this readiness test before any WAN interruption, physical sensor connection, electrical work, or field-data collection.
@@ -40,7 +42,8 @@ Complete this section only in the private working copy.
 | Test lead |  |  |  |
 | Field-test operator |  |  |  |
 | Independent reviewer |  |  |  |
-| Site/safety contact and adult/lab supervisor |  |  |  |
+| Site/safety contact |  |  |  |
+| Adult/lab supervisor |  |  |  |
 | Backup/recovery witness |  |  |  |
 | Approved test location |  |  |  |
 | Proposed 24-hour window |  |  |  |
@@ -57,7 +60,9 @@ Complete this section only in the private working copy.
 
 ## 4. Required readiness checks
 
-### P2E-PF-01 — Operator assigned
+These readiness-check identifiers are intentionally different from the `PF-01` through `PF-15` identifiers in Document 13.
+
+### P2E-RD-01 — Operator assigned
 
 Pass criteria:
 
@@ -68,7 +73,7 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-02 — Independent reviewer assigned
+### P2E-RD-02 — Independent reviewer assigned
 
 Pass criteria:
 
@@ -80,7 +85,7 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-03 — Site/safety contact and adult/lab supervision approved
+### P2E-RD-03 — Site/safety contact and adult/lab supervision approved
 
 Pass criteria:
 
@@ -92,7 +97,7 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-04 — Test location approved
+### P2E-RD-04 — Test location approved
 
 Pass criteria:
 
@@ -104,7 +109,7 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-05 — Twenty-four-hour window approved
+### P2E-RD-05 — Twenty-four-hour window approved
 
 Pass criteria:
 
@@ -116,7 +121,7 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-06 — Gateway and network equipment identified
+### P2E-RD-06 — Gateway and network equipment identified
 
 Pass criteria:
 
@@ -131,7 +136,7 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-07 — Dedicated field database prepared
+### P2E-RD-07 — Dedicated field database prepared
 
 Pass criteria:
 
@@ -144,7 +149,7 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-08 — Evidence directory prepared
+### P2E-RD-08 — Evidence directory prepared
 
 Pass criteria:
 
@@ -159,7 +164,7 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-09 — Backup and recovery separation verified
+### P2E-RD-09 — Backup and recovery separation verified
 
 Pass criteria:
 
@@ -174,7 +179,7 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-10 — Rollback and stop conditions confirmed
+### P2E-RD-10 — Rollback and stop conditions confirmed
 
 Pass criteria:
 
@@ -188,7 +193,7 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-11 — Simulation separation confirmed
+### P2E-RD-11 — Simulation separation confirmed
 
 Pass criteria:
 
@@ -202,7 +207,7 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-12 — Privacy review completed
+### P2E-RD-12 — Privacy review completed
 
 Pass criteria:
 
@@ -214,11 +219,12 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-13 — Procedure and checkpoint review completed
+### P2E-RD-13 — Procedure and checkpoint review completed
 
 Pass criteria:
 
 - The operator, reviewer, and supervisor have reviewed `docs/12_PHASE2E_VERIFIED_FIELD_VALIDATION.md`.
+- All `PF-01` through `PF-15` items in `docs/13_PHASE2E_FIELD_TEST_PREFLIGHT_RECORD.md` are marked `PASS`, with 0 `BLOCKED` items.
 - The checkpoint schedule, evidence requirements, deviation process, and acceptance boundary are understood.
 - Responsibilities are assigned for the start, interim checkpoints, test end, backup, recovery, and review.
 - The pre-outage, during-outage, device-health, export-inspection, and restart-test activities use genuine approved records and responsible people.
@@ -228,13 +234,16 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-14 — Private approvals recorded
+### P2E-RD-14 — Private approvals recorded
 
 Pass criteria:
 
-- Operator approval is recorded in the private copy.
-- Independent reviewer approval is recorded in the private copy.
-- Test-lead, site/safety-contact, and adult/lab-supervisor approvals are recorded in the private copy.
+- Test-lead readiness is recorded in the private copy.
+- Field-operator acceptance is recorded in the private copy.
+- Independent-reviewer authorization is recorded in the private copy.
+- Site/safety-contact approval is recorded in the private copy.
+- Adult/lab-supervisor approval is recorded in the private copy. The same authorized person may serve as site/safety contact and supervisor only when formally permitted.
+- Backup/recovery-witness acknowledgement is recorded in the private copy.
 - The independent reviewer is separate from the field operator.
 - No signature image or personal contact information is placed in the public repository.
 
@@ -242,11 +251,11 @@ Result: `PASS / FAIL / BLOCKED`
 
 Evidence note:
 
-### P2E-PF-15 — Final go/no-go review completed
+### P2E-RD-15 — Final go/no-go review completed
 
 Pass criteria:
 
-- Checks P2E-PF-01 through P2E-PF-14 are all `PASS`.
+- Checks P2E-RD-01 through P2E-RD-14 are all `PASS`.
 - No unresolved deviation or safety concern remains.
 - The reviewer and supervisor agree that the test may be scheduled within the approved boundary.
 - The independent reviewer records `AUTHORIZED TO START PHASE 2E FIELD TEST` in the private controlled record.
@@ -274,7 +283,8 @@ The final result must be `NO-GO` if any of these conditions is true:
 
 | Metric | Value |
 | --- | --- |
-| Required checks | 15 |
+| Required readiness checks (`P2E-RD-*`) | 15 |
+| Underlying Document 13 preflight checks (`PF-*`) | 15 PASS / 0 BLOCKED required |
 | Checks passed |  |
 | Checks failed |  |
 | Checks blocked |  |
@@ -292,13 +302,16 @@ Otherwise = NO-GO
 
 Complete this section only in the private copy.
 
-| Role | Printed name | Decision | Date/time | Private signature or approval reference |
+| Role | Printed name | Required decision | Date/time | Private signature or approval reference |
 | --- | --- | --- | --- | --- |
-| Field-test operator |  | `GO / NO-GO` |  |  |
-| Independent reviewer |  | `GO / NO-GO` |  |  |
-| Site/safety contact and adult/lab supervisor |  | `GO / NO-GO` |  |  |
+| Test lead |  | `READY / BLOCKED` |  |  |
+| Field-test operator |  | `ACCEPTED / BLOCKED` |  |  |
+| Independent reviewer |  | `AUTHORIZED / BLOCKED` |  |  |
+| Site/safety contact |  | `APPROVED / BLOCKED` |  |  |
+| Adult/lab supervisor |  | `APPROVED / BLOCKED` |  |  |
+| Backup/recovery witness |  | `ACKNOWLEDGED / BLOCKED` |  |  |
 
-Final authorization requires three `GO` decisions and a passing test summary. A passing readiness test authorizes only the scheduled Phase 2E field-validation run within the approved boundary. It does not authorize physical Phase 3 sensor integration.
+Final authorization requires every role to record its required positive decision, all 15 readiness checks to pass, all 15 Document 13 preflight checks to pass, 0 blocked or failed checks, and 0 unresolved deviations. If the formally authorized site/safety contact also serves as the adult/lab supervisor, the same person may complete both role rows. A passing readiness test authorizes only the scheduled Phase 2E field-validation run within the approved boundary. It does not authorize physical Phase 3 sensor integration.
 
 ## 8. Sanitized public status block
 

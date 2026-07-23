@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "assessment_id": "AGQ-P2E-RD-YYYYMMDD-01",
+  "campaign_id": "AGQ-P2E-FIELD-YYYYMMDD-01",
+  "readiness_checks": {
+    "P2E-RD-01": "BLOCKED",
+    "P2E-RD-02": "BLOCKED",
+    "P2E-RD-03": "BLOCKED",
+    "P2E-RD-04": "BLOCKED",
+    "P2E-RD-05": "BLOCKED",
+    "P2E-RD-06": "BLOCKED",
+    "P2E-RD-07": "BLOCKED",
+    "P2E-RD-08": "BLOCKED",
+    "P2E-RD-09": "BLOCKED",
+    "P2E-RD-10": "BLOCKED",
+    "P2E-RD-11": "BLOCKED",
+    "P2E-RD-12": "BLOCKED",
+    "P2E-RD-13": "BLOCKED",
+    "P2E-RD-14": "BLOCKED",
+    "P2E-RD-15": "BLOCKED"
+  },
+  "preflight_checks": {
+    "PF-01": "BLOCKED",
+    "PF-02": "BLOCKED",
+    "PF-03": "BLOCKED",
+    "PF-04": "BLOCKED",
+    "PF-05": "BLOCKED",
+    "PF-06": "BLOCKED",
+    "PF-07": "BLOCKED",
+    "PF-08": "BLOCKED",
+    "PF-09": "BLOCKED",
+    "PF-10": "BLOCKED",
+    "PF-11": "BLOCKED",
+    "PF-12": "BLOCKED",
+    "PF-13": "BLOCKED",
+    "PF-14": "BLOCKED",
+    "PF-15": "BLOCKED"
+  },
+  "approvals": {
+    "test_lead": "BLOCKED",
+    "field_operator": "BLOCKED",
+    "independent_reviewer": "BLOCKED",
+    "site_safety_contact": "BLOCKED",
+    "adult_lab_supervisor": "BLOCKED",
+    "backup_recovery_witness": "BLOCKED"
+  },
+  "separation_of_duties_confirmed": false,
+  "unresolved_deviations": 0
+}

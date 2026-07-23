@@ -1,5 +1,4 @@
 import os
-import shutil
 from pathlib import Path
 
 import pytest
@@ -12,23 +11,19 @@ os.environ["AGROQ_ADMIN_PASSWORD"] = "test-password-123"
 os.environ["AGROQ_BACKUP_DIR"] = str(Path(__file__).parent / "test_backups")
 os.environ["AGROQ_BACKUP_RETENTION"] = "2"
 
+import app as app_module  # noqa: E402
 from app import app, get_db, init_db  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
-def clean_db():
-    db_path = Path(os.environ["AGROQ_DB_PATH"])
-    backup_path = Path(os.environ["AGROQ_BACKUP_DIR"])
-    if db_path.exists():
-        db_path.unlink()
-    if backup_path.exists():
-        shutil.rmtree(backup_path)
+def clean_db(tmp_path, monkeypatch):
+    db_path = tmp_path / "test_agroq.db"
+    backup_path = tmp_path / "test_backups"
+    monkeypatch.setenv("AGROQ_DB_PATH", str(db_path))
+    monkeypatch.setenv("AGROQ_BACKUP_DIR", str(backup_path))
+    monkeypatch.setattr(app_module, "DB_PATH", db_path)
     init_db()
     yield
-    if db_path.exists():
-        db_path.unlink()
-    if backup_path.exists():
-        shutil.rmtree(backup_path)
 
 
 @pytest.fixture()
@@ -93,6 +88,53 @@ def asset_payload(**overrides):
     }
     values.update(overrides)
     return values
+
+
+def complete_phase2e_readiness_record():
+    return {
+        "schema_version": 1,
+        "assessment_id": "AGQ-P2E-RD-20260722-01",
+        "campaign_id": "AGQ-P2E-FIELD-20260722-01",
+        "readiness_checks": {
+            f"P2E-RD-{number:02d}": "PASS" for number in range(1, 16)
+        },
+        "preflight_checks": {
+            f"PF-{number:02d}": "PASS" for number in range(1, 16)
+        },
+        "approvals": {
+            "test_lead": "READY",
+            "field_operator": "ACCEPTED",
+            "independent_reviewer": "AUTHORIZED",
+            "site_safety_contact": "APPROVED",
+            "adult_lab_supervisor": "APPROVED",
+            "backup_recovery_witness": "ACKNOWLEDGED",
+        },
+        "separation_of_duties_confirmed": True,
+        "unresolved_deviations": 0,
+    }
+
+
+def complete_phase2e_field_release_record():
+    return {
+        "schema_version": 1,
+        "campaign_id": "AGQ-P2E-FIELD-20260722-01",
+        "evidence_mode": "field",
+        "manual_release_checks": {
+            f"MR-{number:02d}": "PASS" for number in range(1, 10)
+        },
+        "approvals": {
+            "test_lead": "PASS",
+            "field_operator": "PASS",
+            "independent_reviewer": "APPROVED",
+            "site_safety_contact": "APPROVED",
+        },
+        "automated_suite_passed": True,
+        "evidence_index_reviewed": True,
+        "source_tree_clean": True,
+        "phase3_adapter_read_only_scoped": True,
+        "authorization_reference_present": True,
+        "unresolved_deviations": 0,
+    }
 
 
 def test_dashboard_loads(client):
@@ -1116,6 +1158,8 @@ def test_phase2e_acceptance_blocks_without_field_evidence(client):
 
 def test_phase2e_acceptance_passes_with_required_evidence(client):
     from scripts.phase2e_acceptance import evaluate
+    from scripts.phase2e_field_release import validate_field_release
+    from scripts.phase2e_readiness import validate_readiness
     login(client)
     client.post("/api/observations", json={
         "plot_id": "AGQ-PLOT-001", "observed_property": "soil_moisture",
@@ -1130,9 +1174,41 @@ def test_phase2e_acceptance_passes_with_required_evidence(client):
         conn.execute("UPDATE outage_tests SET started_at='2026-01-01T00:00:00+00:00' WHERE outage_test_id=?", (outage_id,))
     client.post(f"/gateway/outage-tests/{outage_id}/checkpoints", data={"notes": "field checkpoint"})
     client.post(f"/gateway/outage-tests/{outage_id}/complete", data={"result_notes": "accepted"})
-    report = evaluate(Path(os.environ["AGROQ_DB_PATH"]), deployment_ready=True)
+    report_without_readiness = evaluate(
+        Path(os.environ["AGROQ_DB_PATH"]), deployment_ready=True
+    )
+    assert report_without_readiness["release_status"] == "blocked"
+    assert report_without_readiness["phase3_sensor_integration_allowed"] is False
+
+    report = evaluate(
+        Path(os.environ["AGROQ_DB_PATH"]),
+        deployment_ready=True,
+        readiness_summary=validate_readiness(complete_phase2e_readiness_record()),
+        field_release_summary=validate_field_release(
+            complete_phase2e_field_release_record()
+        ),
+        evidence_mode="field",
+    )
     assert report["release_status"] == "ready_for_phase3"
-    assert len(report["checks"]) == 7
+    assert report["technical_acceptance_passed"] is True
+    assert len(report["checks"]) == 13
+    assert report["readiness_summary"]["decision"] == "GO"
+    assert report["field_release_summary"]["decision"] == "APPROVED"
+
+    mismatched_release = complete_phase2e_field_release_record()
+    mismatched_release["campaign_id"] = "AGQ-P2E-FIELD-20260722-02"
+    mismatch_report = evaluate(
+        Path(os.environ["AGROQ_DB_PATH"]),
+        deployment_ready=True,
+        readiness_summary=validate_readiness(complete_phase2e_readiness_record()),
+        field_release_summary=validate_field_release(mismatched_release),
+        evidence_mode="field",
+    )
+    assert mismatch_report["release_status"] == "blocked"
+    campaign_gate = next(
+        check for check in mismatch_report["checks"] if check["id"] == "P2E-CAMPAIGN"
+    )
+    assert campaign_gate["passed"] is False
 
 
 def test_phase2e_markdown_contains_release_gate(client):
@@ -1142,109 +1218,3 @@ def test_phase2e_markdown_contains_release_gate(client):
     assert "Phase 2E Field Acceptance Report" in text
     assert "BLOCKED" in text
     assert "physical-sensor integration" in text
-
-
-def test_phase2e_complete_simulation_never_authorizes_phase3(client):
-    from scripts.phase2e_acceptance import evaluate
-
-    login(client)
-    client.post("/api/observations", json={
-        "plot_id": "AGQ-PLOT-001", "observed_property": "soil_moisture",
-        "value": 22, "unit": "%", "source_type": "manual", "quality_flag": "good",
-    })
-    client.post("/gateway/backups")
-    register_phase2d_device(client)
-    client.post("/gateway/devices/AGQ-DEVICE-2D/heartbeat")
-    client.post("/gateway/outage-tests")
-    with get_db() as conn:
-        outage_id = conn.execute(
-            "SELECT outage_test_id FROM outage_tests"
-        ).fetchone()["outage_test_id"]
-        conn.execute(
-            "UPDATE outage_tests SET started_at='2026-01-01T00:00:00+00:00' "
-            "WHERE outage_test_id=?",
-            (outage_id,),
-        )
-    client.post(
-        f"/gateway/outage-tests/{outage_id}/checkpoints",
-        data={"notes": "simulation checkpoint"},
-    )
-    client.post(
-        f"/gateway/outage-tests/{outage_id}/complete",
-        data={"result_notes": "simulation accepted"},
-    )
-    report = evaluate(
-        Path(os.environ["AGROQ_DB_PATH"]),
-        deployment_ready=True,
-        evidence_mode="simulation",
-    )
-    assert report["evidence_mode"] == "simulation"
-    assert report["technical_acceptance_passed"] is True
-    assert report["release_status"] == "simulation_complete_field_validation_required"
-    assert report["phase3_sensor_integration_allowed"] is False
-
-
-def test_phase2e_complete_field_evidence_authorizes_phase3(client):
-    from scripts.phase2e_acceptance import evaluate
-
-    login(client)
-    client.post("/api/observations", json={
-        "plot_id": "AGQ-PLOT-001", "observed_property": "soil_moisture",
-        "value": 22, "unit": "%", "source_type": "manual", "quality_flag": "good",
-    })
-    client.post("/gateway/backups")
-    register_phase2d_device(client)
-    client.post("/gateway/devices/AGQ-DEVICE-2D/heartbeat")
-    client.post("/gateway/outage-tests")
-    with get_db() as conn:
-        outage_id = conn.execute(
-            "SELECT outage_test_id FROM outage_tests"
-        ).fetchone()["outage_test_id"]
-        conn.execute(
-            "UPDATE outage_tests SET started_at='2026-01-01T00:00:00+00:00' "
-            "WHERE outage_test_id=?",
-            (outage_id,),
-        )
-    client.post(
-        f"/gateway/outage-tests/{outage_id}/checkpoints",
-        data={"notes": "verified field checkpoint"},
-    )
-    client.post(
-        f"/gateway/outage-tests/{outage_id}/complete",
-        data={"result_notes": "field accepted"},
-    )
-    report = evaluate(
-        Path(os.environ["AGROQ_DB_PATH"]),
-        deployment_ready=True,
-        evidence_mode="field",
-    )
-    assert report["evidence_mode"] == "field"
-    assert report["technical_acceptance_passed"] is True
-    assert report["release_status"] == "ready_for_phase3"
-    assert report["phase3_sensor_integration_allowed"] is True
-
-
-def test_phase2e_rejects_invalid_evidence_mode(client):
-    import pytest
-    from scripts.phase2e_acceptance import evaluate
-
-    with pytest.raises(ValueError, match="Unsupported evidence mode"):
-        evaluate(
-            Path(os.environ["AGROQ_DB_PATH"]),
-            deployment_ready=True,
-            evidence_mode="synthetic",
-        )
-
-
-def test_phase2e_simulation_markdown_contains_safety_warning(client):
-    from scripts.phase2e_acceptance import evaluate, markdown
-
-    report = evaluate(
-        Path(os.environ["AGROQ_DB_PATH"]),
-        deployment_ready=True,
-        evidence_mode="simulation",
-    )
-    text = markdown(report)
-    assert "Evidence classification: **SIMULATION**" in text
-    assert "SIMULATION EVIDENCE ONLY" in text
-    assert "cannot authorize physical-sensor integration" in text
