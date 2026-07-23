@@ -4,6 +4,8 @@
 AGENTS.md
 README.md
 app.py
+config/phase2e_readiness_summary.example.json
+config/phase2e_field_release.example.json
 run_gateway_windows.bat
 data/assets_template.csv
 data/experiments_template.csv
@@ -54,4 +56,11 @@ templates/sync_conflicts.html
 templates/gateway_status.html
 tests/test_app.py
 scripts/phase2e_acceptance.py
+scripts/phase2e_field_release.py
+scripts/phase2e_readiness.py
+tests/test_phase2e_field_release.py
+tests/test_phase2e_readiness.py
 docs/11_PHASE2_FIELD_ACCEPTANCE.md
+docs/12_PHASE2E_VERIFIED_FIELD_VALIDATION.md
+docs/13_PHASE2E_FIELD_TEST_PREFLIGHT_RECORD.md
+docs/14_PHASE2E_PREFLIGHT_READINESS_TEST.md

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "campaign_id": "AGQ-P2E-FIELD-YYYYMMDD-01",
+  "evidence_mode": "field",
+  "manual_release_checks": {
+    "MR-01": "BLOCKED",
+    "MR-02": "BLOCKED",
+    "MR-03": "BLOCKED",
+    "MR-04": "BLOCKED",
+    "MR-05": "BLOCKED",
+    "MR-06": "BLOCKED",
+    "MR-07": "BLOCKED",
+    "MR-08": "BLOCKED",
+    "MR-09": "BLOCKED"
+  },
+  "approvals": {
+    "test_lead": "BLOCKED",
+    "field_operator": "BLOCKED",
+    "independent_reviewer": "BLOCKED",
+    "site_safety_contact": "BLOCKED"
+  },
+  "automated_suite_passed": false,
+  "evidence_index_reviewed": false,
+  "source_tree_clean": false,
+  "phase3_adapter_read_only_scoped": false,
+  "authorization_reference_present": false,
+  "unresolved_deviations": 0
+}

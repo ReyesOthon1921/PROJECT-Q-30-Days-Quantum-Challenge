@@ -7,3 +7,7 @@ backups/
 *.db
 .DS_Store
 .env
+*phase2e_readiness_private*.json
+*phase2e-readiness-private*.json
+*phase2e_field_release_private*.json
+*phase2e-field-release-private*.json

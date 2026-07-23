@@ -252,6 +252,43 @@ For each branch:
 6. Merge only after the manual workflow still works.
 # Phase 2E acceptance
 
-After completing real field evidence, run `python scripts/phase2e_acceptance.py`.
+After completing the private Documents 13 and 14 process, copy the blocked
+readiness template outside Git:
+
+```bat
+mkdir "%USERPROFILE%\Documents\AgroQ-Private\Phase2E"
+copy /Y "config\phase2e_readiness_summary.example.json" "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_readiness_private.json"
+```
+
+Enter only the non-sensitive results supported by the signed private records,
+then validate the summary:
+
+```bat
+python scripts\phase2e_readiness.py --input "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_readiness_private.json"
+```
+
+After completing real field evidence, generate the preliminary technical report:
+
+```bat
+python scripts\phase2e_acceptance.py --evidence-mode field --readiness "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_readiness_private.json" --db "instance\agroq_phase2_field_validation.db"
+```
+
+This preliminary report must remain blocked until the independent post-field
+review is completed. After MR-01 through MR-09 and the Document 12 final
+approvals pass, copy and complete the private post-field summary:
+
+```bat
+copy /Y "config\phase2e_field_release.example.json" "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_field_release_private.json"
+python scripts\phase2e_field_release.py --input "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_field_release_private.json"
+```
+
+Then run the final combined release gate:
+
+```bat
+python scripts\phase2e_acceptance.py --evidence-mode field --readiness "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_readiness_private.json" --field-release "%USERPROFILE%\Documents\AgroQ-Private\Phase2E\phase2e_field_release_private.json" --db "instance\agroq_phase2_field_validation.db"
+```
+
 See `docs/11_PHASE2_FIELD_ACCEPTANCE.md`. A blocked report prevents Phase 3
-sensor integration; it is not an application failure.
+sensor integration; it is not an application failure. Neither JSON summary is a
+replacement for signed human records. Do not add identities, signatures,
+addresses, credentials, IP information, or private paths.
