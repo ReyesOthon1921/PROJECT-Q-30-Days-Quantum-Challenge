@@ -1142,3 +1142,109 @@ def test_phase2e_markdown_contains_release_gate(client):
     assert "Phase 2E Field Acceptance Report" in text
     assert "BLOCKED" in text
     assert "physical-sensor integration" in text
+
+
+def test_phase2e_complete_simulation_never_authorizes_phase3(client):
+    from scripts.phase2e_acceptance import evaluate
+
+    login(client)
+    client.post("/api/observations", json={
+        "plot_id": "AGQ-PLOT-001", "observed_property": "soil_moisture",
+        "value": 22, "unit": "%", "source_type": "manual", "quality_flag": "good",
+    })
+    client.post("/gateway/backups")
+    register_phase2d_device(client)
+    client.post("/gateway/devices/AGQ-DEVICE-2D/heartbeat")
+    client.post("/gateway/outage-tests")
+    with get_db() as conn:
+        outage_id = conn.execute(
+            "SELECT outage_test_id FROM outage_tests"
+        ).fetchone()["outage_test_id"]
+        conn.execute(
+            "UPDATE outage_tests SET started_at='2026-01-01T00:00:00+00:00' "
+            "WHERE outage_test_id=?",
+            (outage_id,),
+        )
+    client.post(
+        f"/gateway/outage-tests/{outage_id}/checkpoints",
+        data={"notes": "simulation checkpoint"},
+    )
+    client.post(
+        f"/gateway/outage-tests/{outage_id}/complete",
+        data={"result_notes": "simulation accepted"},
+    )
+    report = evaluate(
+        Path(os.environ["AGROQ_DB_PATH"]),
+        deployment_ready=True,
+        evidence_mode="simulation",
+    )
+    assert report["evidence_mode"] == "simulation"
+    assert report["technical_acceptance_passed"] is True
+    assert report["release_status"] == "simulation_complete_field_validation_required"
+    assert report["phase3_sensor_integration_allowed"] is False
+
+
+def test_phase2e_complete_field_evidence_authorizes_phase3(client):
+    from scripts.phase2e_acceptance import evaluate
+
+    login(client)
+    client.post("/api/observations", json={
+        "plot_id": "AGQ-PLOT-001", "observed_property": "soil_moisture",
+        "value": 22, "unit": "%", "source_type": "manual", "quality_flag": "good",
+    })
+    client.post("/gateway/backups")
+    register_phase2d_device(client)
+    client.post("/gateway/devices/AGQ-DEVICE-2D/heartbeat")
+    client.post("/gateway/outage-tests")
+    with get_db() as conn:
+        outage_id = conn.execute(
+            "SELECT outage_test_id FROM outage_tests"
+        ).fetchone()["outage_test_id"]
+        conn.execute(
+            "UPDATE outage_tests SET started_at='2026-01-01T00:00:00+00:00' "
+            "WHERE outage_test_id=?",
+            (outage_id,),
+        )
+    client.post(
+        f"/gateway/outage-tests/{outage_id}/checkpoints",
+        data={"notes": "verified field checkpoint"},
+    )
+    client.post(
+        f"/gateway/outage-tests/{outage_id}/complete",
+        data={"result_notes": "field accepted"},
+    )
+    report = evaluate(
+        Path(os.environ["AGROQ_DB_PATH"]),
+        deployment_ready=True,
+        evidence_mode="field",
+    )
+    assert report["evidence_mode"] == "field"
+    assert report["technical_acceptance_passed"] is True
+    assert report["release_status"] == "ready_for_phase3"
+    assert report["phase3_sensor_integration_allowed"] is True
+
+
+def test_phase2e_rejects_invalid_evidence_mode(client):
+    import pytest
+    from scripts.phase2e_acceptance import evaluate
+
+    with pytest.raises(ValueError, match="Unsupported evidence mode"):
+        evaluate(
+            Path(os.environ["AGROQ_DB_PATH"]),
+            deployment_ready=True,
+            evidence_mode="synthetic",
+        )
+
+
+def test_phase2e_simulation_markdown_contains_safety_warning(client):
+    from scripts.phase2e_acceptance import evaluate, markdown
+
+    report = evaluate(
+        Path(os.environ["AGROQ_DB_PATH"]),
+        deployment_ready=True,
+        evidence_mode="simulation",
+    )
+    text = markdown(report)
+    assert "Evidence classification: **SIMULATION**" in text
+    assert "SIMULATION EVIDENCE ONLY" in text
+    assert "cannot authorize physical-sensor integration" in text
