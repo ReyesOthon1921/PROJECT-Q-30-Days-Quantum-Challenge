@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07110d">
+  <title>Redeem Invitation — AgroQ</title>
+  <link rel="stylesheet" href="{ url_for('static', filename='access.css') }">
+</head>
+<body>
+
+<header class="access-header">
+  <a class="access-brand" href="{{ url_for('access_portal') }}">
+    <span class="brand-mark">AQ</span>
+    <span><strong>AgroQ</strong><small>Invitation access</small></span>
+  </a>
+  <nav><a href="{{ url_for('login') }}">Sign in</a></nav>
+</header>
+
+<main class="center-shell wide">
+  <section class="access-form-card">
+    <p class="eyebrow">TEMPORARY INVITATION</p>
+    <h1>Redeem an AgroQ access code</h1>
+    <p class="muted">Codes expire, have limited uses, and cannot create public administrator accounts.</p>
+
+    {% if errors %}
+    <div class="error-box">{% for error in errors %}<p>{{ error }}</p>{% endfor %}</div>
+    {% endif %}
+
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ access_csrf_token }}">
+      <label>Invitation code
+        <input name="code" value="{{ code }}" required autocomplete="off">
+      </label>
+
+      {% if invite and not errors %}
+      <input type="hidden" name="action" value="create">
+      <div class="invite-summary">
+        <strong>{{ access_relationship_types[invite.relationship_type] }}</strong>
+        <span>Application role: {{ invite.role }}</span>
+        <span>Expires: {{ invite.expires_at }}</span>
+      </div>
+      <div class="form-grid">
+        <label>Username *
+          <input name="username" minlength="3" maxlength="40" required>
+        </label>
+        <label>Display name *
+          <input name="display_name" maxlength="120" required>
+        </label>
+        <label>Email *
+          <input name="email" type="email" maxlength="180" value="{{ invite.email or '' }}" required>
+        </label>
+        <label>Organization
+          <input name="organization" maxlength="180">
+        </label>
+        <label>Role or title
+          <input name="role_title" maxlength="160">
+        </label>
+        <label>Password *
+          <input name="password" type="password" minlength="12" required>
+        </label>
+        <label>Confirm password *
+          <input name="password_confirm" type="password" minlength="12" required>
+        </label>
+      </div>
+      <button class="primary-button" type="submit">Create my profile</button>
+      {% else %}
+      <input type="hidden" name="action" value="validate">
+      <button class="primary-button" type="submit">Validate invitation</button>
+      {% endif %}
+    </form>
+  </section>
+</main>
+</body>
+</html>

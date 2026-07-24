@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#163226">
   <title>Sign in — AgroQ</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='access.css') }}">
 </head>
 <body class="login-page">
   <main class="login-shell">
@@ -38,6 +39,12 @@
         </label>
         <button type="submit" class="primary-button login-submit">Sign in</button>
       </form>
+
+      <div class="form-actions">
+        <a class="secondary-button" href="{{ url_for('access_portal') }}">Request access</a>
+        <a class="secondary-button" href="{{ url_for('redeem_invite') }}">Redeem invitation</a>
+        <a class="secondary-button" href="{{ url_for('beta_reserve') }}">Join the beta</a>
+      </div>
 
       <p class="login-footnote">
         Development deployments ship with local-only defaults. Change credentials before any shared or production use.

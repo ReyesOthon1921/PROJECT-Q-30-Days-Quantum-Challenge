@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07110d">
+  <title>Beta Reservation — AgroQ</title>
+  <link rel="stylesheet" href="{ url_for('static', filename='access.css') }">
+</head>
+<body>
+
+<header class="access-header">
+  <a class="access-brand" href="{{ url_for('access_portal') }}">
+    <span class="brand-mark">AQ</span>
+    <span><strong>AgroQ</strong><small>Beta reservation</small></span>
+  </a>
+  <nav><a href="{{ url_for('access_portal') }}">Access portal</a></nav>
+</header>
+
+<main class="center-shell wide">
+  <section class="access-form-card">
+    <p class="eyebrow">BETA RESERVATION</p>
+    <h1>Reserve early access to the AgroQ beta.</h1>
+    <p class="muted">AgroQ records your interest. Any optional deposit is completed through a hosted payment page.</p>
+
+    {% if submitted %}
+    <div class="success-box">
+      <strong>Reservation interest recorded.</strong>
+      <span>Reference: {{ reservation_id }}</span>
+    </div>
+    {% if beta_deposit_url %}
+    <a class="primary-button" href="{{ beta_deposit_url }}" rel="noopener noreferrer">Continue to secure hosted deposit</a>
+    {% else %}
+    <p class="muted">The hosted deposit link has not been enabled yet.</p>
+    {% endif %}
+    {% else %}
+    {% if errors %}
+    <div class="error-box">{% for error in errors %}<p>{{ error }}</p>{% endfor %}</div>
+    {% endif %}
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ access_csrf_token }}">
+      <div class="form-grid">
+        <label>Full name *
+          <input name="full_name" maxlength="120" required>
+        </label>
+        <label>Email *
+          <input name="email" type="email" maxlength="180" required>
+        </label>
+      </div>
+      <label>Notes
+        <textarea name="notes" maxlength="1500" rows="4"></textarea>
+      </label>
+      <button class="primary-button" type="submit">Record my beta reservation</button>
+    </form>
+    {% endif %}
+  </section>
+</main>
+</body>
+</html>

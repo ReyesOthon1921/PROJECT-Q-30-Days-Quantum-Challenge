@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: agroq-controlled-beta
+    runtime: docker
+    plan: starter
+    region: oregon
+    branch: main
+    dockerfilePath: ./agroq-lab/Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeployTrigger: checksPass
+    maxShutdownDelaySeconds: 60
+    disk:
+      name: agroq-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: AGROQ_DEPLOYMENT_MODE
+        value: production
+      - key: AGROQ_BIND_HOST
+        value: 0.0.0.0
+      - key: AGROQ_DEBUG
+        value: "false"
+      - key: AGROQ_SECRET_KEY
+        generateValue: true
+      - key: AGROQ_ADMIN_USERNAME
+        value: admin
+      - key: AGROQ_ADMIN_PASSWORD
+        sync: false
+      - key: AGROQ_NCBI_EMAIL
+        sync: false
+      - key: AGROQ_DB_PATH
+        value: /app/data/agroq.db
+      - key: AGROQ_BACKUP_DIR
+        value: /app/data/backups
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: GUNICORN_THREADS
+        value: "4"

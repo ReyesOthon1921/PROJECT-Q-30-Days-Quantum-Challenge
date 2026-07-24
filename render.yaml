@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: agroq-living-systems-lab
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: phase3-6-investor-prototype
+    dockerfilePath: ./agroq-lab/Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeployTrigger: off
+    maxShutdownDelaySeconds: 30
+    envVars:
+      - key: AGROQ_DEPLOYMENT_MODE
+        value: production
+      - key: AGROQ_BIND_HOST
+        value: 0.0.0.0
+      - key: AGROQ_DEBUG
+        value: "false"
+      - key: AGROQ_SECRET_KEY
+        generateValue: true
+      - key: AGROQ_ADMIN_USERNAME
+        value: admin
+      - key: AGROQ_ADMIN_PASSWORD
+        sync: false
+      - key: AGROQ_NCBI_EMAIL
+        sync: false
+      - key: AGROQ_DB_PATH
+        value: /app/instance/agroq.db
+      - key: WEB_CONCURRENCY
+        value: "2"
+      - key: GUNICORN_THREADS
+        value: "4"

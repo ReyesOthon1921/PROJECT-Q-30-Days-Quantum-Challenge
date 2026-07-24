@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07110d">
+  <title>Temporary Administrator Sign-In — AgroQ</title>
+  <link rel="stylesheet" href="{ url_for('static', filename='access.css') }">
+</head>
+<body>
+
+<main class="center-shell">
+  <section class="confirmation-card">
+    <p class="eyebrow">ONE-TIME ADMINISTRATOR LINK</p>
+    {% if error %}
+    <h1>Sign-in unavailable</h1>
+    <div class="error-box"><p>{{ error }}</p></div>
+    <a class="secondary-button" href="{{ url_for('login') }}">Use password sign-in</a>
+    {% else %}
+    <h1>Continue as {{ token_row.display_name }}</h1>
+    <p>This link expires at {{ token_row.expires_at }} and can be used once.</p>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ access_csrf_token }}">
+      <input type="hidden" name="token" value="{{ token }}">
+      <button class="primary-button" type="submit">Use one-time administrator access</button>
+    </form>
+    {% endif %}
+  </section>
+</main>
+</body>
+</html>

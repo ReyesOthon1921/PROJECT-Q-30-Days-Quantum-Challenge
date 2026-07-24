@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+{% block title %}Admin Notifications | AgroQ{% endblock %}
+{% block content %}
+<section class="notification-shell">
+  <header class="notification-hero">
+    <div>
+      <p class="notification-eyebrow">Founder administrator workspace</p>
+      <h1>Mobile Notification Center</h1>
+      <p>
+        Monitor sign-ins, access activity, invitation use, account changes,
+        password events, and system warnings from one administrator-only page.
+      </p>
+    </div>
+    <div class="notification-status" aria-live="polite">
+      <strong id="unread-count">0</strong>
+      <span>unread</span>
+    </div>
+  </header>
+
+  <section class="notification-truth" aria-label="Notification safety boundaries">
+    <span>Passwords and PINs are never included</span>
+    <span>Administrator-only</span>
+    <span>Durable audit-backed events</span>
+    <span>HTTPS required for background phone push</span>
+  </section>
+
+  <section class="notification-grid">
+    <article class="notification-panel notification-panel--controls">
+      <div class="panel-heading">
+        <div>
+          <p class="notification-eyebrow">Delivery controls</p>
+          <h2>Where should AgroQ notify you?</h2>
+          <p class="panel-intro">
+            Turn channels on or off. Each option clearly shows whether the
+            supporting service is ready.
+          </p>
+        </div>
+        <button id="test-notification" class="button button--secondary" type="button">
+          Send test
+        </button>
+      </div>
+
+      <form id="notification-preferences">
+        <fieldset class="switch-group">
+          <legend>Delivery channels</legend>
+
+          <div class="switch-card switch-card--ready">
+            <div class="switch-card__copy">
+              <div class="switch-card__heading">
+                <span class="switch-card__title">In-app administrator inbox</span>
+                <span class="status-pill status-pill--ready">Ready</span>
+              </div>
+              <p>Always keeps a durable record inside the administrator workspace.</p>
+            </div>
+            <label class="switch-control" for="in-app-enabled">
+              <input
+                id="in-app-enabled"
+                type="checkbox"
+                name="in_app_enabled"
+                role="switch"
+                checked
+              >
+              <span class="switch-track" aria-hidden="true">
+                <span class="switch-thumb"></span>
+              </span>
+              <span class="switch-state" aria-hidden="true">
+                <span class="switch-state--on">On</span>
+                <span class="switch-state--off">Off</span>
+              </span>
+            </label>
+          </div>
+
+          <div class="switch-card {{ '' if smtp_configured else 'switch-card--unavailable' }}">
+            <div class="switch-card__copy">
+              <div class="switch-card__heading">
+                <span class="switch-card__title">Email notifications</span>
+                <span class="status-pill {{ 'status-pill--ready' if smtp_configured else 'status-pill--setup' }}">
+                  {{ "Ready" if smtp_configured else "Setup required" }}
+                </span>
+              </div>
+              <p>
+                Sends selected administrator alerts to your configured email address.
+                SMTP credentials stay in environment variables.
+              </p>
+              <label class="field-label" for="notification-email">Administrator email</label>
+              <input
+                id="notification-email"
+                class="text-field"
+                type="email"
+                name="email_address"
+                value="reyesothon1921@gmail.com"
+                autocomplete="email"
+                placeholder="Administrator email"
+              >
+            </div>
+            <label class="switch-control" for="email-enabled">
+              <input
+                id="email-enabled"
+                type="checkbox"
+                name="email_enabled"
+                role="switch"
+                {% if not smtp_configured %}disabled aria-describedby="email-setup-note"{% endif %}
+              >
+              <span class="switch-track" aria-hidden="true">
+                <span class="switch-thumb"></span>
+              </span>
+              <span class="switch-state" aria-hidden="true">
+                <span class="switch-state--on">On</span>
+                <span class="switch-state--off">Off</span>
+              </span>
+            </label>
+            {% if not smtp_configured %}
+            <p id="email-setup-note" class="setup-note">
+              Add the SMTP environment settings before enabling this channel.
+            </p>
+            {% endif %}
+          </div>
+
+          <div class="switch-card {{ '' if webhook_configured else 'switch-card--unavailable' }}">
+            <div class="switch-card__copy">
+              <div class="switch-card__heading">
+                <span class="switch-card__title">External HTTPS messaging webhook</span>
+                <span class="status-pill {{ 'status-pill--ready' if webhook_configured else 'status-pill--setup' }}">
+                  {{ "Ready" if webhook_configured else "Setup required" }}
+                </span>
+              </div>
+              <p>
+                Connects AgroQ to an approved external messaging service through
+                a server-side HTTPS webhook.
+              </p>
+            </div>
+            <label class="switch-control" for="webhook-enabled">
+              <input
+                id="webhook-enabled"
+                type="checkbox"
+                name="webhook_enabled"
+                role="switch"
+                {% if not webhook_configured %}disabled aria-describedby="webhook-setup-note"{% endif %}
+              >
+              <span class="switch-track" aria-hidden="true">
+                <span class="switch-thumb"></span>
+              </span>
+              <span class="switch-state" aria-hidden="true">
+                <span class="switch-state--on">On</span>
+                <span class="switch-state--off">Off</span>
+              </span>
+            </label>
+            {% if not webhook_configured %}
+            <p id="webhook-setup-note" class="setup-note">
+              Add an approved HTTPS webhook URL before enabling this channel.
+            </p>
+            {% endif %}
+          </div>
+
+          <div class="switch-card {{ '' if vapid_configured else 'switch-card--unavailable' }}">
+            <div class="switch-card__copy">
+              <div class="switch-card__heading">
+                <span class="switch-card__title">Background browser push</span>
+                <span class="status-pill {{ 'status-pill--ready' if vapid_configured else 'status-pill--setup' }}">
+                  {{ "Ready" if vapid_configured else "Setup required" }}
+                </span>
+              </div>
+              <p>
+                Sends encrypted browser notifications to a subscribed phone or
+                computer after HTTPS and VAPID are configured.
+              </p>
+            </div>
+            <label class="switch-control" for="web-push-enabled">
+              <input
+                id="web-push-enabled"
+                type="checkbox"
+                name="web_push_enabled"
+                role="switch"
+                {% if not vapid_configured %}disabled aria-describedby="push-setup-note"{% endif %}
+              >
+              <span class="switch-track" aria-hidden="true">
+                <span class="switch-thumb"></span>
+              </span>
+              <span class="switch-state" aria-hidden="true">
+                <span class="switch-state--on">On</span>
+                <span class="switch-state--off">Off</span>
+              </span>
+            </label>
+            {% if not vapid_configured %}
+            <p id="push-setup-note" class="setup-note">
+              Configure HTTPS and VAPID keys before subscribing this device.
+            </p>
+            {% endif %}
+          </div>
+        </fieldset>
+
+        <div class="preference-row">
+          <div>
+            <label class="field-label" for="digest-mode">Digest mode</label>
+            <p>Choose immediate alerts or group them into a scheduled digest.</p>
+          </div>
+          <select id="digest-mode" class="select-field" name="digest_mode">
+            <option value="immediate">Immediate</option>
+            <option value="hourly">Hourly</option>
+            <option value="daily">Daily</option>
+          </select>
+        </div>
+
+        <fieldset class="switch-group switch-group--compact">
+          <legend>Events to notify you about</legend>
+
+          <label class="event-option" for="notify-login-success">
+            <span>
+              <strong>Successful sign-ins</strong>
+              <small>Records who entered the platform and when.</small>
+            </span>
+            <span class="event-check">
+              <input
+                id="notify-login-success"
+                type="checkbox"
+                name="notify_login_success"
+                checked
+              >
+              <span class="check-visual" aria-hidden="true">✓</span>
+            </span>
+          </label>
+
+          <label class="event-option" for="notify-login-failure">
+            <span>
+              <strong>Failed sign-ins</strong>
+              <small>Highlights unsuccessful authentication attempts.</small>
+            </span>
+            <span class="event-check">
+              <input
+                id="notify-login-failure"
+                type="checkbox"
+                name="notify_login_failure"
+                checked
+              >
+              <span class="check-visual" aria-hidden="true">✓</span>
+            </span>
+          </label>
+
+          <label class="event-option" for="notify-access-changes">
+            <span>
+              <strong>Access, invitations, accounts, and roles</strong>
+              <small>Includes new requests, invite use, account changes, and role updates.</small>
+            </span>
+            <span class="event-check">
+              <input
+                id="notify-access-changes"
+                type="checkbox"
+                name="notify_access_changes"
+                checked
+              >
+              <span class="check-visual" aria-hidden="true">✓</span>
+            </span>
+          </label>
+
+          <label class="event-option" for="notify-password-changes">
+            <span>
+              <strong>Password activity</strong>
+              <small>Records password-related events without storing the password.</small>
+            </span>
+            <span class="event-check">
+              <input
+                id="notify-password-changes"
+                type="checkbox"
+                name="notify_password_changes"
+                checked
+              >
+              <span class="check-visual" aria-hidden="true">✓</span>
+            </span>
+          </label>
+        </fieldset>
+
+        <div class="form-actions">
+          <button class="button button--primary" type="submit">
+            Save notification settings
+          </button>
+          <span id="settings-save-status" class="save-status" aria-live="polite"></span>
+        </div>
+      </form>
+
+      <section class="delivery-readiness" aria-labelledby="delivery-readiness-title">
+        <div>
+          <p class="notification-eyebrow">Delivery readiness</p>
+          <h3 id="delivery-readiness-title">Channel status</h3>
+        </div>
+        <div class="readiness-grid">
+          <div>
+            <span>In-app</span>
+            <strong class="ready-text">Ready</strong>
+          </div>
+          <div>
+            <span>Email adapter</span>
+            <strong>{{ "Ready" if smtp_configured else "Needs SMTP settings" }}</strong>
+          </div>
+          <div>
+            <span>Webhook adapter</span>
+            <strong>{{ "Ready" if webhook_configured else "Needs HTTPS webhook" }}</strong>
+          </div>
+          <div>
+            <span>Web Push</span>
+            <strong>{{ "Ready" if vapid_configured else "Needs VAPID and HTTPS" }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <button
+        id="enable-phone-push"
+        class="button button--device"
+        type="button"
+        {% if not vapid_configured %}disabled{% endif %}
+      >
+        Enable notifications on this device
+      </button>
+      <p id="push-result" class="small-note" aria-live="polite">
+        {% if not vapid_configured %}
+        Web Push keys are not configured yet. In-app notifications still work.
+        {% endif %}
+      </p>
+    </article>
+
+    <article class="notification-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="notification-eyebrow">Architecture</p>
+          <h2>Event-driven delivery pipeline</h2>
+        </div>
+      </div>
+      <img
+        class="notification-diagram"
+        src="{{ url_for('static', filename='admin-notification-architecture.svg') }}"
+        alt="AgroQ administrator notification architecture"
+      >
+      <p class="small-note">
+        Events are stored first, then delivered through independently
+        configurable channels. A failed external channel does not erase the
+        in-app record.
+      </p>
+    </article>
+  </section>
+
+  <section class="notification-panel">
+    <div class="panel-heading">
+      <div>
+        <p class="notification-eyebrow">Security and access activity</p>
+        <h2>Administrator inbox</h2>
+      </div>
+      <button id="acknowledge-all" class="button button--secondary" type="button">
+        Mark all reviewed
+      </button>
+    </div>
+    <div id="notification-list" class="notification-list">
+      <p>Loading administrator notifications…</p>
+    </div>
+  </section>
+</section>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='admin-notifications.css') }}">
+<script src="{{ url_for('static', filename='admin-notifications.js') }}" defer></script>
+{% endblock %}

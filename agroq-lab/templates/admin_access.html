@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07110d">
+  <title>Access Administration — AgroQ</title>
+  <link rel="stylesheet" href="{ url_for('static', filename='access.css') }">
+</head>
+<body>
+
+<header class="access-header">
+  <a class="access-brand" href="{{ url_for('dashboard') }}">
+    <span class="brand-mark">AQ</span>
+    <span><strong>AgroQ</strong><small>Access administration</small></span>
+  </a>
+  <nav>
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('account_profile') }}">My profile</a>
+  </nav>
+</header>
+
+<main class="access-main">
+  <section class="admin-hero">
+    <div>
+      <p class="eyebrow">ADMINISTRATOR</p>
+      <h1>Access, invitations, profiles, and beta interest</h1>
+    </div>
+    <span class="security-label">Administrator only</span>
+  </section>
+
+  {% if generated_code %}
+  <section class="generated-code">
+    <strong>Copy this invitation now. It will not be displayed again.</strong>
+    <code>{{ generated_code }}</code>
+    <p>Redeem at: {{ url_for('redeem_invite', _external=True) }}</p>
+  </section>
+  {% endif %}
+
+  <section class="admin-grid">
+    <article class="access-form-card">
+      <p class="eyebrow">CREATE INVITATION</p>
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ access_csrf_token }}">
+        <label>Relationship
+          <select name="relationship_type">
+            {% for key,label in access_relationship_types.items() %}
+            <option value="{{ key }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Application role
+          <select name="role">
+            <option value="viewer">Viewer</option>
+            <option value="researcher">Researcher</option>
+            <option value="field_operator">Field operator</option>
+          </select>
+        </label>
+        <label>Email restriction, optional
+          <input name="email" type="email">
+        </label>
+        <div class="form-grid">
+          <label>Expires in days
+            <input name="expires_days" type="number" min="1" max="90" value="14">
+          </label>
+          <label>Maximum uses
+            <input name="max_uses" type="number" min="1" max="25" value="1">
+          </label>
+        </div>
+        <label>Internal note
+          <textarea name="note" maxlength="1000" rows="3"></textarea>
+        </label>
+        <button class="primary-button" type="submit">Generate invitation</button>
+      </form>
+    </article>
+
+    <article class="access-form-card">
+      <p class="eyebrow">SUMMARY</p>
+      <div class="summary-list">
+        <div><span>Access requests</span><strong>{{ requests|length }}</strong></div>
+        <div><span>Invitations</span><strong>{{ invites|length }}</strong></div>
+        <div><span>Beta reservations</span><strong>{{ reservations|length }}</strong></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="data-card">
+    <h2>Access requests</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Person</th><th>Type</th><th>Status</th><th>Created</th></tr></thead>
+        <tbody>
+          {% for item in requests %}
+          <tr>
+            <td><strong>{{ item.full_name }}</strong><small>{{ item.email }}</small></td>
+            <td>{{ item.relationship_type }}</td>
+            <td>{{ item.status }}</td>
+            <td>{{ item.created_at }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4">No access requests yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="data-card">
+    <h2>Invitations</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Hint</th><th>Type</th><th>Role</th><th>Uses</th><th>Expires</th><th>Active</th></tr></thead>
+        <tbody>
+          {% for item in invites %}
+          <tr>
+            <td>…{{ item.code_hint }}</td>
+            <td>{{ item.relationship_type }}</td>
+            <td>{{ item.role }}</td>
+            <td>{{ item.use_count }}/{{ item.max_uses }}</td>
+            <td>{{ item.expires_at }}</td>
+            <td>{{ 'Yes' if item.active else 'No' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6">No invitations yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+</body>
+</html>

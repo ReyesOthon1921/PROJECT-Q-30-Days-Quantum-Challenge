@@ -1,0 +1,9 @@
+.access-community-hero{padding:36px;background:radial-gradient(circle at 85% 20%,rgba(92,241,160,.15),transparent 28%),linear-gradient(145deg,rgba(18,45,34,.92),rgba(8,23,16,.94))}
+.access-community-hero h2{margin:9px 0 13px;font-size:clamp(2rem,4vw,3.8rem);letter-spacing:-.045em}
+.access-community-hero p{max-width:780px;margin:0;color:var(--muted);line-height:1.7}
+.access-entry-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.access-entry-card{padding:21px}.access-entry-card h3{margin:17px 0 8px}.access-entry-card p{min-height:58px;color:var(--muted);font-size:.76rem;line-height:1.55}
+.access-entry-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:14px;color:var(--green);background:rgba(92,241,160,.09);border:1px solid rgba(92,241,160,.16)}
+.access-beta-card{padding:26px}.access-beta-card p{color:var(--muted);line-height:1.65}
+@media(max-width:1080px){.access-entry-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.access-entry-grid{grid-template-columns:1fr}.access-community-hero{padding:25px 22px}}

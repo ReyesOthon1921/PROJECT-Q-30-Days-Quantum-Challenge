@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Founder Control Center | AgroQ{% endblock %}
+{% block content %}
+<section class="page-header"><div><p class="eyebrow">Administrator-only workspace</p><h1>Founder Control Center</h1><p>Manage access, experiments, sequence evidence, audits, and system operations.</p></div></section>
+<div class="card-grid">{% for name, value in counts.items() %}<article class="card"><span class="eyebrow">{{ name.replace('_',' ') }}</span><h2>{{ value }}</h2></article>{% endfor %}</div>
+<div class="card-grid">
+<a class="card" href="/admin/access"><h2>Access administration</h2><p>Requests, invitations, beta reservations, and profiles.</p></a>
+<a class="card" href="/bioinformatics"><h2>DNA & protein sequence lab</h2><p>Search NCBI, insert records, link experiments, and export.</p></a>
+<a class="card" href="/experiments"><h2>Experiment operations</h2><p>Review treatments, outcomes, evidence, and approval history.</p></a>
+<a class="card" href="/profile"><h2>Founder profile</h2><p>Review administrator identity and profile information.</p></a>
+</div>
+{% endblock %}

@@ -30,6 +30,7 @@ from flask import (
     url_for,
 )
 from werkzeug.security import check_password_hash, generate_password_hash
+from access_portal import register_access_portal
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = Path(os.environ.get("AGROQ_DB_PATH", BASE_DIR / "instance" / "agroq.db"))
@@ -80,6 +81,11 @@ OUTAGE_MANAGE_ROLES = ("administrator",)
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
 app.secret_key = os.environ.get("AGROQ_SECRET_KEY", DEV_SECRET_KEY)
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get(
+    "AGROQ_COOKIE_SECURE", "false"
+).lower() in {"1", "true", "yes"}
 
 
 def utc_now() -> str:
@@ -621,6 +627,15 @@ def roles_required(*roles: str) -> Callable[[Callable[..., Any]], Callable[..., 
     return decorator
 
 
+register_access_portal(
+    app=app,
+    get_db=get_db,
+    utc_now=utc_now,
+    record_audit_event=record_audit_event,
+    roles_required=roles_required,
+)
+
+
 @app.before_request
 def ensure_database() -> None:
     init_db()
@@ -663,6 +678,31 @@ def login() -> str | Response:
             next_url = request.args.get("next") or url_for("dashboard")
             return redirect(next_url)
         error = "Invalid username or password."
+        # AGROQ_LOGIN_FAILURE_NOTIFICATION
+        try:
+            emit_admin_notification(
+                get_db,
+                event_type="login_failure",
+                severity="warning",
+                title="Failed AgroQ sign-in",
+                body=(
+                    "A failed sign-in attempt was recorded for username "
+                    f"{username or '[blank]'}."
+                ),
+                actor_label=username or "[blank]",
+                source_entity_type="authentication",
+                metadata={
+                    "remote_address": request.remote_addr,
+                    "user_agent": request.headers.get("User-Agent", "")[:500],
+                },
+                dedupe_key=(
+                    f"login-failure:{username or '[blank]'}:"
+                    f"{request.remote_addr}:{int(time.time() // 60)}"
+                ),
+            )
+        except Exception:
+            app.logger.exception("Could not record failed login notification.")
+
 
     return render_template("login.html", error=error)
 
@@ -1972,6 +2012,36 @@ def export_json() -> Response:
             data[entity] = [dict(row) for row in rows]
     return jsonify({"exported_at": utc_now(), "data": data})
 
+
+# AGROQ_PHASE31_32_BIOINFORMATICS
+from bioinformatics_portal import register_bioinformatics_portal
+
+register_bioinformatics_portal(
+    app=app,
+    get_db=get_db,
+    record_audit_event=record_audit_event,
+    roles_required=roles_required,
+)
+
+
+# AGROQ_PHASE33_ADMIN_NOTIFICATIONS
+from notification_center import (
+    emit_admin_notification,
+    register_notification_center,
+)
+
+register_notification_center(
+    app=app,
+    get_db=get_db,
+    roles_required=roles_required,
+    record_audit_event=record_audit_event,
+)
+
+
+# AGROQ_PHASE34_PRODUCTION_PORTAL
+from production_portal import register_production_portal
+
+register_production_portal(app)
 
 if __name__ == "__main__":
     init_db()
