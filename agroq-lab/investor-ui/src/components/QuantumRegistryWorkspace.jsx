@@ -23,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import Q2SoilSamplingBenchmark from "./Q2SoilSamplingBenchmark";
 import {
   buildRegistryExport,
   createExperimentFromTemplate,
@@ -39,6 +40,7 @@ const STORAGE_KEY = "agroq-quantum-experiment-registry-v1";
 const tabs = [
   "Q0 · Research Sources",
   "Q1 · Experiment Registry",
+  "Q2 · Soil QUBO Benchmark",
   "Data Model",
   "Reproducibility Gate",
   "Acknowledgments",
@@ -870,9 +872,12 @@ export default function QuantumRegistryWorkspace({ frozenProblem }) {
 
       {activeTab === tabs[0] && <SourceRegistry />}
       {activeTab === tabs[1] && <ExperimentRegistry frozenProblem={frozenProblem} />}
-      {activeTab === tabs[2] && <DataModel />}
-      {activeTab === tabs[3] && <ReproducibilityGate />}
-      {activeTab === tabs[4] && <Acknowledgments />}
+      {activeTab === tabs[2] && (
+        <Q2SoilSamplingBenchmark frozenProblem={frozenProblem} />
+      )}
+      {activeTab === tabs[3] && <DataModel />}
+      {activeTab === tabs[4] && <ReproducibilityGate />}
+      {activeTab === tabs[5] && <Acknowledgments />}
     </section>
   );
 }

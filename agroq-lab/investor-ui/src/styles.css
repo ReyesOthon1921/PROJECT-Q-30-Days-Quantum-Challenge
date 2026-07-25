@@ -4,6 +4,7 @@
 @import "./research_credits.css";
 @import "./soil_research_ops.css";
 @import "./quantum_registry.css";
+@import "./q2_soil_sampling.css";
 
 :root {
   color-scheme: dark;
