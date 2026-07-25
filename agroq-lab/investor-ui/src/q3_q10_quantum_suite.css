@@ -1,0 +1,484 @@
+/* AgroQ combined Q3-Q10 quantum research suite */
+
+.q-suite-workspace,
+.q-suite-results {
+  display: grid;
+  gap: 16px;
+}
+
+.q-suite-hero {
+  min-height: 210px;
+  padding: 25px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 19px;
+  box-shadow: none;
+  background:
+    radial-gradient(circle at 88% 10%, rgba(178, 156, 255, 0.13), transparent 34%),
+    linear-gradient(145deg, rgba(12, 33, 35, 0.95), rgba(11, 17, 34, 0.96));
+}
+
+.q-suite-hero-icon,
+.q-suite-phase-icon {
+  display: grid;
+  place-items: center;
+  color: #b9a8ff;
+  background: rgba(178, 156, 255, 0.08);
+  border: 1px solid rgba(178, 156, 255, 0.2);
+}
+
+.q-suite-hero-icon {
+  width: 65px;
+  height: 65px;
+  border-radius: 18px;
+}
+
+.q-suite-hero h2,
+.q-suite-phase-header h2 {
+  margin: 6px 0 8px;
+}
+
+.q-suite-hero p,
+.q-suite-phase-header p,
+.q-suite-empty p,
+.q-suite-global-boundary p,
+.q-suite-detail-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.6;
+}
+
+.q-suite-phase-tabs {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(110px, 1fr));
+  gap: 6px;
+  overflow-x: auto;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: rgba(8, 18, 28, 0.88);
+}
+
+.q-suite-phase-tabs button {
+  min-width: 112px;
+  padding: 10px 8px;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-content: center;
+  gap: 3px 7px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.q-suite-phase-tabs button svg {
+  grid-row: 1 / 3;
+}
+
+.q-suite-phase-tabs button span {
+  font-size: 0.66rem;
+  font-weight: 850;
+}
+
+.q-suite-phase-tabs button small {
+  font-size: 0.52rem;
+}
+
+.q-suite-phase-tabs button:hover,
+.q-suite-phase-tabs button.q-suite-phase-active {
+  color: var(--text);
+  background: rgba(178, 156, 255, 0.1);
+  border-color: rgba(178, 156, 255, 0.18);
+}
+
+.q-suite-phase-header {
+  padding: 19px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 15px;
+  box-shadow: none;
+}
+
+.q-suite-phase-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+}
+
+.q-suite-phase-actions,
+.q-suite-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.q-suite-spin {
+  animation: q-suite-spin 0.9s linear infinite;
+}
+
+@keyframes q-suite-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.q-suite-message,
+.q-suite-boundary,
+.q-suite-global-boundary {
+  padding: 14px 17px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  box-shadow: none;
+}
+
+.q-suite-message svg {
+  color: var(--green);
+}
+
+.q-suite-message span {
+  font-size: 0.66rem;
+}
+
+.q-suite-empty {
+  min-height: 250px;
+  padding: 30px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 9px;
+  text-align: center;
+  box-shadow: none;
+}
+
+.q-suite-empty svg {
+  color: #b9a8ff;
+}
+
+.q-suite-empty h3 {
+  margin: 0;
+}
+
+.q-suite-empty p {
+  max-width: 600px;
+}
+
+.q-suite-metric-grid,
+.q-suite-method-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.q-suite-metric-grid article,
+.q-suite-method-grid article {
+  min-height: 110px;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.022);
+  box-shadow: none;
+}
+
+.q-suite-metric-grid span,
+.q-suite-metric-grid strong,
+.q-suite-method-grid span,
+.q-suite-method-grid strong,
+.q-suite-method-grid small {
+  display: block;
+}
+
+.q-suite-metric-grid span,
+.q-suite-method-grid span {
+  color: var(--muted);
+  font-size: 0.58rem;
+}
+
+.q-suite-metric-grid strong,
+.q-suite-method-grid strong {
+  margin-top: 7px;
+  font-size: 1rem;
+}
+
+.q-suite-method-grid small {
+  margin-top: 3px;
+  color: #819aaa;
+  font-size: 0.55rem;
+}
+
+.q-suite-method-grid article > div {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.q-suite-method-grid em {
+  color: #bfd0da;
+  font-size: 0.56rem;
+  font-style: normal;
+}
+
+.q-suite-solver-table {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.q-suite-solver-table article {
+  padding: 13px;
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.q-suite-solver-table article > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+}
+
+.q-suite-solver-table strong {
+  font-size: 0.67rem;
+}
+
+.q-suite-solver-table > article > span {
+  color: var(--muted);
+  font-size: 0.57rem;
+  line-height: 1.4;
+}
+
+.q-suite-detail-card,
+.q-suite-table-card {
+  padding: 18px;
+  box-shadow: none;
+}
+
+.q-suite-detail-card h3,
+.q-suite-table-card h3,
+.q-suite-global-boundary h3 {
+  margin: 5px 0 12px;
+}
+
+.q-suite-chip-list span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #d4ccff;
+  background: rgba(178, 156, 255, 0.06);
+  border: 1px solid var(--border);
+  font-size: 0.57rem;
+}
+
+.q-suite-detail-card > p {
+  margin-top: 13px;
+}
+
+.q-suite-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+  align-items: start;
+}
+
+.q-suite-table-card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.q-suite-scroll {
+  overflow-x: auto;
+}
+
+.q-suite-table-card th,
+.q-suite-table-card td {
+  min-width: 92px;
+  padding: 9px;
+  border-bottom: 1px solid rgba(126, 191, 154, 0.09);
+  text-align: left;
+  font-size: 0.6rem;
+}
+
+.q-suite-table-card th {
+  color: #8ea5b5;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.q-suite-table-card td {
+  color: #cbd9e0;
+}
+
+.q-suite-chart {
+  min-height: 255px;
+  padding: 17px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.q-suite-chart > span {
+  color: #cbdce6;
+  font-size: 0.65rem;
+  font-weight: 760;
+}
+
+.q-suite-chart svg {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(128, 196, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(128, 196, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.q-suite-chart polyline {
+  stroke: #80c4ff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.q-suite-chart > div {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.55rem;
+}
+
+.q-suite-big-number {
+  display: block;
+  margin: 18px 0 10px;
+  font-size: 2rem;
+  color: var(--green-soft);
+}
+
+.q-suite-observation-grid,
+.q-suite-standard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.q-suite-observation-grid > div,
+.q-suite-standard-grid > div {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.q-suite-observation-grid span,
+.q-suite-observation-grid strong,
+.q-suite-observation-grid small,
+.q-suite-standard-grid span,
+.q-suite-standard-grid strong,
+.q-suite-standard-grid small {
+  display: block;
+}
+
+.q-suite-observation-grid span,
+.q-suite-standard-grid span {
+  color: var(--muted);
+  font-size: 0.55rem;
+}
+
+.q-suite-observation-grid strong,
+.q-suite-standard-grid strong {
+  margin-top: 6px;
+  font-size: 0.75rem;
+}
+
+.q-suite-observation-grid small,
+.q-suite-standard-grid small {
+  margin-top: 4px;
+  color: #7f98a8;
+  font-size: 0.53rem;
+}
+
+.q-suite-check {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.q-suite-check.q-suite-check-on {
+  color: var(--green);
+  background: rgba(92, 241, 160, 0.07);
+  border-color: rgba(92, 241, 160, 0.19);
+}
+
+.q-suite-boundary,
+.q-suite-global-boundary {
+  border-color: rgba(243, 185, 108, 0.19);
+  background: rgba(243, 185, 108, 0.045);
+}
+
+.q-suite-boundary svg,
+.q-suite-global-boundary svg {
+  flex: 0 0 auto;
+  color: var(--amber);
+}
+
+.q-suite-boundary p {
+  margin: 0;
+  color: #dbc59f;
+  font-size: 0.65rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 1200px) {
+  .q-suite-phase-tabs {
+    grid-template-columns: repeat(4, minmax(130px, 1fr));
+  }
+
+  .q-suite-metric-grid,
+  .q-suite-method-grid,
+  .q-suite-observation-grid,
+  .q-suite-standard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .q-suite-hero,
+  .q-suite-phase-header {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .q-suite-phase-tabs {
+    grid-template-columns: repeat(2, minmax(130px, 1fr));
+  }
+
+  .q-suite-two-column,
+  .q-suite-solver-table,
+  .q-suite-metric-grid,
+  .q-suite-method-grid,
+  .q-suite-observation-grid,
+  .q-suite-standard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .q-suite-phase-actions {
+    width: 100%;
+  }
+
+  .q-suite-phase-actions .button {
+    width: 100%;
+  }
+}

@@ -284,6 +284,31 @@ export const quantumResearchSources = [
     endorsementBoundary: "Citation does not imply endorsement, partnership, or affiliation with AgroQ.",
     tags: ["post-quantum", "ML-KEM", "ML-DSA", "SLH-DSA"],
   },
+  {
+    id: "QRS-016",
+    sequence: ["Q3"],
+    title: "A Physics-Grounded QUBO Encoding of Irrigation Scheduling for QAOA",
+    authors: ["Alisher Ortikov", "Alisher Ilhamov"],
+    year: 2026,
+    venue: "arXiv",
+    publicationStatus: "Recent preprint",
+    identifier: "arXiv:2607.13374",
+    url: "https://arxiv.org/abs/2607.13374",
+    mechanism:
+      "Root-zone soil-moisture memory, weather inputs, field adjacency, water budgets, and irrigation-window constraints encoded into a QUBO.",
+    agroqFeature:
+      "Q3 multi-period irrigation reproduction using a small synthetic benchmark and matched classical-versus-simulator comparison.",
+    reproductionTarget:
+      "Reproduce the formulation pattern on a transparent three-zone, two-period synthetic instance before using field data.",
+    evidenceStatus: "Emerging reproduction source",
+    limitations:
+      "This is a recent preprint. AgroQ uses a simplified synthetic reproduction and does not claim validation, deployment readiness, or quantum advantage.",
+    acknowledgment:
+      "AgroQ credits Ortikov and Ilhamov for the physics-grounded irrigation-QUBO formulation pattern.",
+    endorsementBoundary:
+      "Citation does not imply endorsement, partnership, or affiliation with AgroQ.",
+    tags: ["irrigation", "QUBO", "QAOA", "soil moisture"],
+  },
 ];
 
 export const quantumExperimentSchema = {
@@ -395,7 +420,7 @@ export const experimentTemplates = [
   {
     sequence: "Q3",
     title: "Irrigation-scheduling reproduction",
-    sourceIds: ["QRS-001", "QRS-002", "QRS-003"],
+    sourceIds: ["QRS-001", "QRS-002", "QRS-003", "QRS-016"],
     problemFamily: "Multi-period irrigation scheduling",
     algorithm: "Classical baseline + QAOA simulator",
   },

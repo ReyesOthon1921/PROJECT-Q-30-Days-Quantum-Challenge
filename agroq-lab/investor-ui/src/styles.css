@@ -5,6 +5,7 @@
 @import "./soil_research_ops.css";
 @import "./quantum_registry.css";
 @import "./q2_soil_sampling.css";
+@import "./q3_q10_quantum_suite.css";
 
 :root {
   color-scheme: dark;

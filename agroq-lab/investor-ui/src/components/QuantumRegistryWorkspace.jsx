@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import Q2SoilSamplingBenchmark from "./Q2SoilSamplingBenchmark";
+import QuantumQ3Q10Workspace from "./QuantumQ3Q10Workspace";
 import {
   buildRegistryExport,
   createExperimentFromTemplate,
@@ -41,6 +42,7 @@ const tabs = [
   "Q0 · Research Sources",
   "Q1 · Experiment Registry",
   "Q2 · Soil QUBO Benchmark",
+  "Q3–Q10 · Research Suite",
   "Data Model",
   "Reproducibility Gate",
   "Acknowledgments",
@@ -777,8 +779,8 @@ function Acknowledgments() {
     {
       title: "Optimization and QUBO",
       people:
-        "Fred Glover, Gary Kochenberger, Yu Du, Edward Farhi, Jeffrey Goldstone, Sam Gutmann, Daniel J. Egger, Jakub Mareček, Stefan Woerner, Linghua Zhu and collaborators, Austin Gilliam, and Constantin Gonciulea.",
-      sources: ["QRS-001", "QRS-002", "QRS-003", "QRS-004", "QRS-012"],
+        "Fred Glover, Gary Kochenberger, Yu Du, Edward Farhi, Jeffrey Goldstone, Sam Gutmann, Daniel J. Egger, Jakub Mareček, Stefan Woerner, Linghua Zhu and collaborators, Austin Gilliam, Constantin Gonciulea, Alisher Ortikov, and Alisher Ilhamov.",
+      sources: ["QRS-001", "QRS-002", "QRS-003", "QRS-004", "QRS-012", "QRS-016"],
     },
     {
       title: "Quantum machine learning",
@@ -875,9 +877,10 @@ export default function QuantumRegistryWorkspace({ frozenProblem }) {
       {activeTab === tabs[2] && (
         <Q2SoilSamplingBenchmark frozenProblem={frozenProblem} />
       )}
-      {activeTab === tabs[3] && <DataModel />}
-      {activeTab === tabs[4] && <ReproducibilityGate />}
-      {activeTab === tabs[5] && <Acknowledgments />}
+      {activeTab === tabs[3] && <QuantumQ3Q10Workspace />}
+      {activeTab === tabs[4] && <DataModel />}
+      {activeTab === tabs[5] && <ReproducibilityGate />}
+      {activeTab === tabs[6] && <Acknowledgments />}
     </section>
   );
 }
