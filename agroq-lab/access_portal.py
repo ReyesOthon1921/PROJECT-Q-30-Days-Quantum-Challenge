@@ -22,6 +22,7 @@ from flask import (
     url_for,
 )
 from werkzeug.security import generate_password_hash
+from lead_followup import ensure_lead_followup
 
 
 RELATIONSHIP_TYPES = {
@@ -149,7 +150,22 @@ def register_access_portal(
                     "access_request_created",
                     "access_request",
                     request_id,
-                    json.dumps({"relationship_type": selected_type}),
+                    json.dumps(
+                        {
+                            "relationship_type": selected_type,
+                            "full_name": full_name,
+                            "email": email,
+                            "organization": organization,
+                            "role_title": role_title,
+                            "message": message,
+                        }
+                    ),
+                )
+                ensure_lead_followup(
+                    get_db,
+                    source_type="access_request",
+                    source_id=request_id,
+                    created_at=utc_now(),
                 )
                 return render_template(
                     "access_request_received.html",
@@ -300,6 +316,26 @@ def register_access_portal(
                         ) VALUES(?,?,?,'interest_recorded',?,?)''',
                         (reservation_id, email, full_name, notes, utc_now()),
                     )
+                record_audit_event(
+                    None,
+                    "access_beta_reservation_created",
+                    "beta_reservation",
+                    reservation_id,
+                    json.dumps(
+                        {
+                            "full_name": full_name,
+                            "email": email,
+                            "notes": notes,
+                        }
+                    ),
+                )
+                ensure_lead_followup(
+                    get_db,
+                    source_type="beta_reservation",
+                    source_id=reservation_id,
+                    created_at=utc_now(),
+                    priority="high",
+                )
                 return render_template(
                     "beta_reserve.html",
                     submitted=True,

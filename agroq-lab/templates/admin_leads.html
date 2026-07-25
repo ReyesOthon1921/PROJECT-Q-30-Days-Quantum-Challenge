@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lead Follow-up — AgroQ</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='access.css') }}">
+</head>
+<body>
+<header class="access-header">
+  <a class="access-brand" href="{{ url_for('dashboard') }}">
+    <span class="brand-mark">AQ</span>
+    <span><strong>AgroQ</strong><small>Lead follow-up</small></span>
+  </a>
+  <nav>
+    <a href="{{ url_for('admin_notifications.notification_page') }}">Notifications</a>
+    <a href="{{ url_for('admin_access') }}">Access administration</a>
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+  </nav>
+</header>
+
+<main class="access-main">
+  <section class="admin-hero">
+    <div>
+      <p class="eyebrow">FOUNDER FOLLOW-UP</p>
+      <h1>Every interested person has a status and next action.</h1>
+      <p>
+        New applications are tracked here so outreach, meetings, proposals,
+        and onboarding do not get missed.
+      </p>
+    </div>
+    <span class="security-label">{{ overdue_count }} overdue follow-up{{ '' if overdue_count == 1 else 's' }}</span>
+  </section>
+
+  <section class="summary-list">
+    <div><span>New</span><strong>{{ counts.new }}</strong></div>
+    <div><span>Reviewing</span><strong>{{ counts.reviewing }}</strong></div>
+    <div><span>Contacted</span><strong>{{ counts.contacted }}</strong></div>
+    <div><span>Meetings</span><strong>{{ counts.meeting_scheduled }}</strong></div>
+    <div><span>Proposals</span><strong>{{ counts.proposal_sent }}</strong></div>
+    <div><span>Onboarded</span><strong>{{ counts.onboarded }}</strong></div>
+  </section>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash-message {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <section class="lead-list">
+    {% for lead in leads %}
+    <article class="lead-card {% if lead.overdue %}lead-overdue{% endif %}">
+      <div class="lead-heading">
+        <div>
+          <p class="eyebrow">{{ lead.source_type|replace('_',' ') }}</p>
+          <h2>{{ lead.full_name }}</h2>
+          <p>
+            <a href="mailto:{{ lead.email }}">{{ lead.email }}</a>
+            {% if lead.organization %} · {{ lead.organization }}{% endif %}
+          </p>
+        </div>
+        <div class="lead-badges">
+          <span class="lead-status">{{ lead.followup.status|replace('_',' ') }}</span>
+          <span class="lead-priority">{{ lead.followup.priority }}</span>
+          {% if lead.overdue %}<span class="lead-overdue-label">Follow-up overdue</span>{% endif %}
+        </div>
+      </div>
+
+      <div class="lead-details">
+        <div><span>Interest</span><strong>{{ lead.interest_type|replace('_',' ') }}</strong></div>
+        <div><span>Submitted</span><strong>{{ lead.created_at }}</strong></div>
+        <div><span>Next follow-up</span><strong>{{ lead.followup.next_follow_up_at or 'Not scheduled' }}</strong></div>
+        <div><span>Last contacted</span><strong>{{ lead.followup.last_contacted_at or 'Not contacted' }}</strong></div>
+      </div>
+
+      {% if lead.summary %}
+      <div class="lead-summary">
+        <strong>Applicant message</strong>
+        <p>{{ lead.summary }}</p>
+      </div>
+      {% endif %}
+
+      <form method="post"
+            action="{{ url_for('admin_leads.update_lead', source_type=lead.source_type, source_id=lead.source_id) }}"
+            class="lead-followup-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="form-grid">
+          <label>Status
+            <select name="status" required>
+              {% for status in statuses %}
+              <option value="{{ status }}" {% if lead.followup.status == status %}selected{% endif %}>
+                {{ status|replace('_',' ') }}
+              </option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Priority
+            <select name="priority" required>
+              {% for priority in priorities %}
+              <option value="{{ priority }}" {% if lead.followup.priority == priority %}selected{% endif %}>
+                {{ priority }}
+              </option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Contact method
+            <select name="contact_method">
+              <option value="">Not selected</option>
+              {% for method in ['email','phone','video_meeting','in_person','other'] %}
+              <option value="{{ method }}" {% if lead.followup.contact_method == method %}selected{% endif %}>
+                {{ method|replace('_',' ') }}
+              </option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Next follow-up
+            <input type="datetime-local" name="next_follow_up_at"
+                   value="{{ (lead.followup.next_follow_up_at or '')[:16] }}">
+          </label>
+        </div>
+        <label>Follow-up notes
+          <textarea name="follow_up_notes" maxlength="5000" rows="4">{{ lead.followup.follow_up_notes or '' }}</textarea>
+        </label>
+        <label class="check-line">
+          <input type="checkbox" name="mark_contacted" value="yes">
+          <span>Record that I contacted this person now.</span>
+        </label>
+        <button class="primary-button" type="submit">Save follow-up status</button>
+      </form>
+    </article>
+    {% else %}
+    <section class="access-form-card">
+      <h2>No interested users have submitted a request yet.</h2>
+    </section>
+    {% endfor %}
+  </section>
+</main>
+</body>
+</html>

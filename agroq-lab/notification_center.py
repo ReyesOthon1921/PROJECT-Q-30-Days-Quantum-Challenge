@@ -148,6 +148,21 @@ def initialize_notification_schema(
                     ) VALUES(?,?,?)""",
                     (admin["user_id"], now, now),
                 )
+                founder_email = os.environ.get(
+                    "AGROQ_NOTIFICATION_EMAIL",
+                    "reyesothon1921@gmail.com",
+                ).strip()
+                if founder_email:
+                    conn.execute(
+                        """UPDATE admin_notification_preferences
+                           SET email_enabled=1,
+                               email_address=COALESCE(NULLIF(email_address,''),?),
+                               notify_access_changes=1,
+                               digest_mode='immediate',
+                               updated_at=?
+                           WHERE user_id=?""",
+                        (founder_email, now, admin["user_id"]),
+                    )
         _SCHEMA_READY = True
 
 
@@ -293,12 +308,24 @@ def _send_email(destination: str, event: Any) -> None:
     message["Subject"] = f"[AgroQ] {event['title']}"
     message["From"] = from_address
     message["To"] = destination
+    try:
+        metadata = json.loads(event.get("metadata_json") or "{}")
+    except json.JSONDecodeError:
+        metadata = {}
+    metadata_lines = []
+    for key, value in metadata.items():
+        if value in (None, "", [], {}):
+            continue
+        label = str(key).replace("_", " ").title()
+        metadata_lines.append(f"{label}: {value}")
+    metadata_text = "\n".join(metadata_lines)
     message.set_content(
         f"{event['body']}\n\n"
-        f"Severity: {event['severity']}\n"
-        f"Event type: {event['event_type']}\n"
-        f"Created: {event['created_at']}\n"
-        "Open the AgroQ administrator notification center for details."
+        + (f"Submission details:\n{metadata_text}\n\n" if metadata_text else "")
+        + f"Severity: {event['severity']}\n"
+        + f"Event type: {event['event_type']}\n"
+        + f"Created: {event['created_at']}\n"
+        + "Open the AgroQ administrator notification center and Lead Follow-up page for details."
     )
 
     if use_ssl:
@@ -433,7 +460,7 @@ def dispatch_pending_notifications(
     with get_db() as conn:
         deliveries = conn.execute(
             """SELECT d.*, e.event_type, e.severity, e.title,
-                      e.body, e.created_at AS event_created_at
+                      e.body, e.metadata_json, e.created_at AS event_created_at
                FROM admin_notification_deliveries d
                JOIN admin_notification_events e ON e.event_id=d.event_id
                WHERE d.status IN ('pending','failed')
@@ -451,6 +478,7 @@ def dispatch_pending_notifications(
             "severity": delivery["severity"],
             "title": delivery["title"],
             "body": delivery["body"],
+            "metadata_json": delivery["metadata_json"],
             "created_at": delivery["event_created_at"],
         }
         try:

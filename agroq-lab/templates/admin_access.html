@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#07110d">
   <title>Access Administration — AgroQ</title>
-  <link rel="stylesheet" href="{ url_for('static', filename='access.css') }">
+  <link rel="stylesheet" href="{{ url_for('static', filename='access.css') }}">
 </head>
 <body>
 
@@ -16,6 +16,8 @@
   </a>
   <nav>
     <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('admin_leads.lead_page') }}">Lead follow-up</a>
+    <a href="{{ url_for('admin_notifications.notification_page') }}">Notifications</a>
     <a href="{{ url_for('account_profile') }}">My profile</a>
   </nav>
 </header>

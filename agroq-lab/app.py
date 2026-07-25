@@ -258,6 +258,17 @@ def record_audit_event(
             (new_audit_id(), user_id, action, entity_type, entity_id, details, utc_now()),
         )
 
+    try:
+        dispatch_pending_notifications(
+            get_db,
+            max_events=25,
+            max_deliveries=75,
+        )
+    except NameError:
+        pass
+    except Exception:
+        app.logger.exception("Could not dispatch pending administrator notifications.")
+
 
 def new_plot_id() -> str:
     return f"AGQ-PLOT-{int(datetime.now().timestamp() * 1000)}"
@@ -2026,11 +2037,23 @@ register_bioinformatics_portal(
 
 # AGROQ_PHASE33_ADMIN_NOTIFICATIONS
 from notification_center import (
+    dispatch_pending_notifications,
     emit_admin_notification,
     register_notification_center,
 )
 
 register_notification_center(
+    app=app,
+    get_db=get_db,
+    roles_required=roles_required,
+    record_audit_event=record_audit_event,
+)
+
+
+# AGROQ_PHASE35_4_LEAD_FOLLOWUP
+from lead_followup import register_lead_followup
+
+register_lead_followup(
     app=app,
     get_db=get_db,
     roles_required=roles_required,
