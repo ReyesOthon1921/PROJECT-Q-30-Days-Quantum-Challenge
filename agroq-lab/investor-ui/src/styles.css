@@ -1,5 +1,7 @@
 @import "./admin_lab.css";
 @import "./access_styles.css";
+@import "./soil_biology.css";
+@import "./research_credits.css";
 
 :root {
   color-scheme: dark;

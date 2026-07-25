@@ -1,0 +1,858 @@
+/* AgroQ Soil Biology / Soil Food Web module */
+
+.soil-biology-page {
+  --soil-lime: #93f36a;
+  --soil-yellow: #f3c76b;
+  --soil-orange: #e88f4a;
+  --soil-blue: #74bff2;
+}
+
+.soil-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 2px 4px 4px;
+}
+
+.soil-page-header h1 {
+  margin: 7px 0 8px;
+  font-size: clamp(1.9rem, 3vw, 3.2rem);
+  letter-spacing: -0.04em;
+}
+
+.soil-page-header p {
+  max-width: 850px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.soil-header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.soil-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: rgba(12, 31, 22, 0.82);
+}
+
+.soil-tabs button {
+  flex: 0 0 auto;
+  padding: 9px 13px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.soil-tabs button:hover,
+.soil-tabs button.soil-tab-active {
+  color: var(--text);
+  background: rgba(92, 241, 160, 0.11);
+  box-shadow: inset 0 -2px 0 var(--green);
+}
+
+.soil-filter-bar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(145px, 1fr)) auto;
+  gap: 10px;
+  padding: 14px;
+  box-shadow: none;
+}
+
+.soil-filter-bar label,
+.soil-observation-modal label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.soil-filter-bar select,
+.soil-observation-modal select,
+.soil-observation-modal input,
+.soil-observation-modal textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: #0c2117;
+  color: var(--text);
+  outline: none;
+}
+
+.soil-filter-bar select:focus,
+.soil-observation-modal select:focus,
+.soil-observation-modal input:focus,
+.soil-observation-modal textarea:focus {
+  border-color: rgba(92, 241, 160, 0.65);
+  box-shadow: 0 0 0 3px rgba(92, 241, 160, 0.08);
+}
+
+.soil-export-button {
+  align-self: end;
+}
+
+.soil-dashboard-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 18px;
+}
+
+.soil-dashboard-main,
+.soil-dashboard-aside {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.soil-kpi-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr 1fr;
+  gap: 14px;
+}
+
+.soil-index-card,
+.soil-ratio-card,
+.soil-pyramid-card,
+.soil-trend-card,
+.soil-side-card,
+.soil-research-card {
+  padding: 18px;
+  box-shadow: none;
+}
+
+.soil-card-heading,
+.soil-side-heading,
+.soil-research-title,
+.soil-table-heading,
+.soil-modal-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.soil-card-heading > div > span,
+.soil-research-title span {
+  display: block;
+  color: var(--green);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  font-weight: 800;
+}
+
+.soil-card-heading h3,
+.soil-side-heading h3,
+.soil-research-title strong {
+  margin: 4px 0 0;
+  font-size: 0.92rem;
+}
+
+.soil-card-heading > svg,
+.soil-side-heading > svg {
+  color: var(--green);
+}
+
+.soil-index-content {
+  display: grid;
+  grid-template-columns: 155px minmax(0, 1fr);
+  gap: 17px;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.soil-index-gauge {
+  width: 145px;
+  height: 145px;
+  padding: 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    conic-gradient(
+      var(--green) 0 var(--soil-gauge-value),
+      rgba(255, 255, 255, 0.07) var(--soil-gauge-value) 360deg
+    );
+  box-shadow: 0 0 36px rgba(55, 194, 108, 0.1);
+}
+
+.soil-index-gauge::before {
+  content: "";
+  grid-area: 1 / 1;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: #0b1d14;
+  border: 1px solid var(--border);
+}
+
+.soil-index-gauge > div {
+  grid-area: 1 / 1;
+  z-index: 1;
+  text-align: center;
+}
+
+.soil-index-gauge strong,
+.soil-index-gauge span {
+  display: block;
+}
+
+.soil-index-gauge strong {
+  font-size: 2.15rem;
+}
+
+.soil-index-gauge span {
+  margin-top: 2px;
+  color: var(--green-soft);
+  font-size: 0.72rem;
+  text-transform: capitalize;
+}
+
+.soil-driver-list {
+  display: grid;
+  gap: 8px;
+}
+
+.soil-driver-list > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(126, 191, 154, 0.09);
+}
+
+.soil-driver-list span {
+  color: var(--muted);
+  font-size: 0.67rem;
+}
+
+.soil-driver-list strong {
+  color: #cfe8d8;
+  font-size: 0.67rem;
+  text-align: right;
+}
+
+.soil-disclaimer {
+  margin: 15px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  color: #789485;
+  font-size: 0.64rem;
+  line-height: 1.5;
+}
+
+.soil-ratio-gauge {
+  min-height: 185px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  padding-top: 18px;
+}
+
+.soil-ratio-arc {
+  width: 190px;
+  height: 95px;
+  position: relative;
+  overflow: hidden;
+}
+
+.soil-ratio-arc::before {
+  content: "";
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background:
+    conic-gradient(
+      from 270deg,
+      #eb7454 0 45deg,
+      #f2be61 45deg 90deg,
+      #8fe66e 90deg 180deg,
+      transparent 180deg 360deg
+    );
+}
+
+.soil-ratio-arc::after {
+  content: "";
+  position: absolute;
+  left: 27px;
+  top: 27px;
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  background: #0a1b12;
+}
+
+.soil-ratio-needle {
+  position: absolute;
+  left: 93px;
+  bottom: 0;
+  width: 4px;
+  height: 80px;
+  z-index: 2;
+  border-radius: 999px;
+  transform-origin: 50% 100%;
+  transform: rotate(var(--ratio-position));
+  background: #effaf3;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.32);
+}
+
+.soil-ratio-gauge strong {
+  margin-top: 8px;
+  font-size: 2rem;
+}
+
+.soil-ratio-gauge > span {
+  color: var(--green-soft);
+  font-size: 0.7rem;
+}
+
+.soil-ratio-scale {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.58rem;
+}
+
+.soil-pyramid {
+  margin-top: 16px;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+}
+
+.soil-pyramid > div {
+  width: calc(48% + var(--pyramid-level) * 9%);
+  min-height: 42px;
+  padding: 7px 12px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
+  background: color-mix(
+    in srgb,
+    var(--green) calc(70% - var(--pyramid-level) * 7%),
+    #76593e
+  );
+  color: #06160d;
+}
+
+.soil-pyramid strong,
+.soil-pyramid span {
+  display: block;
+}
+
+.soil-pyramid strong {
+  font-size: 0.67rem;
+}
+
+.soil-pyramid span {
+  margin-top: 1px;
+  font-size: 0.53rem;
+  opacity: 0.82;
+}
+
+.soil-trend-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.soil-trend-card .sparkline {
+  height: 125px;
+  margin-top: 12px;
+}
+
+.soil-trend-scale {
+  display: flex;
+  justify-content: space-between;
+  color: #718b7c;
+  font-size: 0.58rem;
+}
+
+.soil-observation-table-panel {
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.soil-table-heading {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.soil-table-heading h2 {
+  margin: 5px 0 0;
+  font-size: 1rem;
+}
+
+.soil-table-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.soil-table-scroll {
+  overflow-x: auto;
+}
+
+.soil-observation-table {
+  width: 100%;
+  min-width: 1080px;
+  border-collapse: collapse;
+}
+
+.soil-observation-table th,
+.soil-observation-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid rgba(126, 191, 154, 0.09);
+  text-align: left;
+  font-size: 0.66rem;
+  vertical-align: top;
+}
+
+.soil-observation-table th {
+  color: #8aa797;
+  background: rgba(6, 20, 13, 0.65);
+  font-weight: 800;
+}
+
+.soil-observation-table td {
+  color: #c7d9cf;
+}
+
+.soil-observation-table td strong,
+.soil-observation-table td small {
+  display: block;
+}
+
+.soil-observation-table td small {
+  margin-top: 3px;
+  color: #769181;
+  font-size: 0.56rem;
+}
+
+.soil-observation-table tbody tr:hover {
+  background: rgba(92, 241, 160, 0.035);
+}
+
+.soil-principles-strip {
+  padding: 15px 18px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  box-shadow: none;
+}
+
+.soil-principles-strip > div {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 4px 15px;
+  border-right: 1px solid var(--border);
+}
+
+.soil-principles-strip > div:last-child {
+  border-right: 0;
+}
+
+.soil-principles-strip svg {
+  color: var(--green);
+}
+
+.soil-principles-strip span,
+.soil-principles-strip strong,
+.soil-principles-strip small {
+  display: block;
+}
+
+.soil-principles-strip strong {
+  font-size: 0.71rem;
+}
+
+.soil-principles-strip small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.59rem;
+}
+
+.soil-research-card {
+  background:
+    radial-gradient(circle at 90% 5%, rgba(92, 241, 160, 0.14), transparent 34%),
+    linear-gradient(145deg, rgba(18, 47, 32, 0.92), rgba(8, 24, 16, 0.94));
+}
+
+.soil-research-title {
+  justify-content: flex-start;
+}
+
+.soil-research-title > svg {
+  color: var(--green);
+}
+
+.soil-research-card p,
+.soil-experiment-link p,
+.soil-focus-card p {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.62;
+}
+
+.soil-research-boundary {
+  margin: 14px 0;
+  padding: 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(243, 185, 108, 0.22);
+  background: rgba(243, 185, 108, 0.07);
+  color: #e5c99d;
+  font-size: 0.62rem;
+  line-height: 1.5;
+}
+
+.soil-research-card .text-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.soil-side-heading {
+  justify-content: flex-start;
+  margin-bottom: 13px;
+}
+
+.soil-side-heading h3 {
+  margin: 0;
+}
+
+.soil-mini-observations,
+.soil-task-list {
+  display: grid;
+  gap: 1px;
+  margin-bottom: 14px;
+}
+
+.soil-mini-observations > div,
+.soil-task-list > div {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(126, 191, 154, 0.09);
+}
+
+.soil-mini-observations span,
+.soil-mini-observations strong,
+.soil-mini-observations small,
+.soil-task-list span,
+.soil-task-list strong,
+.soil-task-list small {
+  display: block;
+}
+
+.soil-mini-observations strong,
+.soil-task-list strong {
+  font-size: 0.68rem;
+}
+
+.soil-mini-observations small,
+.soil-task-list small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.57rem;
+}
+
+.soil-task-list > div {
+  justify-content: flex-start;
+}
+
+.soil-task-icon {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  display: grid !important;
+  place-items: center;
+  border-radius: 9px;
+  color: var(--green);
+  background: rgba(92, 241, 160, 0.08);
+}
+
+.soil-experiment-link {
+  text-align: center;
+}
+
+.soil-experiment-link > svg {
+  color: var(--green);
+}
+
+.soil-experiment-link h3 {
+  margin: 10px 0 0;
+}
+
+.soil-focus-layout {
+  display: grid;
+  gap: 18px;
+}
+
+.soil-focus-hero {
+  min-height: 210px;
+  padding: 30px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+}
+
+.soil-focus-icon {
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  border-radius: 17px;
+  color: var(--green);
+  background: rgba(92, 241, 160, 0.09);
+  border: 1px solid rgba(92, 241, 160, 0.18);
+}
+
+.soil-focus-hero h2 {
+  margin: 7px 0 9px;
+}
+
+.soil-focus-hero p {
+  max-width: 780px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.soil-focus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.soil-focus-card {
+  padding: 22px;
+}
+
+.soil-focus-card h3 {
+  margin: 0 0 13px;
+}
+
+.soil-check-list {
+  display: grid;
+  gap: 10px;
+}
+
+.soil-check-list > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #c7d9cf;
+  font-size: 0.72rem;
+}
+
+.soil-check-list svg {
+  color: var(--green);
+  flex: 0 0 auto;
+}
+
+.soil-method-chain {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 18px;
+}
+
+.soil-method-chain > div {
+  padding: 8px 4px;
+  text-align: center;
+  border-radius: 8px;
+  background: rgba(92, 241, 160, 0.05);
+  border: 1px solid var(--border);
+}
+
+.soil-method-chain span,
+.soil-method-chain strong {
+  display: block;
+}
+
+.soil-method-chain span {
+  color: var(--green);
+  font-size: 0.58rem;
+}
+
+.soil-method-chain strong {
+  margin-top: 3px;
+  font-size: 0.58rem;
+}
+
+.soil-caution-card {
+  border-color: rgba(243, 185, 108, 0.25);
+  background:
+    radial-gradient(circle at 90% 0, rgba(243, 185, 108, 0.1), transparent 34%),
+    linear-gradient(145deg, rgba(41, 35, 20, 0.78), rgba(16, 25, 18, 0.92));
+}
+
+.soil-caution-card > svg {
+  color: var(--amber);
+}
+
+.soil-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(1, 7, 4, 0.76);
+  backdrop-filter: blur(8px);
+}
+
+.soil-observation-modal {
+  width: min(780px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 22px;
+}
+
+.soil-modal-heading h2 {
+  margin: 6px 0 0;
+}
+
+.soil-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+  margin-top: 20px;
+}
+
+.soil-form-wide {
+  grid-column: 1 / -1;
+}
+
+.soil-observation-modal textarea {
+  resize: vertical;
+}
+
+.soil-modal-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 1300px) {
+  .soil-dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .soil-dashboard-aside {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .soil-research-card,
+  .soil-experiment-link {
+    min-height: 100%;
+  }
+}
+
+@media (max-width: 1120px) {
+  .soil-filter-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .soil-export-button {
+    width: 100%;
+  }
+
+  .soil-kpi-grid,
+  .soil-trend-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .soil-principles-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .soil-principles-strip > div:nth-child(2) {
+    border-right: 0;
+  }
+
+  .soil-focus-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .soil-page-header,
+  .soil-focus-hero {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .soil-page-header {
+    display: grid;
+  }
+
+  .soil-header-actions {
+    justify-content: flex-start;
+  }
+
+  .soil-filter-bar,
+  .soil-dashboard-aside,
+  .soil-form-grid,
+  .soil-principles-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .soil-index-content {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .soil-driver-list {
+    width: 100%;
+  }
+
+  .soil-principles-strip > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .soil-principles-strip > div:last-child {
+    border-bottom: 0;
+  }
+
+  .soil-form-wide {
+    grid-column: auto;
+  }
+
+  .soil-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .soil-modal-actions .button {
+    width: 100%;
+  }
+}

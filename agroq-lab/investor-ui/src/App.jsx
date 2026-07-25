@@ -3,6 +3,7 @@ import {
   Activity,
   BarChart3,
   Beaker,
+  BookOpen,
   BrainCircuit,
   CheckCircle2,
   ChevronRight,
@@ -33,6 +34,8 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import AcreScene from "./components/AcreScene";
 import AccessPage from "./components/AccessPage";
+import ResearchCreditsPage from "./components/ResearchCreditsPage";
+import SoilBiologyPage from "./components/SoilBiologyPage";
 import NetworkGraph from "./components/NetworkGraph";
 import Sparkline from "./components/Sparkline";
 import {
@@ -51,11 +54,13 @@ import AdminLabPage from "./components/AdminLabPage";
 const navigation = [
   { id: "overview", label: "Overview", icon: Grid3X3 },
   { id: "acre", label: "3D Digital Acre", icon: Orbit },
+  { id: "soil-biology", label: "Soil Biology (SFW)", icon: Sprout },
   { id: "experiments", label: "Experiments", icon: FlaskConical },
   { id: "operations", label: "Operations", icon: Activity },
   { id: "intelligence", label: "AI & Graphs", icon: BrainCircuit },
   { id: "quantum", label: "Quantum Lab", icon: Cpu },
   { id: "access", label: "Access & Community", icon: Users },
+  { id: "credits", label: "Research & Thanks", icon: BookOpen },
   { id: "admin-lab", label: "Admin & Sequence Lab", icon: Users },
   { id: "system", label: "System", icon: Layers3 },
 ];
@@ -783,6 +788,19 @@ export default function App() {
         scenarioKey={scenarioKey}
       />
     );
+  } else if (activePage === "soil-biology") {
+    content = (
+      <SoilBiologyPage
+        onOpenExperiments={() => {
+          setActivePage("experiments");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        onOpenOperations={() => {
+          setActivePage("operations");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      />
+    );
   } else if (activePage === "experiments") {
     content = <ExperimentsPage />;
   } else if (activePage === "operations") {
@@ -791,10 +809,12 @@ export default function App() {
     content = <IntelligencePage selectedZone={selectedZone} />;
   } else if (activePage === "quantum") {
     content = <QuantumPage />;
-  } else if (activePage === "admin-lab") {
-      content = <AdminLabPage />;
-    } else if (activePage === "access") {
+  } else if (activePage === "access") {
     content = <AccessPage />;
+  } else if (activePage === "credits") {
+    content = <ResearchCreditsPage />;
+  } else if (activePage === "admin-lab") {
+    content = <AdminLabPage />;
   } else {
     content = <SystemPage backend={backend} />;
   }
