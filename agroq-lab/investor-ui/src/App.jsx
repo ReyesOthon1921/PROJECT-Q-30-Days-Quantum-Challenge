@@ -36,6 +36,7 @@ import AcreScene from "./components/AcreScene";
 import AccessPage from "./components/AccessPage";
 import ResearchCreditsPage from "./components/ResearchCreditsPage";
 import SoilBiologyPage from "./components/SoilBiologyPage";
+import QuantumRegistryWorkspace from "./components/QuantumRegistryWorkspace";
 import NetworkGraph from "./components/NetworkGraph";
 import Sparkline from "./components/Sparkline";
 import {
@@ -627,6 +628,8 @@ function QuantumPage({ frozenProblem }) {
           </p>
         </section>
       )}
+
+      <QuantumRegistryWorkspace frozenProblem={frozenProblem} />
 
       <section className="metrics-grid">
         <MetricCard label="Decision variables" value="16" note="Plot-task assignment demo" icon={Grid3X3} />

@@ -56,6 +56,16 @@ const researchGroups = [
         note:
           "The final public paper link and citation metadata should be verified before a formal publication or investor appendix is released.",
       },
+      {
+        name: "Quantum research contributors supporting Q0–Q10",
+        role: "Optimization, machine learning, sensing, chemistry, and quantum-safe security foundations",
+        contribution:
+          "AgroQ's Q0 registry gives paper-level credit to the researchers behind QUBO, QAOA, warm-start and adaptive optimization, quantum kernels, quantum reservoirs, amplitude estimation, quantum sensing, VQE, chemistry resource estimation, and post-quantum standards.",
+        sourceLabel: "See the Quantum Lab Q0 registry",
+        sourceUrl: null,
+        note:
+          "The Quantum Lab records the exact paper, authors, mechanism, AgroQ feature, reproduction target, limitations, and non-endorsement boundary for each source.",
+      },
     ],
   },
   {

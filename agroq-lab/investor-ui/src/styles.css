@@ -3,6 +3,7 @@
 @import "./soil_biology.css";
 @import "./research_credits.css";
 @import "./soil_research_ops.css";
+@import "./quantum_registry.css";
 
 :root {
   color-scheme: dark;
