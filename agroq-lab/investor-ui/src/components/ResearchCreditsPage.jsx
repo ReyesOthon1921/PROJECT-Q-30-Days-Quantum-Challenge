@@ -120,6 +120,12 @@ const founderAcknowledgments = [
       "For long-term support, operational perspective, healthcare experience, customer discovery, and helping turn the founder's research direction into a company-building path.",
   },
   {
+    name: "Christian St Louis",
+    role: "Research collaborator, mathematical thinking, and encouragement",
+    thanks:
+      "For helping the founder work through mathematical ideas, sharing research perspectives, encouraging the project, and approaching the work with a genuine spirit of collaboration.",
+  },
+  {
     name: "Professor Parisa Samadi",
     role: "Academic guidance",
     thanks:

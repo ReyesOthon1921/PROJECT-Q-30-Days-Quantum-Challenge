@@ -570,7 +570,7 @@ function IntelligencePage({ selectedZone }) {
   );
 }
 
-function QuantumPage() {
+function QuantumPage({ frozenProblem }) {
   return (
     <div className="page-stack">
       <section className="quantum-hero panel">
@@ -587,6 +587,46 @@ function QuantumPage() {
           <Zap size={36} />
         </div>
       </section>
+
+      {frozenProblem && (
+        <section className="panel quantum-frozen-problem">
+          <div className="quantum-frozen-heading">
+            <div>
+              <span>Frozen Soil Biology problem</span>
+              <h3>{frozenProblem.id}</h3>
+            </div>
+            <Badge tone="green">Dataset frozen</Badge>
+          </div>
+          <div className="quantum-frozen-grid">
+            <div>
+              <span>Candidate samples</span>
+              <strong>{frozenProblem.candidates?.length || 0}</strong>
+            </div>
+            <div>
+              <span>Sampling budget</span>
+              <strong>{frozenProblem.budget}</strong>
+            </div>
+            <div>
+              <span>Classical selection</span>
+              <strong>{frozenProblem.classicalSelection?.length || 0}</strong>
+            </div>
+            <div>
+              <span>Classical score</span>
+              <strong>{frozenProblem.classicalScore}</strong>
+            </div>
+          </div>
+          <div className="quantum-frozen-selection">
+            {(frozenProblem.classicalSelection || []).map((sampleId) => (
+              <span key={sampleId}>{sampleId}</span>
+            ))}
+          </div>
+          <p className="panel-note">
+            The same candidates, budget, weights, constraints, and classical baseline are
+            preserved for quantum-inspired and simulator comparison. No quantum-advantage
+            claim is made.
+          </p>
+        </section>
+      )}
 
       <section className="metrics-grid">
         <MetricCard label="Decision variables" value="16" note="Plot-task assignment demo" icon={Grid3X3} />
@@ -733,6 +773,16 @@ export default function App() {
     exported: null,
     error: "Checking backend",
   });
+  const [frozenSamplingProblem, setFrozenSamplingProblem] = useState(() => {
+    try {
+      const saved = window.localStorage.getItem(
+        "agroq-frozen-soil-sampling-problem",
+      );
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const zoneData = useMemo(() => createScenarioView(scenarioKey), [scenarioKey]);
 
@@ -799,6 +849,11 @@ export default function App() {
           setActivePage("operations");
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}
+        onFreezeProblem={setFrozenSamplingProblem}
+        onOpenQuantum={() => {
+          setActivePage("quantum");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
       />
     );
   } else if (activePage === "experiments") {
@@ -808,7 +863,7 @@ export default function App() {
   } else if (activePage === "intelligence") {
     content = <IntelligencePage selectedZone={selectedZone} />;
   } else if (activePage === "quantum") {
-    content = <QuantumPage />;
+    content = <QuantumPage frozenProblem={frozenSamplingProblem} />;
   } else if (activePage === "access") {
     content = <AccessPage />;
   } else if (activePage === "credits") {

@@ -2,6 +2,7 @@
 @import "./access_styles.css";
 @import "./soil_biology.css";
 @import "./research_credits.css";
+@import "./soil_research_ops.css";
 
 :root {
   color-scheme: dark;

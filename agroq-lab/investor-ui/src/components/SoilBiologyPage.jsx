@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import Sparkline from "./Sparkline";
+import SoilResearchExtensions from "./SoilResearchExtensions";
 
 const tabs = [
   "Soil Food Web Overview",
@@ -26,8 +27,27 @@ const tabs = [
   "Mycorrhizae",
   "Nutrient Cycling",
   "Compost Biology",
+  "Soil Structure & Water",
+  "Soil Chemistry",
+  "Research Source Registry",
+  "Sample Provenance",
+  "Sensor Fusion",
+  "Sample Graph",
+  "Sampling Optimizer",
+  "Future Research",
   "Methods & References",
 ];
+
+const extendedTabs = new Set([
+  "Soil Structure & Water",
+  "Soil Chemistry",
+  "Research Source Registry",
+  "Sample Provenance",
+  "Sensor Fusion",
+  "Sample Graph",
+  "Sampling Optimizer",
+  "Future Research",
+]);
 
 const initialObservations = [
   {
@@ -344,6 +364,12 @@ function ObservationModal({ onClose, onSave }) {
     protozoa: "250",
     nematodes: "30",
     mycorrhizae: "55",
+    protocol: "SFW-MICRO-1.1",
+    calibrationId: "CAL-MICRO-NEW",
+    depthCm: "10",
+    gps: "39.14021, -121.59142",
+    confidence: "80",
+    analyst: "Research operator",
     notes: "",
   });
 
@@ -369,6 +395,13 @@ function ObservationModal({ onClose, onSave }) {
       ...numeric,
       ratio: Number(ratio.toFixed(1)),
       bhi: calculateIndex(numeric),
+      protocol: form.protocol.trim(),
+      calibrationId: form.calibrationId.trim(),
+      depthCm: Number(form.depthCm),
+      gps: form.gps.trim(),
+      confidence: Number(form.confidence),
+      analyst: form.analyst.trim(),
+      reviewStatus: "Needs review",
       notes: form.notes.trim() || "New research observation.",
     });
   };
@@ -411,6 +444,61 @@ function ObservationModal({ onClose, onSave }) {
               <option>Compost microscopy</option>
               <option>Field observation</option>
             </select>
+          </label>
+          <label>
+            Protocol version
+            <input
+              required
+              value={form.protocol}
+              onChange={(event) => update("protocol", event.target.value)}
+            />
+          </label>
+          <label>
+            Calibration record
+            <input
+              required
+              value={form.calibrationId}
+              onChange={(event) => update("calibrationId", event.target.value)}
+            />
+          </label>
+          <label>
+            Sample depth (cm)
+            <input
+              required
+              min="0"
+              step="1"
+              type="number"
+              value={form.depthCm}
+              onChange={(event) => update("depthCm", event.target.value)}
+            />
+          </label>
+          <label>
+            GPS coordinates
+            <input
+              required
+              value={form.gps}
+              onChange={(event) => update("gps", event.target.value)}
+            />
+          </label>
+          <label>
+            Confidence (%)
+            <input
+              required
+              min="0"
+              max="100"
+              step="1"
+              type="number"
+              value={form.confidence}
+              onChange={(event) => update("confidence", event.target.value)}
+            />
+          </label>
+          <label>
+            Analyst
+            <input
+              required
+              value={form.analyst}
+              onChange={(event) => update("analyst", event.target.value)}
+            />
           </label>
           {[
             ["fungi", "Fungal biomass"],
@@ -456,7 +544,12 @@ function ObservationModal({ onClose, onSave }) {
   );
 }
 
-export default function SoilBiologyPage({ onOpenExperiments, onOpenOperations }) {
+export default function SoilBiologyPage({
+  onOpenExperiments,
+  onOpenOperations,
+  onFreezeProblem,
+  onOpenQuantum,
+}) {
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [observations, setObservations] = useState(initialObservations);
   const [showObservationForm, setShowObservationForm] = useState(false);
@@ -548,7 +641,17 @@ export default function SoilBiologyPage({ onOpenExperiments, onOpenOperations })
             </button>
           ))}
         </div>
-        <FocusPanel name={activeTab} onBack={() => setActiveTab(tabs[0])} />
+        {extendedTabs.has(activeTab) ? (
+          <SoilResearchExtensions
+            activeTab={activeTab}
+            observations={observations}
+            onFreezeProblem={onFreezeProblem}
+            onOpenQuantum={onOpenQuantum}
+            onBack={() => setActiveTab(tabs[0])}
+          />
+        ) : (
+          <FocusPanel name={activeTab} onBack={() => setActiveTab(tabs[0])} />
+        )}
       </div>
     );
   }
