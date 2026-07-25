@@ -25,6 +25,7 @@ import {
 import { useMemo, useState } from "react";
 import Q2SoilSamplingBenchmark from "./Q2SoilSamplingBenchmark";
 import QuantumQ3Q10Workspace from "./QuantumQ3Q10Workspace";
+import QuantumBackendWorkspace from "./QuantumBackendWorkspace";
 import {
   buildRegistryExport,
   createExperimentFromTemplate,
@@ -43,6 +44,7 @@ const tabs = [
   "Q1 · Experiment Registry",
   "Q2 · Soil QUBO Benchmark",
   "Q3–Q10 · Research Suite",
+  "Q11–Q13 · Backend & Lineage",
   "Data Model",
   "Reproducibility Gate",
   "Acknowledgments",
@@ -878,9 +880,10 @@ export default function QuantumRegistryWorkspace({ frozenProblem }) {
         <Q2SoilSamplingBenchmark frozenProblem={frozenProblem} />
       )}
       {activeTab === tabs[3] && <QuantumQ3Q10Workspace />}
-      {activeTab === tabs[4] && <DataModel />}
-      {activeTab === tabs[5] && <ReproducibilityGate />}
-      {activeTab === tabs[6] && <Acknowledgments />}
+      {activeTab === tabs[4] && <QuantumBackendWorkspace />}
+      {activeTab === tabs[5] && <DataModel />}
+      {activeTab === tabs[6] && <ReproducibilityGate />}
+      {activeTab === tabs[7] && <Acknowledgments />}
     </section>
   );
 }

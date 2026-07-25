@@ -21,6 +21,7 @@ import {
   Waves,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { persistQuantumExperiment } from "../data/quantumApi";
 import {
   buildOptimizationExperimentRecord,
   runQ3Irrigation,
@@ -41,8 +42,6 @@ import {
   runQ10PostQuantumSecurity,
   scoreCryptoInventory,
 } from "../data/quantumFrontierSuite";
-
-const REGISTRY_STORAGE_KEY = "agroq-quantum-experiment-registry-v1";
 
 const phases = [
   {
@@ -133,20 +132,8 @@ function downloadJson(result) {
   URL.revokeObjectURL(url);
 }
 
-function registerRecord(record) {
-  let records = [];
-  try {
-    const raw = window.localStorage.getItem(REGISTRY_STORAGE_KEY);
-    records = raw ? JSON.parse(raw) : [];
-    if (!Array.isArray(records)) records = [];
-  } catch {
-    records = [];
-  }
-  const updated = [
-    record,
-    ...records.filter((item) => item.experimentId !== record.experimentId),
-  ];
-  window.localStorage.setItem(REGISTRY_STORAGE_KEY, JSON.stringify(updated));
+async function registerRecord(record) {
+  return persistQuantumExperiment(record);
 }
 
 function MiniLineChart({ values, label }) {
@@ -656,7 +643,7 @@ export default function QuantumQ3Q10Workspace() {
     }
   };
 
-  const register = () => {
+  const register = async () => {
     const result = results[activePhase];
     if (!result) return;
     const record =
@@ -665,10 +652,8 @@ export default function QuantumQ3Q10Workspace() {
         : ["Q5", "Q6", "Q7"].includes(activePhase)
           ? buildLearningExperimentRecord(result)
           : buildFrontierExperimentRecord(result);
-    registerRecord(record);
-    setMessage(
-      `${record.experimentId} registered in Q1 with human review pending.`,
-    );
+    const outcome = await registerRecord(record);
+    setMessage(outcome.message);
   };
 
   const result = results[activePhase];

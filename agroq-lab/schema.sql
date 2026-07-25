@@ -434,3 +434,185 @@ ON outage_tests(started_at);
 
 CREATE INDEX IF NOT EXISTS idx_outage_checkpoints_test
 ON outage_checkpoints(outage_test_id, recorded_at);
+
+-- AgroQ Q11-Q13 persistent quantum backend, runner, and lineage schema.
+
+CREATE TABLE IF NOT EXISTS quantum_research_sources (
+    source_id TEXT PRIMARY KEY,
+    sequence_json TEXT NOT NULL,
+    title TEXT NOT NULL,
+    authors_json TEXT NOT NULL,
+    year INTEGER,
+    venue TEXT,
+    publication_status TEXT,
+    identifier TEXT,
+    url TEXT,
+    mechanism TEXT,
+    agroq_feature TEXT,
+    reproduction_target TEXT,
+    evidence_status TEXT NOT NULL,
+    limitations TEXT,
+    acknowledgment TEXT,
+    endorsement_boundary TEXT,
+    tags_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS quantum_datasets (
+    dataset_id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    source_kind TEXT NOT NULL,
+    source_tables_json TEXT NOT NULL,
+    source_record_ids_json TEXT NOT NULL,
+    snapshot_json TEXT NOT NULL,
+    sha256 TEXT NOT NULL,
+    record_count INTEGER NOT NULL CHECK(record_count > 0),
+    quality_summary_json TEXT NOT NULL,
+    permitted_families_json TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    review_status TEXT NOT NULL CHECK(review_status IN ('pending','approved','rejected')),
+    FOREIGN KEY(created_by) REFERENCES users(user_id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_quantum_datasets_sha256
+ON quantum_datasets(sha256);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_datasets_created_at
+ON quantum_datasets(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS quantum_dataset_lineage (
+    dataset_id TEXT NOT NULL,
+    source_table TEXT NOT NULL,
+    source_record_id TEXT NOT NULL,
+    payload_sha256 TEXT NOT NULL,
+    PRIMARY KEY(dataset_id, source_table, source_record_id),
+    FOREIGN KEY(dataset_id) REFERENCES quantum_datasets(dataset_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_dataset_lineage_source
+ON quantum_dataset_lineage(source_table, source_record_id);
+
+CREATE TABLE IF NOT EXISTS quantum_experiments (
+    experiment_id TEXT PRIMARY KEY,
+    sequence TEXT NOT NULL CHECK(sequence IN ('Q2','Q3','Q4','Q5','Q6','Q7','Q8','Q9','Q10')),
+    title TEXT NOT NULL,
+    problem_family TEXT NOT NULL,
+    source_ids_json TEXT NOT NULL,
+    status TEXT NOT NULL CHECK(status IN (
+        'Planned','Registered','Ready for baseline','Simulation complete',
+        'Registry complete','Archived'
+    )),
+    run_type TEXT NOT NULL CHECK(run_type IN (
+        'classical','quantum-inspired','quantum-simulator',
+        'quantum-hardware','standards-registry'
+    )),
+    algorithm TEXT,
+    dataset_id TEXT,
+    formulation_json TEXT NOT NULL,
+    formulation_sha256 TEXT NOT NULL,
+    code_commit TEXT NOT NULL,
+    claim_controls_json TEXT NOT NULL,
+    notes TEXT,
+    raw_record_json TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY(dataset_id) REFERENCES quantum_datasets(dataset_id),
+    FOREIGN KEY(created_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_experiments_sequence
+ON quantum_experiments(sequence, updated_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_experiments_dataset
+ON quantum_experiments(dataset_id);
+
+CREATE TABLE IF NOT EXISTS quantum_runs (
+    run_id TEXT PRIMARY KEY,
+    experiment_id TEXT NOT NULL,
+    algorithm TEXT,
+    run_type TEXT NOT NULL,
+    seed INTEGER,
+    run_budget_json TEXT NOT NULL,
+    configuration_json TEXT NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('queued','running','completed','failed','cancelled')),
+    started_at TEXT NOT NULL,
+    completed_at TEXT,
+    runtime_seconds REAL,
+    result_sha256 TEXT,
+    error_message TEXT,
+    created_by TEXT NOT NULL,
+    FOREIGN KEY(experiment_id) REFERENCES quantum_experiments(experiment_id) ON DELETE CASCADE,
+    FOREIGN KEY(created_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_runs_experiment
+ON quantum_runs(experiment_id, started_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_runs_status
+ON quantum_runs(status, started_at DESC);
+
+CREATE TABLE IF NOT EXISTS quantum_solver_results (
+    result_id TEXT PRIMARY KEY,
+    run_id TEXT NOT NULL,
+    solver_name TEXT NOT NULL,
+    result_json TEXT NOT NULL,
+    objective REAL,
+    feasible INTEGER NOT NULL CHECK(feasible IN (0,1)),
+    constraint_violations INTEGER NOT NULL DEFAULT 0,
+    approximation_gap REAL,
+    runtime_seconds REAL,
+    FOREIGN KEY(run_id) REFERENCES quantum_runs(run_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_solver_results_run
+ON quantum_solver_results(run_id, solver_name);
+
+CREATE TABLE IF NOT EXISTS quantum_artifacts (
+    artifact_id TEXT PRIMARY KEY,
+    run_id TEXT NOT NULL,
+    artifact_type TEXT NOT NULL,
+    filename TEXT NOT NULL,
+    media_type TEXT NOT NULL,
+    content_text TEXT NOT NULL,
+    sha256 TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(run_id) REFERENCES quantum_runs(run_id) ON DELETE CASCADE,
+    UNIQUE(run_id, filename)
+);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_artifacts_run
+ON quantum_artifacts(run_id, created_at);
+
+CREATE TABLE IF NOT EXISTS quantum_reviews (
+    review_id TEXT PRIMARY KEY,
+    run_id TEXT NOT NULL,
+    decision TEXT NOT NULL CHECK(decision IN (
+        'approved_for_research','rejected','needs_revision'
+    )),
+    notes TEXT NOT NULL,
+    reviewer_id TEXT NOT NULL,
+    reviewed_at TEXT NOT NULL,
+    FOREIGN KEY(run_id) REFERENCES quantum_runs(run_id) ON DELETE CASCADE,
+    FOREIGN KEY(reviewer_id) REFERENCES users(user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_reviews_run
+ON quantum_reviews(run_id, reviewed_at DESC);
+
+CREATE TABLE IF NOT EXISTS quantum_claim_controls (
+    run_id TEXT PRIMARY KEY,
+    simulator_only INTEGER NOT NULL CHECK(simulator_only IN (0,1)),
+    hardware_used INTEGER NOT NULL CHECK(hardware_used IN (0,1)),
+    advantage_claim INTEGER NOT NULL CHECK(advantage_claim IN (0,1)),
+    operational_dependency INTEGER NOT NULL CHECK(operational_dependency IN (0,1)),
+    matched_budget INTEGER NOT NULL CHECK(matched_budget IN (0,1)),
+    classical_baseline_required INTEGER NOT NULL CHECK(classical_baseline_required IN (0,1)),
+    synthetic_data INTEGER NOT NULL CHECK(synthetic_data IN (0,1)),
+    human_review_required INTEGER NOT NULL CHECK(human_review_required IN (0,1)),
+    FOREIGN KEY(run_id) REFERENCES quantum_runs(run_id) ON DELETE CASCADE,
+    CHECK(advantage_claim = 0),
+    CHECK(operational_dependency = 0)
+);

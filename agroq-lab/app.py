@@ -2024,6 +2024,18 @@ def export_json() -> Response:
     return jsonify({"exported_at": utc_now(), "data": data})
 
 
+# AGROQ_Q11_Q13_QUANTUM_BACKEND
+from quantum_backend import register_quantum_backend
+
+register_quantum_backend(
+    app=app,
+    get_db=get_db,
+    utc_now=utc_now,
+    record_audit_event=record_audit_event,
+    roles_required=roles_required,
+    source_seed_path=BASE_DIR / "quantum_research_sources.json",
+)
+
 # AGROQ_PHASE31_32_BIOINFORMATICS
 from bioinformatics_portal import register_bioinformatics_portal
 

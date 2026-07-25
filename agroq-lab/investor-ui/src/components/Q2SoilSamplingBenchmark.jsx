@@ -27,8 +27,7 @@ import {
   rowsToCsv,
   runQ2Benchmark,
 } from "../data/q2SoilSamplingBenchmark";
-
-const REGISTRY_STORAGE_KEY = "agroq-quantum-experiment-registry-v1";
+import { persistQuantumExperiment } from "../data/quantumApi";
 
 function Badge({ children, tone = "green" }) {
   return <span className={`badge badge-${tone}`}>{children}</span>;
@@ -219,29 +218,11 @@ export default function Q2SoilSamplingBenchmark({ frozenProblem }) {
     }
   };
 
-  const registerResult = () => {
+  const registerResult = async () => {
     if (!result) return;
     const record = buildQ2ExperimentRecord(result);
-    let records = [];
-
-    try {
-      const current = window.localStorage.getItem(REGISTRY_STORAGE_KEY);
-      records = current ? JSON.parse(current) : [];
-      if (!Array.isArray(records)) records = [];
-    } catch {
-      records = [];
-    }
-
-    const withoutDuplicate = records.filter(
-      (item) => item.experimentId !== record.experimentId,
-    );
-    window.localStorage.setItem(
-      REGISTRY_STORAGE_KEY,
-      JSON.stringify([record, ...withoutDuplicate]),
-    );
-    setMessage(
-      `${record.experimentId} was registered in Q1 with human review still pending.`,
-    );
+    const outcome = await persistQuantumExperiment(record);
+    setMessage(outcome.message);
   };
 
   const exportJson = () => {

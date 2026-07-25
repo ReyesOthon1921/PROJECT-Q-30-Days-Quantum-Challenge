@@ -1,0 +1,497 @@
+/* AgroQ Q11-Q13 persistent quantum backend workspace */
+
+.q-backend-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.q-backend-hero {
+  min-height: 210px;
+  padding: 25px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 19px;
+  box-shadow: none;
+  background:
+    radial-gradient(circle at 88% 10%, rgba(78, 200, 255, 0.14), transparent 34%),
+    linear-gradient(145deg, rgba(10, 33, 37, 0.96), rgba(8, 18, 31, 0.97));
+}
+
+.q-backend-hero-icon {
+  width: 66px;
+  height: 66px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  color: var(--blue);
+  background: rgba(128, 196, 255, 0.09);
+  border: 1px solid rgba(128, 196, 255, 0.22);
+}
+
+.q-backend-hero h2,
+.q-backend-card h2 {
+  margin: 6px 0 8px;
+}
+
+.q-backend-hero p,
+.q-backend-boundary p,
+.q-backend-empty-copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.62;
+}
+
+.q-backend-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.q-backend-metrics article {
+  min-height: 108px;
+  padding: 15px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 5px 10px;
+  box-shadow: none;
+}
+
+.q-backend-metrics svg {
+  grid-row: 1 / 3;
+  color: var(--blue);
+}
+
+.q-backend-metrics span,
+.q-backend-metrics strong {
+  display: block;
+}
+
+.q-backend-metrics span {
+  color: var(--muted);
+  font-size: 0.58rem;
+}
+
+.q-backend-metrics strong {
+  font-size: 1rem;
+}
+
+.q-backend-toolbar {
+  padding: 13px 15px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  box-shadow: none;
+}
+
+.q-backend-toolbar > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.63rem;
+  line-height: 1.45;
+}
+
+.q-backend-toolbar > div svg {
+  flex: 0 0 auto;
+  color: var(--blue);
+}
+
+.q-backend-message {
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  box-shadow: none;
+}
+
+.q-backend-message span {
+  font-size: 0.66rem;
+}
+
+.q-backend-message-ok {
+  color: #cce3d5;
+}
+
+.q-backend-message-ok svg {
+  color: var(--green);
+}
+
+.q-backend-message-error {
+  color: #f2c5c1;
+  border-color: rgba(255, 131, 124, 0.2);
+  background: rgba(255, 131, 124, 0.04);
+}
+
+.q-backend-message-error svg {
+  color: var(--red);
+}
+
+.q-backend-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.q-backend-card {
+  padding: 19px;
+  box-shadow: none;
+}
+
+.q-backend-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.q-backend-card-heading > svg {
+  flex: 0 0 auto;
+  color: var(--blue);
+}
+
+.q-backend-card > label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 7px;
+  margin-top: 15px;
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 760;
+}
+
+.q-backend-card > label input:not([type="range"]),
+.q-backend-card > label select,
+.q-backend-card > label textarea {
+  grid-column: 1 / -1;
+  width: 100%;
+  padding: 10px 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: #0d1c28;
+  color: var(--text);
+  outline: none;
+}
+
+.q-backend-card > label input[type="range"] {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: var(--blue);
+}
+
+.q-backend-card > label strong {
+  color: var(--text);
+}
+
+.q-backend-card > label textarea {
+  resize: vertical;
+}
+
+.q-backend-card > label input:focus,
+.q-backend-card > label select:focus,
+.q-backend-card > label textarea:focus {
+  border-color: rgba(128, 196, 255, 0.65);
+  box-shadow: 0 0 0 3px rgba(128, 196, 255, 0.08);
+}
+
+.q-backend-field-group {
+  margin-top: 16px;
+}
+
+.q-backend-field-group > span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 760;
+}
+
+.q-backend-check-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.q-backend-check-grid label {
+  min-height: 40px;
+  padding: 8px 9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  color: #c6d8e2;
+  font-size: 0.58rem;
+  cursor: pointer;
+}
+
+.q-backend-check-grid input {
+  accent-color: var(--blue);
+}
+
+.q-backend-sequence-grid {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.q-backend-sequence-grid button {
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted);
+  font-size: 0.58rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.q-backend-sequence-grid button.q-backend-sequence-on {
+  color: #d8ecf8;
+  background: rgba(128, 196, 255, 0.09);
+  border-color: rgba(128, 196, 255, 0.23);
+}
+
+.q-backend-card .full-width {
+  margin-top: 18px;
+}
+
+.q-backend-selected-experiment {
+  margin-top: 14px;
+  padding: 11px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 5px 8px;
+  border: 1px solid rgba(128, 196, 255, 0.16);
+  border-radius: 9px;
+  background: rgba(128, 196, 255, 0.04);
+}
+
+.q-backend-selected-experiment strong,
+.q-backend-selected-experiment small {
+  display: block;
+}
+
+.q-backend-selected-experiment strong {
+  font-size: 0.66rem;
+}
+
+.q-backend-selected-experiment small {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 0.55rem;
+}
+
+.q-backend-dataset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.q-backend-dataset-grid article {
+  min-height: 195px;
+  padding: 13px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.q-backend-dataset-grid article > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+}
+
+.q-backend-dataset-grid article > div > span {
+  color: var(--blue);
+  font-size: 0.52rem;
+}
+
+.q-backend-dataset-grid h3 {
+  margin: 12px 0 7px;
+  font-size: 0.72rem;
+}
+
+.q-backend-dataset-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.59rem;
+  line-height: 1.45;
+}
+
+.q-backend-dataset-grid code {
+  margin-top: 12px;
+  padding: 7px;
+  overflow-wrap: anywhere;
+  border-radius: 7px;
+  color: #bcd7e8;
+  background: rgba(128, 196, 255, 0.04);
+  border: 1px solid var(--border);
+  font-size: 0.49rem;
+}
+
+.q-backend-dataset-grid small {
+  margin-top: auto;
+  padding-top: 10px;
+  color: #7893a6;
+  font-size: 0.52rem;
+}
+
+.q-backend-run-grid {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.q-backend-run-grid > div {
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.q-backend-run-grid span,
+.q-backend-run-grid strong,
+.q-backend-run-grid code {
+  display: block;
+}
+
+.q-backend-run-grid span {
+  color: var(--muted);
+  font-size: 0.55rem;
+}
+
+.q-backend-run-grid strong {
+  margin-top: 6px;
+  font-size: 0.72rem;
+}
+
+.q-backend-run-grid code {
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+  color: #bcd7e8;
+  font-size: 0.51rem;
+}
+
+.q-backend-artifact-list {
+  display: grid;
+  gap: 7px;
+}
+
+.q-backend-artifact-list a {
+  padding: 10px 11px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.02);
+  text-decoration: none;
+}
+
+.q-backend-artifact-list a:hover {
+  border-color: rgba(128, 196, 255, 0.25);
+  background: rgba(128, 196, 255, 0.04);
+}
+
+.q-backend-artifact-list svg {
+  grid-row: 1 / 3;
+  color: var(--blue);
+}
+
+.q-backend-artifact-list span {
+  font-size: 0.62rem;
+}
+
+.q-backend-artifact-list small {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: 0.49rem;
+}
+
+.q-backend-review-actions {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.q-backend-boundary {
+  padding: 17px;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  border-color: rgba(243, 185, 108, 0.19);
+  background: rgba(243, 185, 108, 0.045);
+  box-shadow: none;
+}
+
+.q-backend-boundary svg {
+  flex: 0 0 auto;
+  color: var(--amber);
+}
+
+.q-backend-boundary h3 {
+  margin: 0 0 5px;
+}
+
+.q-backend-spin {
+  animation: q-backend-spin 0.9s linear infinite;
+}
+
+@keyframes q-backend-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1180px) {
+  .q-backend-metrics,
+  .q-backend-run-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .q-backend-dataset-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .q-backend-sequence-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .q-backend-hero,
+  .q-backend-toolbar,
+  .q-backend-two-column,
+  .q-backend-metrics,
+  .q-backend-dataset-grid,
+  .q-backend-run-grid,
+  .q-backend-check-grid {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .q-backend-sequence-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .q-backend-toolbar .button,
+  .q-backend-toolbar a,
+  .q-backend-review-actions .button {
+    width: 100%;
+  }
+}

@@ -6,6 +6,7 @@
 @import "./quantum_registry.css";
 @import "./q2_soil_sampling.css";
 @import "./q3_q10_quantum_suite.css";
+@import "./quantum_backend.css";
 
 :root {
   color-scheme: dark;
