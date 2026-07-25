@@ -101,7 +101,13 @@ function Panel({ title, eyebrow, actions, children, className = "" }) {
   );
 }
 
-function OverviewPage({ zoneData, scenarioKey, backend }) {
+function OverviewPage({
+  zoneData,
+  scenarioKey,
+  backend,
+  onLaunchWalkthrough,
+  onViewBoundaries,
+}) {
   const averageMoisture = Math.round(
     zoneData.reduce((sum, zone) => sum + zone.moisture, 0) / zoneData.length,
   );
@@ -132,11 +138,17 @@ function OverviewPage({ zoneData, scenarioKey, backend }) {
             quantum-research lane inside one auditable platform.
           </p>
           <div className="hero-actions">
-            <button className="button button-primary">
+            <button
+              className="button button-primary"
+              onClick={onLaunchWalkthrough}
+            >
               Launch investor walkthrough
               <ChevronRight size={18} />
             </button>
-            <button className="button button-secondary">
+            <button
+              className="button button-secondary"
+              onClick={onViewBoundaries}
+            >
               <ShieldCheck size={18} />
               View control boundaries
             </button>
@@ -466,7 +478,8 @@ function OperationsPage({ scenarioKey }) {
         </Panel>
       </section>
 
-      <Panel title="Operational control boundary" eyebrow="Human-supervised automation">
+      <div id="control-boundaries">
+        <Panel title="Operational control boundary" eyebrow="Human-supervised automation">
         <div className="control-grid">
           {[
             ["Manual observations", "Enabled", "green"],
@@ -482,7 +495,8 @@ function OperationsPage({ scenarioKey }) {
             </div>
           ))}
         </div>
-      </Panel>
+        </Panel>
+      </div>
     </div>
   );
 }
@@ -728,6 +742,24 @@ export default function App() {
     loadBackendSnapshot().then(setBackend);
   }, []);
 
+  const launchInvestorWalkthrough = () => {
+    setScenarioKey("baseline");
+    setActivePage("acre");
+    setSidebarOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const viewControlBoundaries = () => {
+    setActivePage("operations");
+    setSidebarOpen(false);
+    window.setTimeout(() => {
+      document.getElementById("control-boundaries")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 250);
+  };
+
   const activeLabel =
     navigation.find((item) => item.id === activePage)?.label || "Overview";
 
@@ -738,6 +770,8 @@ export default function App() {
         zoneData={zoneData}
         scenarioKey={scenarioKey}
         backend={backend}
+        onLaunchWalkthrough={launchInvestorWalkthrough}
+        onViewBoundaries={viewControlBoundaries}
       />
     );
   } else if (activePage === "acre") {
