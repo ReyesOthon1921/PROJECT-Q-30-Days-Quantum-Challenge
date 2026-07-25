@@ -7,8 +7,9 @@ import {
   Users,
 } from "lucide-react";
 
-const backendBase =
-  import.meta.env.VITE_AGROQ_BACKEND_URL || "http://127.0.0.1:5000";
+const backendBase = import.meta.env.DEV
+  ? import.meta.env.VITE_AGROQ_BACKEND_URL || "http://127.0.0.1:5000"
+  : window.location.origin;
 
 const cards = [
   ["Sign in", "Open the authenticated research and operations workspace.", LogIn, "/login"],
