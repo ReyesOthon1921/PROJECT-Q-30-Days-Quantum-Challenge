@@ -11,6 +11,7 @@
 @import "./quantum_research_ops.css";
 @import "./release_readiness.css";
 @import "./controlled_beta.css";
+@import "./pilot_operations.css";
 
 :root {
   color-scheme: dark;

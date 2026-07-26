@@ -2082,6 +2082,17 @@ register_controlled_beta(
     roles_required=roles_required,
 )
 
+# AGROQ_Q20_Q22_PILOT_OPERATIONS
+from pilot_operations import register_pilot_operations
+
+register_pilot_operations(
+    app=app,
+    get_db=get_db,
+    utc_now=utc_now,
+    record_audit_event=record_audit_event,
+    roles_required=roles_required,
+)
+
 # AGROQ_PHASE31_32_BIOINFORMATICS
 from bioinformatics_portal import register_bioinformatics_portal
 

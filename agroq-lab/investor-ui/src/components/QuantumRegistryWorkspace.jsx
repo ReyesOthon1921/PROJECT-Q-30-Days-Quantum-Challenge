@@ -30,6 +30,7 @@ import QuantumValidationWorkspace from "./QuantumValidationWorkspace";
 import QuantumResearchOpsWorkspace from "./QuantumResearchOpsWorkspace";
 import ReleaseReadinessWorkspace from "./ReleaseReadinessWorkspace";
 import ControlledBetaWorkspace from "./ControlledBetaWorkspace";
+import PilotOperationsWorkspace from "./PilotOperationsWorkspace";
 import {
   buildRegistryExport,
   createExperimentFromTemplate,
@@ -53,6 +54,7 @@ const tabs = [
   "Q15 · Research Operations",
   "Q16 · Release Readiness",
   "Q17–Q19 · Controlled Beta",
+  "Q20–Q22 · Pilot Operations",
   "Data Model",
   "Reproducibility Gate",
   "Mentors & Acknowledgments",
@@ -1086,9 +1088,10 @@ export default function QuantumRegistryWorkspace({ frozenProblem }) {
       {activeTab === tabs[6] && <QuantumResearchOpsWorkspace />}
       {activeTab === tabs[7] && <ReleaseReadinessWorkspace />}
       {activeTab === tabs[8] && <ControlledBetaWorkspace />}
-      {activeTab === tabs[9] && <DataModel />}
-      {activeTab === tabs[10] && <ReproducibilityGate />}
-      {activeTab === tabs[11] && <Acknowledgments />}
+      {activeTab === tabs[9] && <PilotOperationsWorkspace />}
+      {activeTab === tabs[10] && <DataModel />}
+      {activeTab === tabs[11] && <ReproducibilityGate />}
+      {activeTab === tabs[12] && <Acknowledgments />}
     </section>
   );
 }

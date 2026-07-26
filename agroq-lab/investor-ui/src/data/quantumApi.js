@@ -490,3 +490,102 @@ export async function downloadControlledBetaEvidence(candidateId) {
     exportId: response.headers.get("X-AgroQ-Export-ID"),
   };
 }
+
+export async function pilotOperationsSummary() {
+  return quantumApi("/api/pilots/operations/summary");
+}
+
+export async function createPilotEnrollment(payload) {
+  return quantumApi("/api/pilots/enrollments", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getPilotEnrollment(enrollmentId) {
+  return quantumApi(
+    `/api/pilots/enrollments/${encodeURIComponent(enrollmentId)}`,
+  );
+}
+
+export async function updatePilotOnboarding(enrollmentId, payload) {
+  return quantumApi(
+    `/api/pilots/enrollments/${encodeURIComponent(enrollmentId)}/onboarding`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+export async function recordPilotAcknowledgment(enrollmentId, payload) {
+  return quantumApi(
+    `/api/pilots/enrollments/${encodeURIComponent(
+      enrollmentId,
+    )}/acknowledgments`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+export async function activatePilotEnrollment(enrollmentId, reason) {
+  return quantumApi(
+    `/api/pilots/enrollments/${encodeURIComponent(enrollmentId)}/activate`,
+    { method: "POST", body: JSON.stringify({ reason }) },
+  );
+}
+
+export async function submitPilotFeedback(enrollmentId, payload) {
+  return quantumApi(
+    `/api/pilots/enrollments/${encodeURIComponent(enrollmentId)}/feedback`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+export async function submitPilotIncident(enrollmentId, payload) {
+  return quantumApi(
+    `/api/pilots/enrollments/${encodeURIComponent(enrollmentId)}/incidents`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+export async function updatePilotIncident(incidentId, payload) {
+  return quantumApi(
+    `/api/pilots/incidents/${encodeURIComponent(incidentId)}/events`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+export async function recordPilotMetric(enrollmentId, payload) {
+  return quantumApi(
+    `/api/pilots/enrollments/${encodeURIComponent(enrollmentId)}/metrics`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+export async function decidePilotExit(enrollmentId, payload) {
+  return quantumApi(
+    `/api/pilots/enrollments/${encodeURIComponent(enrollmentId)}/decision`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+export async function downloadPilotEvidence(enrollmentId) {
+  const response = await fetch(
+    `/api/pilots/enrollments/${encodeURIComponent(enrollmentId)}/evidence.zip`,
+    { credentials: "same-origin" },
+  );
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    const error = new Error(
+      payload.error || `Pilot evidence export failed (${response.status}).`,
+    );
+    error.status = response.status;
+    throw error;
+  }
+  const blob = await response.blob();
+  const disposition = response.headers.get("Content-Disposition") || "";
+  const match = disposition.match(/filename="([^"]+)"/);
+  return {
+    blob,
+    filename: match?.[1] || `${enrollmentId.toLowerCase()}-q20-q22-evidence.zip`,
+    sha256: response.headers.get("X-AgroQ-SHA256"),
+    exportId: response.headers.get("X-AgroQ-Export-ID"),
+  };
+}
