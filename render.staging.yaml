@@ -1,0 +1,60 @@
+services:
+  - type: web
+    name: agroq-controlled-beta-backend
+    runtime: docker
+    plan: starter
+    region: oregon
+    branch: phase3-6-investor-prototype
+    dockerfilePath: ./agroq-lab/Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeployTrigger: off
+    numInstances: 1
+    disk:
+      name: agroq-controlled-beta-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: AGROQ_DEPLOYMENT_MODE
+        value: staging
+      - key: AGROQ_BIND_HOST
+        value: 0.0.0.0
+      - key: AGROQ_DEBUG
+        value: "false"
+      - key: AGROQ_SECRET_KEY
+        generateValue: true
+      - key: AGROQ_ADMIN_USERNAME
+        value: admin
+      - key: AGROQ_ADMIN_PASSWORD
+        sync: false
+      - key: AGROQ_NCBI_EMAIL
+        sync: false
+      - key: AGROQ_DB_PATH
+        value: /var/data/agroq.db
+      - key: AGROQ_BACKUP_DIR
+        value: /var/data/backups
+      - key: AGROQ_BACKUP_RETENTION
+        value: "7"
+      - key: AGROQ_COOKIE_SECURE
+        value: "true"
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: GUNICORN_THREADS
+        value: "4"
+
+  - type: web
+    name: agroq-controlled-beta-frontend
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: phase3-6-investor-prototype
+    dockerfilePath: ./agroq-lab/deployment/staging/frontend.Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeployTrigger: off
+    envVars:
+      - key: AGROQ_BACKEND_HOSTPORT
+        fromService:
+          type: web
+          name: agroq-controlled-beta-backend
+          property: hostport

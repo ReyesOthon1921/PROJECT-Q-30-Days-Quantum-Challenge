@@ -289,3 +289,204 @@ export async function createReleaseReadinessBackup() {
     body: JSON.stringify({}),
   });
 }
+
+export async function controlledBetaSummary() {
+  return quantumApi("/api/beta/operations/summary");
+}
+
+export async function createStagingCandidate(payload) {
+  return quantumApi("/api/beta/staging-candidates", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getStagingCandidate(candidateId) {
+  return quantumApi(
+    `/api/beta/staging-candidates/${encodeURIComponent(candidateId)}`,
+  );
+}
+
+export async function updateStagingDeployment(candidateId, payload) {
+  return quantumApi(
+    `/api/beta/staging-candidates/${encodeURIComponent(candidateId)}/deployment`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export async function recordStagingAcceptanceCheck(candidateId, payload) {
+  return quantumApi(
+    `/api/beta/staging-candidates/${encodeURIComponent(candidateId)}/checks`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export async function createStagingPersistenceSentinel(candidateId, payload) {
+  return quantumApi(
+    `/api/beta/staging-candidates/${encodeURIComponent(candidateId)}/sentinels`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export async function observeStagingPersistenceSentinel(
+  candidateId,
+  sentinelId,
+  payload,
+) {
+  return quantumApi(
+    `/api/beta/staging-candidates/${encodeURIComponent(
+      candidateId,
+    )}/sentinels/${encodeURIComponent(sentinelId)}/observe`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export async function decideStagingCandidate(candidateId, payload) {
+  return quantumApi(
+    `/api/beta/staging-candidates/${encodeURIComponent(candidateId)}/decision`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export async function syncControlledBetaContacts() {
+  return quantumApi("/api/beta/contacts/sync", {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
+
+export async function createControlledBetaContact(payload) {
+  return quantumApi("/api/beta/contacts", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateControlledBetaContact(contactId, payload) {
+  return quantumApi(`/api/beta/contacts/${encodeURIComponent(contactId)}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function createControlledBetaInterview(payload) {
+  return quantumApi("/api/beta/interviews", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function createPilotDiscoveryRecord(payload) {
+  return quantumApi("/api/beta/pilots", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function reviewPilotDiscoveryRecord(pilotId, payload) {
+  return quantumApi(`/api/beta/pilots/${encodeURIComponent(pilotId)}/review`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function createControlledBetaClaim(payload) {
+  return quantumApi("/api/beta/claims", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function reviewControlledBetaClaim(claimId, payload) {
+  return quantumApi(`/api/beta/claims/${encodeURIComponent(claimId)}/review`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function reviewAccessRequest(requestId, status) {
+  return quantumApi(
+    `/api/beta/access-requests/${encodeURIComponent(requestId)}/review`,
+    {
+      method: "POST",
+      body: JSON.stringify({ status }),
+    },
+  );
+}
+
+export async function reviewBetaReservation(reservationId, status) {
+  return quantumApi(
+    `/api/beta/reservations/${encodeURIComponent(reservationId)}/review`,
+    {
+      method: "POST",
+      body: JSON.stringify({ status }),
+    },
+  );
+}
+
+export async function updateControlledBetaEvidence(candidateId, payload) {
+  return quantumApi(
+    `/api/beta/staging-candidates/${encodeURIComponent(candidateId)}/evidence`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export async function createControlledBetaYcUpdate(candidateId, payload) {
+  return quantumApi(
+    `/api/beta/staging-candidates/${encodeURIComponent(candidateId)}/yc-update`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export async function updateControlledBetaInvitationPolicy(payload) {
+  return quantumApi("/api/beta/invitation-policy", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function downloadControlledBetaEvidence(candidateId) {
+  const response = await fetch(
+    `/api/beta/staging-candidates/${encodeURIComponent(candidateId)}/evidence.zip`,
+    { credentials: "same-origin" },
+  );
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    const error = new Error(
+      payload.error || `Controlled-beta export failed (${response.status}).`,
+    );
+    error.status = response.status;
+    throw error;
+  }
+  const blob = await response.blob();
+  const disposition = response.headers.get("Content-Disposition") || "";
+  const match = disposition.match(/filename="([^"]+)"/);
+  return {
+    blob,
+    filename:
+      match?.[1] || `${candidateId.toLowerCase()}-controlled-beta-evidence.zip`,
+    sha256: response.headers.get("X-AgroQ-SHA256"),
+    exportId: response.headers.get("X-AgroQ-Export-ID"),
+  };
+}

@@ -10,6 +10,7 @@
 @import "./quantum_validation.css";
 @import "./quantum_research_ops.css";
 @import "./release_readiness.css";
+@import "./controlled_beta.css";
 
 :root {
   color-scheme: dark;

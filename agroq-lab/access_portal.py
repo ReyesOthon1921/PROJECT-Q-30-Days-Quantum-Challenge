@@ -71,6 +71,33 @@ def _valid_email(value: str) -> bool:
     return bool(EMAIL_RE.fullmatch(value))
 
 
+def _active_invitation_policy(
+    get_db: Callable[..., Any],
+) -> dict[str, Any]:
+    fallback = {
+        "max_expiry_days": 14,
+        "default_max_uses": 1,
+        "absolute_max_uses": 5,
+        "email_binding_required": False,
+        "allowed_roles": ["viewer", "researcher", "field_operator"],
+    }
+    try:
+        with get_db() as conn:
+            row = conn.execute(
+                "SELECT policy_json FROM invitation_policies "
+                "WHERE active=1 ORDER BY created_at DESC LIMIT 1"
+            ).fetchone()
+    except Exception:
+        return fallback
+    if row is None:
+        return fallback
+    try:
+        payload = json.loads(row["policy_json"])
+    except (TypeError, json.JSONDecodeError):
+        return fallback
+    return {**fallback, **payload}
+
+
 def register_access_portal(
     *,
     app: Any,
@@ -421,12 +448,50 @@ def register_access_portal(
             relationship = request.form.get("relationship_type", "beta_tester")
             role = request.form.get("role", "viewer")
             email = request.form.get("email", "").strip().lower() or None
-            days = max(1, min(90, int(request.form.get("expires_days", "14"))))
-            max_uses = max(1, min(25, int(request.form.get("max_uses", "1"))))
+            policy = _active_invitation_policy(get_db)
+            max_days = max(1, min(90, int(policy.get("max_expiry_days", 14))))
+            absolute_max_uses = max(
+                1,
+                min(25, int(policy.get("absolute_max_uses", 5))),
+            )
+            default_max_uses = max(
+                1,
+                min(
+                    absolute_max_uses,
+                    int(policy.get("default_max_uses", 1)),
+                ),
+            )
+            days = max(
+                1,
+                min(
+                    max_days,
+                    int(request.form.get("expires_days", str(max_days))),
+                ),
+            )
+            max_uses = max(
+                1,
+                min(
+                    absolute_max_uses,
+                    int(
+                        request.form.get(
+                            "max_uses",
+                            str(default_max_uses),
+                        )
+                    ),
+                ),
+            )
+            allowed_roles = set(
+                policy.get(
+                    "allowed_roles",
+                    ["viewer", "researcher", "field_operator"],
+                )
+            )
             if relationship not in RELATIONSHIP_TYPES:
                 abort(400, "Invalid relationship type.")
-            if role not in PUBLIC_INVITE_ROLES:
+            if role not in PUBLIC_INVITE_ROLES or role not in allowed_roles:
                 abort(400, "Invalid role.")
+            if policy.get("email_binding_required") and not email:
+                abort(400, "This invitation policy requires an email.")
             if email and not _valid_email(email):
                 abort(400, "Invalid email.")
             generated_code = secrets.token_urlsafe(24)
