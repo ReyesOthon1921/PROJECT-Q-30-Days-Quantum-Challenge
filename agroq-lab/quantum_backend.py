@@ -15,11 +15,16 @@ from quantum_runner import (
     sha256_json,
     sha256_text,
 )
+from quantum_validation import (
+    evaluate_run_gates,
+    record_validation_event,
+    verify_dataset_integrity,
+)
 
 
 QUANTUM_VIEW_ROLES = ("administrator", "researcher", "field_operator", "viewer")
 QUANTUM_EDIT_ROLES = ("administrator", "researcher")
-QUANTUM_REVIEW_ROLES = ("administrator", "researcher")
+QUANTUM_REVIEW_ROLES = ("administrator",)
 MAX_QUANTUM_PAYLOAD_BYTES = 2_000_000
 
 DATASET_TABLES: dict[str, str] = {
@@ -669,6 +674,22 @@ def _create_run(
     )
 
     dataset = _dataset_for_runner(conn, experiment["dataset_id"])
+    if experiment["dataset_id"]:
+        integrity_report = verify_dataset_integrity(
+            conn,
+            experiment["dataset_id"],
+        )
+        record_validation_event(
+            conn,
+            integrity_report,
+            user_id=user_id,
+            utc_now=utc_now,
+        )
+        if integrity_report["status"] == "failed":
+            raise ValueError(
+                "Frozen dataset integrity check failed before quantum execution."
+            )
+
     try:
         execution = run_registered_experiment(
             experiment["sequence"],
@@ -779,6 +800,18 @@ def _create_run(
             1 if controls.get("synthetic_data", dataset is None) else 0,
             1 if controls.get("human_review_required", True) else 0,
         ),
+    )
+
+    scientific_report = evaluate_run_gates(
+        conn,
+        run_id,
+        include_replay=False,
+    )
+    record_validation_event(
+        conn,
+        scientific_report,
+        user_id=user_id,
+        utc_now=utc_now,
     )
 
     row = conn.execute(
@@ -1126,6 +1159,31 @@ def register_quantum_backend(
             ).fetchone()
             if run is None:
                 return jsonify({"ok": False, "error": "Run not found"}), 404
+
+            if decision == "approved_for_research":
+                approval_report = evaluate_run_gates(
+                    conn,
+                    run_id,
+                    include_replay=True,
+                )
+                validation_event = record_validation_event(
+                    conn,
+                    approval_report,
+                    user_id=g.user["user_id"],
+                    utc_now=utc_now,
+                )
+                if approval_report["status"] == "failed":
+                    return jsonify(
+                        {
+                            "ok": False,
+                            "error": (
+                                "Scientific validation gates must pass before "
+                                "research approval."
+                            ),
+                            "validation": validation_event,
+                        }
+                    ), 409
+
             review_id = _new_id("QREVIEW")
             conn.execute(
                 """INSERT INTO quantum_reviews(

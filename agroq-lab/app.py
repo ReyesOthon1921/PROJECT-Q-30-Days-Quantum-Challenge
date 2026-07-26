@@ -2036,6 +2036,17 @@ register_quantum_backend(
     source_seed_path=BASE_DIR / "quantum_research_sources.json",
 )
 
+# AGROQ_Q14_QUANTUM_VALIDATION
+from quantum_validation import register_quantum_validation
+
+register_quantum_validation(
+    app=app,
+    get_db=get_db,
+    utc_now=utc_now,
+    record_audit_event=record_audit_event,
+    roles_required=roles_required,
+)
+
 # AGROQ_PHASE31_32_BIOINFORMATICS
 from bioinformatics_portal import register_bioinformatics_portal
 

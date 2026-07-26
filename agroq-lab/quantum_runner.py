@@ -34,6 +34,30 @@ def sha256_json(value: Any) -> str:
     return sha256_text(canonical_json(value))
 
 
+_NONDETERMINISTIC_RESULT_KEYS = frozenset(
+    {
+        "runtime_seconds",
+        "started_at",
+        "completed_at",
+        "created_at",
+        "updated_at",
+        "result_sha256",
+    }
+)
+
+
+def deterministic_result_payload(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {
+            key: deterministic_result_payload(item)
+            for key, item in sorted(value.items())
+            if key not in _NONDETERMINISTIC_RESULT_KEYS
+        }
+    if isinstance(value, list):
+        return [deterministic_result_payload(item) for item in value]
+    return value
+
+
 def seeded_random(seed: int | str | None = 301) -> random.Random:
     try:
         normalized = int(seed if seed is not None else 301)
@@ -1465,7 +1489,10 @@ def run_registered_experiment(
         if dataset and dataset.get("sha256")
         else sha256_json(dataset or {"mode": "synthetic"})
     )
-    result["result_sha256"] = sha256_json(result)
+    result["result_hash_scope"] = "deterministic-v1"
+    result["result_sha256"] = sha256_json(
+        deterministic_result_payload(result)
+    )
     artifacts = [
         {
             "artifact_type": "result_json",

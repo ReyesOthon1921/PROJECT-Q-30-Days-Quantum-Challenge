@@ -147,3 +147,40 @@ export async function attachQuantumDataset(experimentId, datasetId) {
     },
   );
 }
+
+export async function quantumValidationSummary() {
+  return quantumApi("/api/quantum/validation/summary");
+}
+
+export async function verifyPersistentQuantumDataset(datasetId) {
+  return quantumApi(
+    `/api/quantum/datasets/${encodeURIComponent(datasetId)}/verify`,
+    { method: "POST", body: JSON.stringify({}) },
+  );
+}
+
+export async function validatePersistentQuantumRun(
+  runId,
+  includeReplay = false,
+) {
+  return quantumApi(
+    `/api/quantum/runs/${encodeURIComponent(runId)}/validate`,
+    {
+      method: "POST",
+      body: JSON.stringify({ include_replay: includeReplay }),
+    },
+  );
+}
+
+export async function replayPersistentQuantumRun(runId) {
+  return quantumApi(
+    `/api/quantum/runs/${encodeURIComponent(runId)}/replay`,
+    { method: "POST", body: JSON.stringify({}) },
+  );
+}
+
+export async function quantumRunValidationHistory(runId) {
+  return quantumApi(
+    `/api/quantum/runs/${encodeURIComponent(runId)}/validation`,
+  );
+}

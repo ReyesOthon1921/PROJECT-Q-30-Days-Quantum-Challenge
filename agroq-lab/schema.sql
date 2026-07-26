@@ -616,3 +616,48 @@ CREATE TABLE IF NOT EXISTS quantum_claim_controls (
     CHECK(advantage_claim = 0),
     CHECK(operational_dependency = 0)
 );
+
+-- AgroQ Q14 validation, regression, and scientific-gate schema.
+
+CREATE TABLE IF NOT EXISTS quantum_validation_events (
+    validation_id TEXT PRIMARY KEY,
+    run_id TEXT,
+    dataset_id TEXT,
+    gate_type TEXT NOT NULL CHECK(gate_type IN (
+        'dataset_integrity','classical_baseline',
+        'deterministic_replay','scientific_release'
+    )),
+    status TEXT NOT NULL CHECK(status IN ('passed','warning','failed')),
+    message TEXT NOT NULL,
+    report_json TEXT NOT NULL,
+    evaluated_by TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(run_id) REFERENCES quantum_runs(run_id) ON DELETE CASCADE,
+    FOREIGN KEY(dataset_id) REFERENCES quantum_datasets(dataset_id) ON DELETE CASCADE,
+    FOREIGN KEY(evaluated_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_validation_run
+ON quantum_validation_events(run_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_validation_dataset
+ON quantum_validation_events(dataset_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_validation_status
+ON quantum_validation_events(status, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS quantum_replay_checks (
+    replay_id TEXT PRIMARY KEY,
+    run_id TEXT NOT NULL,
+    expected_result_sha256 TEXT,
+    replay_result_sha256 TEXT,
+    deterministic INTEGER NOT NULL CHECK(deterministic IN (0,1)),
+    configuration_sha256 TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(run_id) REFERENCES quantum_runs(run_id) ON DELETE CASCADE,
+    FOREIGN KEY(created_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_quantum_replay_run
+ON quantum_replay_checks(run_id, created_at DESC);
