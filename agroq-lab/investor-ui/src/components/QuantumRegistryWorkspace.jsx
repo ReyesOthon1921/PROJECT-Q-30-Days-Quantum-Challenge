@@ -28,6 +28,7 @@ import QuantumQ3Q10Workspace from "./QuantumQ3Q10Workspace";
 import QuantumBackendWorkspace from "./QuantumBackendWorkspace";
 import QuantumValidationWorkspace from "./QuantumValidationWorkspace";
 import QuantumResearchOpsWorkspace from "./QuantumResearchOpsWorkspace";
+import ReleaseReadinessWorkspace from "./ReleaseReadinessWorkspace";
 import {
   buildRegistryExport,
   createExperimentFromTemplate,
@@ -49,9 +50,10 @@ const tabs = [
   "Q11–Q13 · Backend & Lineage",
   "Q14 · Validation Gates",
   "Q15 · Research Operations",
+  "Q16 · Release Readiness",
   "Data Model",
   "Reproducibility Gate",
-  "Acknowledgments",
+  "Mentors & Acknowledgments",
 ];
 
 function Badge({ children, tone = "green" }) {
@@ -819,16 +821,209 @@ function Acknowledgments() {
     },
   ];
 
+  const collaborationPath = [
+    {
+      title: "Early mentorship outreach",
+      copy:
+        "Misbahul Islam reached out while RNAQ was an early software prototype and offered research mentorship and publication-oriented guidance.",
+    },
+    {
+      title: "Research framing",
+      copy:
+        "Define the research problem, literature-review structure, research gap, measurable objectives, and validation plan.",
+    },
+    {
+      title: "Biological evidence",
+      copy:
+        "Collect RNA sequences and secondary-structure datasets, with BLAST sequence validation and RCSB PDB structural evidence where applicable.",
+    },
+    {
+      title: "Bioinformatics preprocessing",
+      copy:
+        "Clean sequences, extract features, generate base pairs and stems, calculate energies, and define biological constraints.",
+    },
+    {
+      title: "QUBO research design",
+      copy:
+        "Specify decision variables, objective terms, penalty constraints, and Hamiltonian representations.",
+    },
+    {
+      title: "Solver experiments",
+      copy:
+        "Compare exact enumeration, greedy optimization, simulated annealing, QAOA, and VQE under documented conditions.",
+    },
+    {
+      title: "Equal-budget benchmarking",
+      copy:
+        "Preserve matched budgets, seeds, feasibility checks, runtime evidence, and classical-versus-quantum comparisons.",
+    },
+    {
+      title: "Compression investigation",
+      copy:
+        "Study variable and qubit compression, including QRAC and QRAO directions without overstating readiness or advantage.",
+    },
+    {
+      title: "Verification and publication planning",
+      copy:
+        "Review methodology and results, preserve reproducible evidence, and organize a manuscript for an appropriate journal.",
+    },
+  ];
+
   return (
     <div className="quantum-registry-stack">
       <section className="panel quantum-ack-hero">
         <Sparkles size={30} />
         <div>
-          <span className="eyebrow">Attribution and gratitude</span>
+          <span className="eyebrow">Attribution, mentorship, and gratitude</span>
+          <h2>Research Mentors &amp; Collaborators</h2>
+          <p>
+            AgroQ and RNAQ recognize people who strengthened the scientific
+            direction of the work while preserving clear ownership,
+            contribution, authorship, and affiliation boundaries.
+          </p>
+        </div>
+      </section>
+
+      <section className="panel mentor-feature-card">
+        <div className="mentor-feature-heading">
+          <div>
+            <span className="eyebrow">Early RNAQ research guidance</span>
+            <h3>Misbahul Islam</h3>
+            <p className="mentor-role">
+              Research Mentor &amp; Publication Collaborator
+            </p>
+          </div>
+          <Badge tone="green">Mentorship acknowledged</Badge>
+        </div>
+
+        <p>
+          Misbahul Islam reached out during the early development of the RNAQ
+          project and offered research mentorship, methodological guidance, and
+          support toward developing the work into a publication. At the time,
+          Othon Reyes Jr. was beginning his work in quantum computing and
+          computational bioinformatics, and this guidance helped direct the
+          project from an early software prototype toward a structured research
+          study.
+        </p>
+
+        <p>
+          He recommended organizing the work around a defined research problem,
+          literature review, research-gap analysis, measurable objectives,
+          dataset development, bioinformatics preprocessing, QUBO formulation,
+          classical and quantum benchmarking, qubit-compression research, and
+          publication-ready validation. He also encouraged the use of BLAST and
+          RCSB PDB resources to strengthen biological and structural validation.
+        </p>
+
+        <p>
+          The collaboration established a clear division of responsibility:
+          Othon Reyes Jr. continues developing the software, conducting the
+          experiments, and producing the research data, while Misbahul Islam
+          helps review the methodology, verify the results, and support the
+          preparation of a research paper for submission to an appropriate
+          journal.
+        </p>
+
+        <div className="mentor-focus">
+          <strong>Areas of contribution</strong>
+          <span>Bioinformatics validation</span>
+          <span>Research methodology</span>
+          <span>QUBO formulation</span>
+          <span>Quantum benchmarking</span>
+          <span>Publication development</span>
+        </div>
+      </section>
+
+      <section className="panel mentor-boundary">
+        <ShieldCheck size={22} />
+        <div>
+          <h3>Role and authorship boundary</h3>
+          <p>
+            This acknowledgment does not identify Misbahul Islam as a
+            co-founder, project owner, principal investigator, or formally
+            appointed faculty adviser. Publication authorship will be determined
+            separately during manuscript development through an explicit
+            contribution and authorship agreement.
+          </p>
+        </div>
+      </section>
+
+      <section className="panel mentor-pathway">
+        <div className="mentor-section-heading">
+          <GitBranch size={24} />
+          <div>
+            <span className="eyebrow">Collaboration diagram</span>
+            <h3>RNAQ Research Development Pathway</h3>
+          </div>
+        </div>
+        <div className="mentor-pathway-grid">
+          {collaborationPath.map((stage, index) => (
+            <article key={stage.title}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <strong>{stage.title}</strong>
+                <p>{stage.copy}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mentor-role-grid">
+        <article className="panel mentor-role-card">
+          <Users size={24} />
+          <span className="eyebrow">
+            Othon Reyes Jr. · Founder · Researcher · Lead Developer
+          </span>
+          <h3>Platform and experiment ownership</h3>
+          <ul>
+            <li>Design and build the RNAQ platform.</li>
+            <li>Implement the bioinformatics and QUBO pipeline.</li>
+            <li>Run classical and quantum experiments.</li>
+            <li>Generate datasets, benchmarks, graphs, and reports.</li>
+            <li>Document reproducible results and technical limitations.</li>
+          </ul>
+        </article>
+
+        <article className="panel mentor-role-card">
+          <Users size={24} />
+          <span className="eyebrow">
+            Misbahul Islam · Research Mentor · Publication Collaborator
+          </span>
+          <h3>Methodology and publication support</h3>
+          <ul>
+            <li>Help frame the research problem.</li>
+            <li>Recommend BLAST and RCSB validation.</li>
+            <li>Guide literature-review and research-gap analysis.</li>
+            <li>Review research methodology and results.</li>
+            <li>Support manuscript organization and journal preparation.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section className="panel mentor-shared-result">
+        <ClipboardCheck size={24} />
+        <div>
+          <span className="eyebrow">Shared research collaboration</span>
+          <h3>Verify evidence → interpret findings → prepare manuscript</h3>
+          <p>
+            The collaboration focuses on strengthening the evidence and
+            scientific interpretation while Othon Reyes Jr. remains responsible
+            for the platform architecture, implementation, experiments,
+            datasets, and reproducible results.
+          </p>
+        </div>
+      </section>
+
+      <section className="panel quantum-ack-hero">
+        <Atom size={30} />
+        <div>
+          <span className="eyebrow">Published research foundations</span>
           <h2>Quantum Research Acknowledgments</h2>
           <p>
-            AgroQ gives credit for intellectual foundations while clearly stating that
-            citation does not imply endorsement, partnership, employment, or affiliation.
+            Citation recognizes the intellectual foundations used by AgroQ.
+            Citation does not imply endorsement, partnership, employment, or
+            affiliation.
           </p>
         </div>
       </section>
@@ -851,9 +1046,9 @@ function Acknowledgments() {
       <section className="panel quantum-ack-boundary">
         <ShieldCheck size={22} />
         <p>
-          AgroQ independently selects its problems, designs its integrations, writes its
-          code, and performs its own reproductions. Researchers are credited for the
-          specific published mechanisms listed in Q0.
+          AgroQ independently selects its problems, designs its integrations,
+          writes its code, and performs its own reproductions. Researchers are
+          credited for the specific published mechanisms listed in Q0.
         </p>
       </section>
     </div>
@@ -887,9 +1082,10 @@ export default function QuantumRegistryWorkspace({ frozenProblem }) {
       {activeTab === tabs[4] && <QuantumBackendWorkspace />}
       {activeTab === tabs[5] && <QuantumValidationWorkspace />}
       {activeTab === tabs[6] && <QuantumResearchOpsWorkspace />}
-      {activeTab === tabs[7] && <DataModel />}
-      {activeTab === tabs[8] && <ReproducibilityGate />}
-      {activeTab === tabs[9] && <Acknowledgments />}
+      {activeTab === tabs[7] && <ReleaseReadinessWorkspace />}
+      {activeTab === tabs[8] && <DataModel />}
+      {activeTab === tabs[9] && <ReproducibilityGate />}
+      {activeTab === tabs[10] && <Acknowledgments />}
     </section>
   );
 }

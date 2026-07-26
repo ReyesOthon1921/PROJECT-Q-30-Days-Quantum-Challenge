@@ -40,4 +40,4 @@ USER agroq
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-10000} --workers ${WEB_CONCURRENCY:-2} --threads ${GUNICORN_THREADS:-4} --timeout 120 --graceful-timeout 30 --access-logfile - --error-logfile - wsgi:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-10000} --workers ${WEB_CONCURRENCY:-1} --threads ${GUNICORN_THREADS:-4} --timeout 120 --graceful-timeout 30 --access-logfile - --error-logfile - wsgi:app"]

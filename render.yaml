@@ -26,7 +26,13 @@ services:
         sync: false
       - key: AGROQ_DB_PATH
         value: /app/instance/agroq.db
+      - key: AGROQ_BACKUP_DIR
+        value: /app/backups
+      - key: AGROQ_BACKUP_RETENTION
+        value: "7"
+      - key: AGROQ_COOKIE_SECURE
+        value: "true"
       - key: WEB_CONCURRENCY
-        value: "2"
+        value: "1"
       - key: GUNICORN_THREADS
         value: "4"

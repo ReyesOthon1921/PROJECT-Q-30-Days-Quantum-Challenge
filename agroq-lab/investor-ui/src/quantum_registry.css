@@ -735,3 +735,169 @@
     width: 100%;
   }
 }
+
+/* Q16 mentor and collaborator acknowledgments */
+
+.mentor-feature-card,
+.mentor-boundary,
+.mentor-pathway,
+.mentor-role-card,
+.mentor-shared-result {
+  padding: 21px;
+  box-shadow: none;
+}
+
+.mentor-feature-heading,
+.mentor-section-heading,
+.mentor-boundary,
+.mentor-shared-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.mentor-feature-heading {
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.mentor-feature-heading h3,
+.mentor-section-heading h3,
+.mentor-boundary h3,
+.mentor-role-card h3,
+.mentor-shared-result h3 {
+  margin: 5px 0 7px;
+}
+
+.mentor-role {
+  margin: 0;
+  color: var(--blue);
+  font-weight: 780;
+}
+
+.mentor-feature-card > p,
+.mentor-boundary p,
+.mentor-pathway p,
+.mentor-role-card li,
+.mentor-shared-result p {
+  color: var(--muted);
+  font-size: 0.71rem;
+  line-height: 1.65;
+}
+
+.mentor-focus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 17px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border);
+}
+
+.mentor-focus strong {
+  width: 100%;
+  color: var(--text);
+}
+
+.mentor-focus span {
+  padding: 6px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(128, 196, 255, 0.05);
+  color: #c7d7e2;
+  font-size: 0.6rem;
+  font-weight: 760;
+}
+
+.mentor-boundary {
+  border-color: rgba(243, 185, 108, 0.24);
+  background: rgba(243, 185, 108, 0.055);
+}
+
+.mentor-boundary > svg,
+.mentor-section-heading > svg,
+.mentor-role-card > svg,
+.mentor-shared-result > svg {
+  flex: 0 0 auto;
+  color: var(--blue);
+}
+
+.mentor-pathway {
+  display: grid;
+  gap: 17px;
+}
+
+.mentor-pathway-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.mentor-pathway-grid article {
+  min-height: 165px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mentor-pathway-grid article > span {
+  display: inline-grid;
+  min-width: 32px;
+  min-height: 32px;
+  place-items: center;
+  margin-bottom: 10px;
+  border-radius: 9px;
+  color: var(--blue);
+  background: rgba(128, 196, 255, 0.08);
+  font-weight: 850;
+}
+
+.mentor-pathway-grid strong {
+  display: block;
+  font-size: 0.72rem;
+}
+
+.mentor-pathway-grid p {
+  margin: 7px 0 0;
+  font-size: 0.64rem;
+}
+
+.mentor-role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.mentor-role-card ul {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding-left: 18px;
+}
+
+.mentor-shared-result {
+  border-color: rgba(92, 241, 160, 0.2);
+  background: rgba(92, 241, 160, 0.035);
+}
+
+@media (max-width: 900px) {
+  .mentor-pathway-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .mentor-role-grid,
+  .mentor-pathway-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mentor-feature-heading,
+  .mentor-boundary,
+  .mentor-shared-result {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

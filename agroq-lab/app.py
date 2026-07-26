@@ -2058,6 +2058,19 @@ register_quantum_research_ops(
     roles_required=roles_required,
 )
 
+# AGROQ_Q16_RELEASE_READINESS
+from release_readiness import register_release_readiness
+
+register_release_readiness(
+    app=app,
+    get_db=get_db,
+    gateway_configuration=gateway_configuration,
+    create_database_backup=create_database_backup,
+    verify_backup_recovery=verify_backup_recovery,
+    record_audit_event=record_audit_event,
+    roles_required=roles_required,
+)
+
 # AGROQ_PHASE31_32_BIOINFORMATICS
 from bioinformatics_portal import register_bioinformatics_portal
 

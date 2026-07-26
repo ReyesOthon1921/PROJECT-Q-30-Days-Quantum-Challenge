@@ -278,3 +278,14 @@ export async function downloadQuantumEvidenceBundle(operationId) {
     bundleId: response.headers.get("X-AgroQ-Bundle-ID"),
   };
 }
+
+export async function getReleaseReadiness() {
+  return quantumApi("/api/release/readiness");
+}
+
+export async function createReleaseReadinessBackup() {
+  return quantumApi("/api/release/readiness/backup", {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
