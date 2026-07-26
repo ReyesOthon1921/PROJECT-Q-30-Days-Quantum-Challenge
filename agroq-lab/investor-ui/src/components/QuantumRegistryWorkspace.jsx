@@ -27,6 +27,7 @@ import Q2SoilSamplingBenchmark from "./Q2SoilSamplingBenchmark";
 import QuantumQ3Q10Workspace from "./QuantumQ3Q10Workspace";
 import QuantumBackendWorkspace from "./QuantumBackendWorkspace";
 import QuantumValidationWorkspace from "./QuantumValidationWorkspace";
+import QuantumResearchOpsWorkspace from "./QuantumResearchOpsWorkspace";
 import {
   buildRegistryExport,
   createExperimentFromTemplate,
@@ -47,6 +48,7 @@ const tabs = [
   "Q3–Q10 · Research Suite",
   "Q11–Q13 · Backend & Lineage",
   "Q14 · Validation Gates",
+  "Q15 · Research Operations",
   "Data Model",
   "Reproducibility Gate",
   "Acknowledgments",
@@ -884,9 +886,10 @@ export default function QuantumRegistryWorkspace({ frozenProblem }) {
       {activeTab === tabs[3] && <QuantumQ3Q10Workspace />}
       {activeTab === tabs[4] && <QuantumBackendWorkspace />}
       {activeTab === tabs[5] && <QuantumValidationWorkspace />}
-      {activeTab === tabs[6] && <DataModel />}
-      {activeTab === tabs[7] && <ReproducibilityGate />}
-      {activeTab === tabs[8] && <Acknowledgments />}
+      {activeTab === tabs[6] && <QuantumResearchOpsWorkspace />}
+      {activeTab === tabs[7] && <DataModel />}
+      {activeTab === tabs[8] && <ReproducibilityGate />}
+      {activeTab === tabs[9] && <Acknowledgments />}
     </section>
   );
 }

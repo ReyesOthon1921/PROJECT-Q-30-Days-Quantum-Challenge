@@ -2047,6 +2047,17 @@ register_quantum_validation(
     roles_required=roles_required,
 )
 
+# AGROQ_Q15_QUANTUM_RESEARCH_OPS
+from quantum_research_ops import register_quantum_research_ops
+
+register_quantum_research_ops(
+    app=app,
+    get_db=get_db,
+    utc_now=utc_now,
+    record_audit_event=record_audit_event,
+    roles_required=roles_required,
+)
+
 # AGROQ_PHASE31_32_BIOINFORMATICS
 from bioinformatics_portal import register_bioinformatics_portal
 

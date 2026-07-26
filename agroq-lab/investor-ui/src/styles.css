@@ -8,6 +8,7 @@
 @import "./q3_q10_quantum_suite.css";
 @import "./quantum_backend.css";
 @import "./quantum_validation.css";
+@import "./quantum_research_ops.css";
 
 :root {
   color-scheme: dark;

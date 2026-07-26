@@ -184,3 +184,97 @@ export async function quantumRunValidationHistory(runId) {
     `/api/quantum/runs/${encodeURIComponent(runId)}/validation`,
   );
 }
+
+export async function listQuantumResearchOperations() {
+  return quantumApi("/api/quantum/operations");
+}
+
+export async function createQuantumResearchOperation(payload) {
+  return quantumApi("/api/quantum/operations", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function ensureQuantumRunOperation(runId) {
+  return quantumApi(
+    `/api/quantum/runs/${encodeURIComponent(runId)}/operation`,
+    { method: "POST", body: JSON.stringify({}) },
+  );
+}
+
+export async function getQuantumResearchOperation(operationId) {
+  return quantumApi(
+    `/api/quantum/operations/${encodeURIComponent(operationId)}`,
+  );
+}
+
+export async function attachQuantumRunToOperation(operationId, runId) {
+  return quantumApi(
+    `/api/quantum/operations/${encodeURIComponent(operationId)}/attach-run`,
+    {
+      method: "POST",
+      body: JSON.stringify({ run_id: runId }),
+    },
+  );
+}
+
+export async function assignQuantumResearchOperation(operationId, payload) {
+  return quantumApi(
+    `/api/quantum/operations/${encodeURIComponent(operationId)}/assign`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export async function transitionQuantumResearchOperation(
+  operationId,
+  payload,
+) {
+  return quantumApi(
+    `/api/quantum/operations/${encodeURIComponent(operationId)}/transition`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export async function updateQuantumReleaseChecklist(
+  operationId,
+  manual,
+) {
+  return quantumApi(
+    `/api/quantum/operations/${encodeURIComponent(operationId)}/checklist`,
+    {
+      method: "POST",
+      body: JSON.stringify({ manual }),
+    },
+  );
+}
+
+export async function downloadQuantumEvidenceBundle(operationId) {
+  const response = await fetch(
+    `/api/quantum/operations/${encodeURIComponent(operationId)}/evidence.zip`,
+    { credentials: "same-origin" },
+  );
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    const error = new Error(
+      payload.error || `Evidence bundle request failed (${response.status}).`,
+    );
+    error.status = response.status;
+    throw error;
+  }
+  const blob = await response.blob();
+  const disposition = response.headers.get("Content-Disposition") || "";
+  const match = disposition.match(/filename="([^"]+)"/);
+  return {
+    blob,
+    filename: match?.[1] || `${operationId.toLowerCase()}-evidence.zip`,
+    sha256: response.headers.get("X-AgroQ-SHA256"),
+    bundleId: response.headers.get("X-AgroQ-Bundle-ID"),
+  };
+}
