@@ -183,7 +183,14 @@ def test_login_page_loads(client):
     response = client.get("/login")
     assert response.status_code == 200
     assert b"Sign in to AgroQ" in response.data
-    assert b"No external identity provider" in response.data
+    assert b"Browse as Guest" in response.data
+    assert b"No login information is collected" in response.data
+
+
+def test_guest_browse_opens_public_professional_interface(client):
+    response = client.get("/app/", follow_redirects=False)
+    assert response.status_code in {200, 503}
+    assert b"/login" not in response.data
 
 
 def test_valid_administrator_login_succeeds(client):

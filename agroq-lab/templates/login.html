@@ -6,16 +6,22 @@
   <meta name="theme-color" content="#163226">
   <title>Sign in — AgroQ</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='access.css') }}">
 </head>
 <body class="login-page">
   <main class="login-shell">
     <section class="login-card">
-      <p class="eyebrow">LOCAL RESEARCH ACCESS</p>
+      <div class="login-brand" aria-label="AgroQ">
+        <span class="login-brand-mark" aria-hidden="true">AQ</span>
+        <span>
+          <strong>AgroQ</strong>
+          <small>Quantum-AI Living Systems Lab</small>
+        </span>
+      </div>
+      <p class="eyebrow">SECURE RESEARCH ACCESS</p>
       <h1>Sign in to AgroQ</h1>
       <p class="login-lead">
-        This is a local-first field research system. Credentials are stored on this device only.
-        No external identity provider is used.
+        Sign in to manage research operations, or browse the public demonstration
+        without creating an account.
       </p>
 
       {% with messages = get_flashed_messages(with_categories=true) %}
@@ -40,14 +46,24 @@
         <button type="submit" class="primary-button login-submit">Sign in</button>
       </form>
 
-      <div class="form-actions">
+      <div class="guest-access">
+        <div class="login-divider"><span>First time here?</span></div>
+        <a class="guest-button" href="{{ url_for('professional_app') }}">
+          Browse as Guest
+          <span aria-hidden="true">→</span>
+        </a>
+        <p>Explore the platform with synthetic demonstration data. No login information is collected.</p>
+      </div>
+
+      <div class="form-actions login-support-actions">
         <a class="secondary-button" href="{{ url_for('access_portal') }}">Request access</a>
         <a class="secondary-button" href="{{ url_for('redeem_invite') }}">Redeem invitation</a>
         <a class="secondary-button" href="{{ url_for('beta_reserve') }}">Join the beta</a>
       </div>
 
       <p class="login-footnote">
-        Development deployments ship with local-only defaults. Change credentials before any shared or production use.
+        Guest browsing is read-only. Signing in is required to view protected records
+        or make changes.
       </p>
     </section>
   </main>
