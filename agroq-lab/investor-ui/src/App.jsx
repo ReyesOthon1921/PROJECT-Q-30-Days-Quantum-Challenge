@@ -35,6 +35,7 @@ import { useEffect, useMemo, useState } from "react";
 import AcreScene from "./components/AcreScene";
 import AccessPage from "./components/AccessPage";
 import ResearchCreditsPage from "./components/ResearchCreditsPage";
+import GovernanceTransparencyPage from "./components/GovernanceTransparencyPage";
 import SoilBiologyPage from "./components/SoilBiologyPage";
 import QuantumRegistryWorkspace from "./components/QuantumRegistryWorkspace";
 import NetworkGraph from "./components/NetworkGraph";
@@ -52,6 +53,7 @@ import {
 import { loadBackendSnapshot } from "./lib/api";
 
 import AdminLabPage from "./components/AdminLabPage";
+import ConfigMigrationWorkspace from "./components/ConfigMigrationWorkspace";
 const navigation = [
   { id: "overview", label: "Overview", icon: Grid3X3 },
   { id: "acre", label: "3D Digital Acre", icon: Orbit },
@@ -62,6 +64,7 @@ const navigation = [
   { id: "quantum", label: "Quantum Lab", icon: Cpu },
   { id: "access", label: "Access & Community", icon: Users },
   { id: "credits", label: "Research & Thanks", icon: BookOpen },
+  { id: "governance", label: "Team & Transparency", icon: ShieldCheck },
   { id: "admin-lab", label: "Admin & Sequence Lab", icon: Users },
   { id: "system", label: "System", icon: Layers3 },
 ];
@@ -709,6 +712,8 @@ function QuantumPage({ frozenProblem }) {
 function SystemPage({ backend }) {
   return (
     <div className="page-stack">
+      <ConfigMigrationWorkspace />
+
       <section className="metrics-grid">
         <MetricCard label="Application mode" value="Prototype" note="Investor demonstration" icon={Sparkles} />
         <MetricCard label="Data mode" value="Synthetic" note="Not field validation" icon={Database} />
@@ -871,6 +876,8 @@ export default function App() {
     content = <AccessPage />;
   } else if (activePage === "credits") {
     content = <ResearchCreditsPage />;
+  } else if (activePage === "governance") {
+    content = <GovernanceTransparencyPage />;
   } else if (activePage === "admin-lab") {
     content = <AdminLabPage />;
   } else {
@@ -932,7 +939,14 @@ export default function App() {
                 <div className="avatar">OR</div>
                 <div>
                   <strong>Othon Reyes Jr.</strong>
-                  <span>Founder · Research Lead</span>
+                  <span>Founder · CEO · Technical Lead</span>
+                </div>
+              </div>
+              <div className="user-card">
+                <div className="avatar">EO</div>
+                <div>
+                  <strong>Edith Ortiz</strong>
+                  <span>Co-Founder · Operations Lead</span>
                 </div>
               </div>
             </div>

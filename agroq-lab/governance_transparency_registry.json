@@ -1,0 +1,78 @@
+{
+  "schema_version": "agroq-q23-q25-v1",
+  "effective_date": "2026-07-27",
+  "product": {
+    "name": "AgroQ",
+    "public_description": "Operating system for agricultural field trials",
+    "stage": "early-stage software MVP and investor prototype",
+    "data_mode": "synthetic demonstration data",
+    "field_mode": "locked",
+    "automatic_field_actuation": false
+  },
+  "leadership": [
+    {
+      "name": "Othon Reyes Jr.",
+      "title": "Founder, CEO, and Technical Lead",
+      "responsibilities": [
+        "product engineering",
+        "technical architecture",
+        "research systems",
+        "evidence controls",
+        "platform development"
+      ]
+    },
+    {
+      "name": "Edith Ortiz",
+      "title": "Co-Founder and Operations Lead",
+      "responsibilities": [
+        "customer discovery",
+        "grower relationships",
+        "operational planning",
+        "workflow research",
+        "pilot coordination",
+        "market validation"
+      ]
+    }
+  ],
+  "ai_and_media": {
+    "ai_assistance_disclosed": true,
+    "concept_media_may_be_ai_generated": true,
+    "human_review_required": true,
+    "founder_names_and_roles_refer_to_real_people": true,
+    "concept_media_is_real_deployment_evidence": false,
+    "validated_agricultural_performance_claim": false,
+    "quantum_advantage_claim": false
+  },
+  "founding_grower_program": {
+    "application_is_nonbinding": true,
+    "payment_collected_through_application": false,
+    "automatic_renewal_active": false,
+    "written_acceptance_required": true,
+    "tiers": [
+      {"approved_operations": "1-100", "proposed_first_year_usd": 500},
+      {"approved_operations": "101-200", "proposed_first_year_usd": 800},
+      {"approved_operations": "after 200", "planned_first_year_usd": 1000}
+    ],
+    "planned_year_two_annual_usd": 1500,
+    "separate_written_scope": [
+      "hardware",
+      "sensors",
+      "laboratory services",
+      "shipping",
+      "travel",
+      "installation",
+      "training",
+      "integrations",
+      "on-site support"
+    ]
+  },
+  "claim_boundaries": [
+    "no guaranteed yield increase",
+    "no guaranteed input-cost reduction",
+    "no validated disease or pest resistance",
+    "no regulatory-compliance guarantee",
+    "no autonomous agricultural decision",
+    "no verified field sensor output",
+    "no scientific or financial result guaranteed"
+  ]
+}
