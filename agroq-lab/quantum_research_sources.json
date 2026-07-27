@@ -494,5 +494,202 @@
       "QAOA",
       "soil moisture"
     ]
+  },
+  {
+    "id": "QRS-017",
+    "sequence": [
+      "Q26",
+      "Q27"
+    ],
+    "title": "Digital Twins in Agriculture: Orchestration and Applications",
+    "authors": [
+      "Marc Escribà-Gelonch",
+      "Shu Liang",
+      "Pieter van Schalkwyk",
+      "Ian D. Fisk",
+      "Nguyen Van Duc Long",
+      "Volker Hessel"
+    ],
+    "year": 2024,
+    "venue": "Journal of Agricultural and Food Chemistry",
+    "publicationStatus": "Peer reviewed",
+    "identifier": "doi:10.1021/acs.jafc.4c01934",
+    "url": "https://doi.org/10.1021/acs.jafc.4c01934",
+    "mechanism": "Agricultural digital-twin orchestration connects heterogeneous data, models, and lifecycle processes.",
+    "agroqFeature": "Controlled soil–plant–microbe evidence graph and digital-twin translation registry.",
+    "reproductionTarget": "Map a deterministic synthetic plot, treatment, microbial observation, and plant-response trace.",
+    "evidenceStatus": "Research translation source",
+    "limitations": "A review does not validate an AgroQ biological twin or causal plant–microbe prediction.",
+    "requiredClassicalBaseline": "Rule-based evidence graph with manually verified observations.",
+    "hardwareFieldRestrictions": "Synthetic records only; no live sensor or field actuation.",
+    "tags": [
+      "plant-microbe-direction",
+      "digital-twin",
+      "Q27"
+    ]
+  },
+  {
+    "id": "QRS-018",
+    "sequence": [
+      "Q26",
+      "Q28"
+    ],
+    "title": "Enhancing soil science research with multi-agent artificial intelligence systems",
+    "authors": [
+      "Budiman Minasny",
+      "Alex McBratney",
+      "José A.M. Demattê",
+      "Mercedes Román Dobarco",
+      "Pete Smith"
+    ],
+    "year": 2026,
+    "venue": "Frontiers in Science",
+    "publicationStatus": "Peer reviewed lead article",
+    "identifier": "doi:10.3389/fsci.2026.1721295",
+    "url": "https://doi.org/10.3389/fsci.2026.1721295",
+    "mechanism": "Multi-agent AI is proposed for hypothesis generation, experiment planning, and analysis in soil science.",
+    "agroqFeature": "Human-supervised research-agent evaluation and immutable review history.",
+    "reproductionTarget": "Evaluate one bounded synthetic soil-research task against a single-agent and rule-based baseline.",
+    "evidenceStatus": "Emerging research direction",
+    "limitations": "The article does not establish autonomous scientific reliability or permission to act in the field.",
+    "requiredClassicalBaseline": "Rule-based workflow and conventional supervised model.",
+    "hardwareFieldRestrictions": "No autonomous experiment execution or equipment control.",
+    "tags": [
+      "soil-science",
+      "multi-agent-ai",
+      "human-review"
+    ]
+  },
+  {
+    "id": "QRS-019",
+    "sequence": [
+      "Q26",
+      "Q27",
+      "Q29"
+    ],
+    "title": "FAIR digital twins for biodiversity: enabling data, model, and workflow integration",
+    "authors": [
+      "Sharif Islam",
+      "Hanna Koivula",
+      "Carrie Andrew",
+      "Julian Lopez Gordillo",
+      "Claus Weiland",
+      "Dmitry Schigel",
+      "Dag Endresen",
+      "Christos Arvanitidis",
+      "Eli Chadwick",
+      "Stian Soiland-Reyes"
+    ],
+    "year": 2026,
+    "venue": "npj Biodiversity",
+    "publicationStatus": "Peer reviewed",
+    "identifier": "doi:10.1038/s44185-025-00116-3",
+    "url": "https://doi.org/10.1038/s44185-025-00116-3",
+    "mechanism": "FAIR-oriented integration connects data, models, provenance, and reproducible workflows.",
+    "agroqFeature": "FAIR evidence package, data dictionary, provenance, versions, checksums, and citation manifest.",
+    "reproductionTarget": "Export a deterministic synthetic digital-acre package with machine-readable provenance.",
+    "evidenceStatus": "Standards-oriented foundation",
+    "limitations": "FAIR packaging improves reuse and traceability but does not establish scientific validity.",
+    "requiredClassicalBaseline": "Versioned CSV/JSON export with documented schema and SHA-256 manifest.",
+    "hardwareFieldRestrictions": "No physical integration is authorized.",
+    "tags": [
+      "FAIR",
+      "provenance",
+      "digital-twin"
+    ]
+  },
+  {
+    "id": "QRS-020",
+    "sequence": [
+      "Q26",
+      "Q28"
+    ],
+    "title": "Explainable AI-driven interpretation of environmental drivers of tomato fruit expansion in smart greenhouses using IoT sensing",
+    "authors": [
+      "Yunlong Li",
+      "Tianle Wang",
+      "Haoyuan Zu",
+      "Shufeng Liu",
+      "Linlu Zu"
+    ],
+    "year": 2025,
+    "venue": "Scientific Reports",
+    "publicationStatus": "Peer reviewed",
+    "identifier": "doi:10.1038/s41598-025-24800-3",
+    "url": "https://doi.org/10.1038/s41598-025-24800-3",
+    "mechanism": "Random-forest modeling with SHAP and partial-dependence explanations over greenhouse sensing variables.",
+    "agroqFeature": "Frozen-model evaluation, feature contributions, uncertainty, model cards, and human decisions.",
+    "reproductionTarget": "Use a deterministic synthetic dataset to compare an interpretable linear baseline and a tree model.",
+    "evidenceStatus": "Reproduction candidate",
+    "limitations": "Published greenhouse results do not transfer automatically to AgroQ crops, sites, or synthetic data.",
+    "requiredClassicalBaseline": "Interpretable linear or rule-based baseline under the same split and seed.",
+    "hardwareFieldRestrictions": "No live IoT sensing or field recommendation.",
+    "tags": [
+      "XAI",
+      "greenhouse",
+      "IoT",
+      "human-review"
+    ]
+  },
+  {
+    "id": "QRS-021",
+    "sequence": [
+      "Q26",
+      "Q27"
+    ],
+    "title": "An agricultural digital twin for mandarins demonstrates the potential for individualized agriculture",
+    "authors": [
+      "Steven Kim",
+      "Seong Heo"
+    ],
+    "year": 2024,
+    "venue": "Nature Communications",
+    "publicationStatus": "Peer reviewed",
+    "identifier": "doi:10.1038/s41467-024-45725-x",
+    "url": "https://doi.org/10.1038/s41467-024-45725-x",
+    "mechanism": "Regional, inter-orchard, and intra-orchard data integration with statistical and machine-learning analysis.",
+    "agroqFeature": "Evidence-traceable plot and zone digital-twin workspace.",
+    "reproductionTarget": "Demonstrate deterministic synthetic zone-to-observation-to-model-to-review lineage.",
+    "evidenceStatus": "Architecture reference",
+    "limitations": "A mandarin research system does not validate AgroQ for other crops or real-time operation.",
+    "requiredClassicalBaseline": "Descriptive statistics and conventional regression.",
+    "hardwareFieldRestrictions": "Synthetic demonstration; field mode remains locked.",
+    "tags": [
+      "agriculture",
+      "digital-twin",
+      "individualized-management"
+    ]
+  },
+  {
+    "id": "QRS-022",
+    "sequence": [
+      "Q26",
+      "Q29"
+    ],
+    "title": "Placement and drone flight path mapping of agricultural soil sensors using machine learning",
+    "authors": [
+      "Payton Goodrich",
+      "Omar Betancourt",
+      "Ana Claudia Arias",
+      "Tarek I. Zohdi"
+    ],
+    "year": 2023,
+    "venue": "Computers and Electronics in Agriculture",
+    "publicationStatus": "Peer reviewed",
+    "identifier": "doi:10.1016/j.compag.2022.107591",
+    "url": "https://doi.org/10.1016/j.compag.2022.107591",
+    "mechanism": "Sequential gap reduction for sensor placement and genetic-algorithm planning of simulated multi-agent flight paths.",
+    "agroqFeature": "Synthetic sensor placement, soil sampling, adjacency, inspection, and UAV-route research benchmark.",
+    "reproductionTarget": "Compare deterministic greedy placement and routing with an optional registered QUBO under matched budgets.",
+    "evidenceStatus": "Reproduction candidate",
+    "limitations": "Route simulation does not authorize or demonstrate drone operation, safety, or regulatory compliance.",
+    "requiredClassicalBaseline": "Greedy placement and deterministic shortest-route heuristic.",
+    "hardwareFieldRestrictions": "No sensors, UAVs, drones, or physical installation.",
+    "tags": [
+      "sensor-placement",
+      "sampling",
+      "routing",
+      "UAV-research"
+    ]
   }
 ]

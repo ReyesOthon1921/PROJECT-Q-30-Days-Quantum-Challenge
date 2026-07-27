@@ -51,7 +51,7 @@ ALLOWED_EVENT_TYPES = frozenset(
 )
 ALLOWED_SEVERITIES = frozenset({"info", "notice", "warning", "critical"})
 _SCHEMA_LOCK = threading.Lock()
-_SCHEMA_READY = False
+
 
 
 def utc_now() -> str:
@@ -125,18 +125,24 @@ def audit_action_profile(action: str) -> dict[str, str] | None:
     return None
 
 
+def _notification_schema_exists(conn: Any) -> bool:
+    return conn.execute(
+        """SELECT 1 FROM sqlite_master
+           WHERE type='table' AND name='admin_notification_events'"""
+    ).fetchone() is not None
+
+
 def initialize_notification_schema(
     get_db: Callable[..., Any],
 ) -> None:
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
-        return
-    with _SCHEMA_LOCK:
-        if _SCHEMA_READY:
+    with get_db() as conn:
+        if _notification_schema_exists(conn):
             return
-        sql = SCHEMA_PATH.read_text(encoding="utf-8")
+    with _SCHEMA_LOCK:
         with get_db() as conn:
-            conn.executescript(sql)
+            if _notification_schema_exists(conn):
+                return
+            conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
             now = utc_now()
             admins = conn.execute(
                 "SELECT user_id FROM users WHERE role='administrator' AND active=1"
@@ -163,7 +169,6 @@ def initialize_notification_schema(
                            WHERE user_id=?""",
                         (founder_email, now, admin["user_id"]),
                     )
-        _SCHEMA_READY = True
 
 
 def emit_admin_notification(
@@ -548,18 +553,8 @@ def register_notification_center(
     record_audit_event: Callable[..., Any],
 ) -> None:
     bp = Blueprint("admin_notifications", __name__)
-    initialized = False
-    init_lock = threading.Lock()
-
     def ensure_schema() -> None:
-        nonlocal initialized
-        if initialized:
-            return
-        with init_lock:
-            if initialized:
-                return
-            initialize_notification_schema(get_db)
-            initialized = True
+        initialize_notification_schema(get_db)
 
     def csrf_token() -> str:
         token = session.get("admin_notification_csrf")

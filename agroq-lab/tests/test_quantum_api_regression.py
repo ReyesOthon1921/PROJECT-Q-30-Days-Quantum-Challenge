@@ -12,7 +12,7 @@ def test_complete_q11_q14_api_regression(client):
 
     sources = client.get("/api/quantum/sources")
     assert sources.status_code == 200
-    assert len(sources.get_json()["sources"]) == 16
+    assert len(sources.get_json()["sources"]) == 22
 
     assert client.get("/api/quantum/datasets").status_code == 200
 

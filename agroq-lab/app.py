@@ -2130,6 +2130,17 @@ register_lead_followup(
 )
 
 
+
+# AGROQ_Q26_Q30_RESEARCH_TRANSLATION
+from research_translation import register_research_translation
+
+register_research_translation(
+    app=app,
+    get_db=get_db,
+    roles_required=roles_required,
+    record_audit_event=record_audit_event,
+)
+
 # AGROQ_PHASE34_PRODUCTION_PORTAL
 from production_portal import register_production_portal
 

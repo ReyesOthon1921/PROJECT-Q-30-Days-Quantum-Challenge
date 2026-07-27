@@ -57,7 +57,7 @@ def test_quantum_sources_and_health_are_persistent(client):
     assert health.status_code == 200
     payload = health.get_json()
     assert payload["ok"] is True
-    assert payload["counts"]["sources"] == 16
+    assert payload["counts"]["sources"] == 22
     assert payload["supported_sequences"] == [
         "Q10",
         "Q2",
@@ -72,7 +72,7 @@ def test_quantum_sources_and_health_are_persistent(client):
 
     sources = client.get("/api/quantum/sources")
     assert sources.status_code == 200
-    assert len(sources.get_json()["sources"]) == 16
+    assert len(sources.get_json()["sources"]) == 22
 
 
 def test_freeze_dataset_register_run_review_and_artifacts(client):

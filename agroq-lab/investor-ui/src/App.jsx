@@ -54,6 +54,7 @@ import { loadBackendSnapshot } from "./lib/api";
 
 import AdminLabPage from "./components/AdminLabPage";
 import ConfigMigrationWorkspace from "./components/ConfigMigrationWorkspace";
+import ResearchPublicationWorkspace from "./components/ResearchPublicationWorkspace";
 const navigation = [
   { id: "overview", label: "Overview", icon: Grid3X3 },
   { id: "acre", label: "3D Digital Acre", icon: Orbit },
@@ -65,6 +66,7 @@ const navigation = [
   { id: "access", label: "Access & Community", icon: Users },
   { id: "credits", label: "Research & Thanks", icon: BookOpen },
   { id: "governance", label: "Team & Transparency", icon: ShieldCheck },
+  { id: "publication", label: "Research & Publication", icon: GitBranch },
   { id: "admin-lab", label: "Admin & Sequence Lab", icon: Users },
   { id: "system", label: "System", icon: Layers3 },
 ];
@@ -878,6 +880,8 @@ export default function App() {
     content = <ResearchCreditsPage />;
   } else if (activePage === "governance") {
     content = <GovernanceTransparencyPage />;
+  } else if (activePage === "publication") {
+    content = <ResearchPublicationWorkspace />;
   } else if (activePage === "admin-lab") {
     content = <AdminLabPage />;
   } else {
