@@ -3,3 +3,16 @@ qenv/
 **/.ipynb_checkpoints/
 __pycache__/
 *.py[cod]
+
+.env
+.env.*
+!*.env.example
+**/instance/
+**/backups/
+**/node_modules/
+**/dist/
+*.db
+*.sqlite
+*.sqlite3
+AgroQ_Private/
+*.egg-info/

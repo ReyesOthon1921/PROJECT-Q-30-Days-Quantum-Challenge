@@ -1,0 +1,903 @@
+/* AgroQ Q0/Q1 quantum research and experiment registries */
+
+.quantum-registry-workspace {
+  display: grid;
+  gap: 16px;
+}
+
+.quantum-registry-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: rgba(12, 24, 34, 0.88);
+}
+
+.quantum-registry-tabs button {
+  flex: 0 0 auto;
+  padding: 9px 13px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 780;
+  cursor: pointer;
+}
+
+.quantum-registry-tabs button:hover,
+.quantum-registry-tabs button.quantum-registry-tab-active {
+  color: var(--text);
+  background: rgba(128, 196, 255, 0.11);
+  box-shadow: inset 0 -2px 0 var(--blue);
+}
+
+.quantum-registry-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.quantum-registry-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.quantum-registry-metrics article {
+  min-height: 105px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 6px 11px;
+  box-shadow: none;
+}
+
+.quantum-registry-metrics svg {
+  grid-row: 1 / 3;
+  color: var(--blue);
+}
+
+.quantum-registry-metrics span,
+.quantum-registry-metrics strong {
+  display: block;
+}
+
+.quantum-registry-metrics span {
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+
+.quantum-registry-metrics strong {
+  font-size: 1rem;
+}
+
+.quantum-source-controls,
+.quantum-experiment-toolbar {
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+  align-items: end;
+  box-shadow: none;
+}
+
+.quantum-source-controls {
+  grid-template-columns: minmax(220px, 2fr) minmax(145px, 1fr) minmax(175px, 1fr) auto;
+}
+
+.quantum-source-controls label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 750;
+}
+
+.quantum-source-controls label > div {
+  position: relative;
+}
+
+.quantum-source-controls label > div svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  color: var(--muted);
+  transform: translateY(-50%);
+}
+
+.quantum-source-controls input,
+.quantum-source-controls select,
+.quantum-experiment-toolbar select,
+.quantum-experiment-modal input,
+.quantum-experiment-modal select,
+.quantum-experiment-modal textarea,
+.quantum-experiment-footer select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: #0d1c28;
+  color: var(--text);
+  outline: none;
+}
+
+.quantum-source-controls label > div input {
+  padding-left: 34px;
+}
+
+.quantum-source-controls input:focus,
+.quantum-source-controls select:focus,
+.quantum-experiment-toolbar select:focus,
+.quantum-experiment-modal input:focus,
+.quantum-experiment-modal select:focus,
+.quantum-experiment-modal textarea:focus,
+.quantum-experiment-footer select:focus {
+  border-color: rgba(128, 196, 255, 0.66);
+  box-shadow: 0 0 0 3px rgba(128, 196, 255, 0.08);
+}
+
+.quantum-source-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.quantum-source-card {
+  min-height: 570px;
+  padding: 19px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: none;
+}
+
+.quantum-source-topline,
+.quantum-source-footer,
+.quantum-experiment-heading,
+.quantum-experiment-footer,
+.quantum-modal-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.quantum-source-topline > span {
+  color: var(--blue);
+  font-size: 0.64rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+
+.quantum-source-card h3 {
+  margin: 15px 0 8px;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.quantum-source-authors {
+  color: #c9d9e6;
+  font-size: 0.68rem;
+  line-height: 1.5;
+}
+
+.quantum-source-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 13px 0;
+}
+
+.quantum-source-meta span,
+.quantum-source-footer > div span,
+.quantum-experiment-footer > div span,
+.quantum-ack-grid article > div span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #c7d7e2;
+  background: rgba(128, 196, 255, 0.06);
+  border: 1px solid var(--border);
+  font-size: 0.56rem;
+  font-weight: 760;
+}
+
+.quantum-source-section {
+  margin-top: 12px;
+}
+
+.quantum-source-section > span {
+  color: var(--blue);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 850;
+}
+
+.quantum-source-section p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.56;
+}
+
+.quantum-source-limit {
+  margin-top: 14px;
+  padding: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  border: 1px solid rgba(243, 185, 108, 0.18);
+  border-radius: 9px;
+  background: rgba(243, 185, 108, 0.06);
+  color: #dec49c;
+  font-size: 0.62rem;
+  line-height: 1.5;
+}
+
+.quantum-source-limit svg {
+  flex: 0 0 auto;
+  color: var(--amber);
+}
+
+.quantum-source-footer {
+  margin-top: auto;
+  padding-top: 15px;
+  align-items: flex-end;
+  border-top: 1px solid var(--border);
+}
+
+.quantum-source-footer > div,
+.quantum-experiment-footer > div,
+.quantum-ack-grid article > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.quantum-source-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--blue);
+  font-size: 0.6rem;
+  font-weight: 760;
+  text-decoration: none;
+}
+
+.quantum-source-footer a:hover {
+  text-decoration: underline;
+}
+
+.quantum-experiment-toolbar {
+  grid-template-columns: 1fr auto;
+}
+
+.quantum-experiment-toolbar > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quantum-experiment-toolbar > div:first-child svg {
+  color: var(--blue);
+}
+
+.quantum-experiment-toolbar select {
+  width: auto;
+  min-width: 145px;
+}
+
+.quantum-registry-message {
+  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #cce3d5;
+  box-shadow: none;
+}
+
+.quantum-registry-message svg {
+  color: var(--green);
+}
+
+.quantum-registry-message span {
+  font-size: 0.68rem;
+}
+
+.quantum-registry-empty {
+  min-height: 260px;
+  padding: 30px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  text-align: center;
+  box-shadow: none;
+}
+
+.quantum-registry-empty svg {
+  color: var(--blue);
+}
+
+.quantum-registry-empty h3,
+.quantum-registry-empty p {
+  margin: 0;
+}
+
+.quantum-registry-empty p {
+  max-width: 560px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.quantum-experiment-list {
+  display: grid;
+  gap: 14px;
+}
+
+.quantum-experiment-record {
+  padding: 19px;
+  box-shadow: none;
+}
+
+.quantum-experiment-heading > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.quantum-experiment-heading > div:first-child > span {
+  color: var(--blue);
+  font-size: 0.61rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.quantum-experiment-heading h3 {
+  margin: 6px 0 0;
+  font-size: 1rem;
+}
+
+.quantum-experiment-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+  margin: 17px 0;
+}
+
+.quantum-experiment-grid > div {
+  min-height: 86px;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.022);
+}
+
+.quantum-experiment-grid span,
+.quantum-experiment-grid strong,
+.quantum-experiment-grid small {
+  display: block;
+}
+
+.quantum-experiment-grid span {
+  color: var(--muted);
+  font-size: 0.57rem;
+}
+
+.quantum-experiment-grid strong {
+  margin-top: 5px;
+  font-size: 0.67rem;
+  line-height: 1.4;
+}
+
+.quantum-experiment-grid small {
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+  color: #7893a6;
+  font-size: 0.53rem;
+  line-height: 1.35;
+}
+
+.quantum-claim-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  padding: 12px;
+  border-radius: 11px;
+  background: rgba(128, 196, 255, 0.035);
+  border: 1px solid rgba(128, 196, 255, 0.12);
+}
+
+.quantum-claim-controls > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #c4d5df;
+  font-size: 0.58rem;
+}
+
+.quantum-claim-controls svg {
+  color: var(--green);
+}
+
+.quantum-validation-box {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(243, 185, 108, 0.19);
+  border-radius: 9px;
+  background: rgba(243, 185, 108, 0.06);
+}
+
+.quantum-validation-box p {
+  margin: 3px 0;
+  color: #dec69f;
+  font-size: 0.61rem;
+}
+
+.quantum-experiment-footer {
+  margin-top: 15px;
+  padding-top: 13px;
+  border-top: 1px solid var(--border);
+}
+
+.quantum-experiment-footer select {
+  width: auto;
+  min-width: 170px;
+}
+
+.quantum-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(1, 7, 12, 0.8);
+  backdrop-filter: blur(8px);
+}
+
+.quantum-experiment-modal {
+  width: min(780px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 22px;
+}
+
+.quantum-modal-heading h2 {
+  margin: 6px 0 0;
+}
+
+.quantum-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+  margin-top: 20px;
+}
+
+.quantum-form-grid label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 740;
+}
+
+.quantum-form-wide {
+  grid-column: 1 / -1;
+}
+
+.quantum-experiment-modal textarea {
+  resize: vertical;
+}
+
+.quantum-modal-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.quantum-model-hero,
+.quantum-gate-hero,
+.quantum-ack-hero,
+.quantum-model-boundary,
+.quantum-ack-boundary {
+  padding: 21px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  box-shadow: none;
+}
+
+.quantum-model-hero > svg,
+.quantum-gate-hero > svg,
+.quantum-ack-hero > svg,
+.quantum-model-boundary > svg,
+.quantum-ack-boundary > svg {
+  flex: 0 0 auto;
+  color: var(--blue);
+}
+
+.quantum-model-hero > div,
+.quantum-gate-hero > div,
+.quantum-ack-hero > div {
+  flex: 1;
+}
+
+.quantum-model-hero h2,
+.quantum-gate-hero h2,
+.quantum-ack-hero h2,
+.quantum-model-boundary h3 {
+  margin: 5px 0 7px;
+}
+
+.quantum-model-hero p,
+.quantum-gate-hero p,
+.quantum-ack-hero p,
+.quantum-model-boundary p,
+.quantum-ack-boundary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.71rem;
+  line-height: 1.6;
+}
+
+.quantum-model-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.quantum-model-card {
+  min-height: 250px;
+  padding: 18px;
+  box-shadow: none;
+}
+
+.quantum-model-number {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--blue);
+  background: rgba(128, 196, 255, 0.08);
+  border: 1px solid rgba(128, 196, 255, 0.16);
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+
+.quantum-model-card h3 {
+  margin: 13px 0;
+  font-size: 0.86rem;
+}
+
+.quantum-model-card > div:last-child {
+  display: grid;
+  gap: 5px;
+}
+
+.quantum-model-card code {
+  padding: 6px 8px;
+  overflow-wrap: anywhere;
+  border-radius: 7px;
+  color: #bddcf0;
+  background: rgba(128, 196, 255, 0.04);
+  border: 1px solid var(--border);
+  font-size: 0.58rem;
+}
+
+.quantum-gate-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.quantum-gate-grid article {
+  min-height: 180px;
+  padding: 17px;
+  position: relative;
+  box-shadow: none;
+}
+
+.quantum-gate-grid article > span {
+  position: absolute;
+  right: 14px;
+  top: 12px;
+  color: rgba(128, 196, 255, 0.38);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.quantum-gate-grid svg {
+  color: var(--green);
+}
+
+.quantum-gate-grid h3 {
+  margin: 13px 0 7px;
+  font-size: 0.78rem;
+}
+
+.quantum-gate-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.65rem;
+  line-height: 1.5;
+}
+
+.quantum-ack-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.quantum-ack-grid article {
+  min-height: 230px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: none;
+}
+
+.quantum-ack-grid svg {
+  color: var(--blue);
+}
+
+.quantum-ack-grid h3 {
+  margin: 13px 0 7px;
+}
+
+.quantum-ack-grid p {
+  margin: 0 0 15px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.6;
+}
+
+.quantum-ack-grid article > div {
+  margin-top: auto;
+}
+
+.quantum-ack-boundary {
+  border-color: rgba(128, 196, 255, 0.19);
+  background: rgba(128, 196, 255, 0.035);
+}
+
+@media (max-width: 1180px) {
+  .quantum-registry-metrics,
+  .quantum-experiment-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quantum-source-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quantum-model-grid,
+  .quantum-gate-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quantum-claim-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .quantum-source-grid,
+  .quantum-ack-grid,
+  .quantum-registry-metrics,
+  .quantum-source-controls,
+  .quantum-experiment-grid,
+  .quantum-model-grid,
+  .quantum-gate-grid,
+  .quantum-form-grid,
+  .quantum-claim-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .quantum-source-card {
+    min-height: auto;
+  }
+
+  .quantum-source-footer,
+  .quantum-experiment-heading,
+  .quantum-experiment-footer,
+  .quantum-experiment-toolbar {
+    align-items: flex-start;
+    grid-template-columns: 1fr;
+  }
+
+  .quantum-experiment-toolbar > div {
+    width: 100%;
+  }
+
+  .quantum-experiment-toolbar .button,
+  .quantum-experiment-toolbar select,
+  .quantum-experiment-footer select {
+    width: 100%;
+  }
+
+  .quantum-form-wide {
+    grid-column: auto;
+  }
+
+  .quantum-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .quantum-modal-actions .button {
+    width: 100%;
+  }
+}
+
+/* Q16 mentor and collaborator acknowledgments */
+
+.mentor-feature-card,
+.mentor-boundary,
+.mentor-pathway,
+.mentor-role-card,
+.mentor-shared-result {
+  padding: 21px;
+  box-shadow: none;
+}
+
+.mentor-feature-heading,
+.mentor-section-heading,
+.mentor-boundary,
+.mentor-shared-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.mentor-feature-heading {
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.mentor-feature-heading h3,
+.mentor-section-heading h3,
+.mentor-boundary h3,
+.mentor-role-card h3,
+.mentor-shared-result h3 {
+  margin: 5px 0 7px;
+}
+
+.mentor-role {
+  margin: 0;
+  color: var(--blue);
+  font-weight: 780;
+}
+
+.mentor-feature-card > p,
+.mentor-boundary p,
+.mentor-pathway p,
+.mentor-role-card li,
+.mentor-shared-result p {
+  color: var(--muted);
+  font-size: 0.71rem;
+  line-height: 1.65;
+}
+
+.mentor-focus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 17px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border);
+}
+
+.mentor-focus strong {
+  width: 100%;
+  color: var(--text);
+}
+
+.mentor-focus span {
+  padding: 6px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(128, 196, 255, 0.05);
+  color: #c7d7e2;
+  font-size: 0.6rem;
+  font-weight: 760;
+}
+
+.mentor-boundary {
+  border-color: rgba(243, 185, 108, 0.24);
+  background: rgba(243, 185, 108, 0.055);
+}
+
+.mentor-boundary > svg,
+.mentor-section-heading > svg,
+.mentor-role-card > svg,
+.mentor-shared-result > svg {
+  flex: 0 0 auto;
+  color: var(--blue);
+}
+
+.mentor-pathway {
+  display: grid;
+  gap: 17px;
+}
+
+.mentor-pathway-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.mentor-pathway-grid article {
+  min-height: 165px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mentor-pathway-grid article > span {
+  display: inline-grid;
+  min-width: 32px;
+  min-height: 32px;
+  place-items: center;
+  margin-bottom: 10px;
+  border-radius: 9px;
+  color: var(--blue);
+  background: rgba(128, 196, 255, 0.08);
+  font-weight: 850;
+}
+
+.mentor-pathway-grid strong {
+  display: block;
+  font-size: 0.72rem;
+}
+
+.mentor-pathway-grid p {
+  margin: 7px 0 0;
+  font-size: 0.64rem;
+}
+
+.mentor-role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.mentor-role-card ul {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding-left: 18px;
+}
+
+.mentor-shared-result {
+  border-color: rgba(92, 241, 160, 0.2);
+  background: rgba(92, 241, 160, 0.035);
+}
+
+@media (max-width: 900px) {
+  .mentor-pathway-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .mentor-role-grid,
+  .mentor-pathway-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mentor-feature-heading,
+  .mentor-boundary,
+  .mentor-shared-result {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

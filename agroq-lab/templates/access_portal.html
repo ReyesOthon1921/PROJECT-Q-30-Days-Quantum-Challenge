@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07110d">
+  <title>Access AgroQ</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='access.css') }}">
+</head>
+<body>
+
+<header class="access-header">
+  <a class="access-brand" href="{{ url_for('access_portal') }}">
+    <span class="brand-mark">AQ</span>
+    <span><strong>AgroQ</strong><small>Quantum-AI Living Systems Lab</small></span>
+  </a>
+  <nav>
+    <a href="{{ url_for('login') }}">Sign in</a>
+    <a href="{{ url_for('redeem_invite') }}">Redeem invitation</a>
+    <a href="{{ url_for('beta_reserve') }}">Beta reservation</a>
+  </nav>
+</header>
+
+<main class="access-main">
+  <section class="access-hero">
+    <div>
+      <p class="eyebrow">ACCESS & COMMUNITY</p>
+      <h1>Choose how you want to participate in AgroQ.</h1>
+      <p>Request beta access, explore an investor relationship, contribute to the open-source ecosystem, or begin a strategic partnership.</p>
+    </div>
+    <div class="trust-panel">
+      <strong>Privacy-first intake</strong>
+      <span>You choose what information to share.</span>
+      <span>Invitations expire and are role-limited.</span>
+      <span>AgroQ does not collect payment-card details.</span>
+    </div>
+  </section>
+
+  <section class="relationship-grid">
+    {% for key, label in access_relationship_types.items() %}
+    <a class="relationship-card {% if selected_type == key %}selected{% endif %}"
+       href="{{ url_for('access_portal', type=key) }}">
+      <span>{{ "%02d"|format(loop.index) }}</span>
+      <strong>{{ label }}</strong>
+      <small>
+        {% if key == 'investor' %}Funding, diligence, and strategic-growth access.
+        {% elif key == 'contributor' %}Engineering, research, documentation, and open-source collaboration.
+        {% elif key == 'partner' %}Universities, farms, institutions, and technology partners.
+        {% elif key == 'researcher' %}Scientific collaboration and experimental design.
+        {% elif key == 'customer' %}Early product discovery and operational feedback.
+        {% else %}Private prototype access and structured product feedback.
+        {% endif %}
+      </small>
+    </a>
+    {% endfor %}
+  </section>
+
+  <section class="access-form-card">
+    <p class="eyebrow">REQUEST ACCESS</p>
+    <h2>{{ access_relationship_types[selected_type] }}</h2>
+
+    {% if errors %}
+    <div class="error-box">{% for error in errors %}<p>{{ error }}</p>{% endfor %}</div>
+    {% endif %}
+
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ access_csrf_token }}">
+      <input type="hidden" name="type" value="{{ selected_type }}">
+      <div class="form-grid">
+        <label>Full name *
+          <input name="full_name" maxlength="120" required value="{{ form.get('full_name','') }}">
+        </label>
+        <label>Email *
+          <input name="email" type="email" maxlength="180" required value="{{ form.get('email','') }}">
+        </label>
+        <label>Organization
+          <input name="organization" maxlength="180" value="{{ form.get('organization','') }}">
+        </label>
+        <label>Role or title
+          <input name="role_title" maxlength="160" value="{{ form.get('role_title','') }}">
+        </label>
+      </div>
+      <label>How would you like to participate?
+        <textarea name="message" maxlength="3000" rows="5">{{ form.get('message','') }}</textarea>
+      </label>
+      <label class="check-line">
+        <input type="checkbox" name="consent_contact" value="yes" required>
+        <span>AgroQ may contact me about this request. *</span>
+      </label>
+      <label class="check-line">
+        <input type="checkbox" name="consent_updates" value="yes">
+        <span>I would like occasional product and research updates.</span>
+      </label>
+      <div class="form-actions">
+        <button class="primary-button" type="submit">Submit access request</button>
+        <a class="secondary-button" href="{{ url_for('redeem_invite') }}">I already have a code</a>
+      </div>
+    </form>
+  </section>
+</main>
+</body>
+</html>

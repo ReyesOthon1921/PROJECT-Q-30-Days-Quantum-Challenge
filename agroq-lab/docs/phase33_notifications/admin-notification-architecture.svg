@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="1400" height="760" rx="28" fill="#061b12"/>
+<g font-family="Arial, sans-serif" fill="#effff5">
+<text x="700" y="58" text-anchor="middle" font-size="32" font-weight="700">AgroQ Mobile Administrator Notification Architecture</text>
+<g stroke="#54df92" stroke-width="4" fill="none">
+<path d="M250 180 H420"/>
+<path d="M620 180 H790"/>
+<path d="M990 180 H1160"/>
+<path d="M890 245 V350"/>
+<path d="M890 350 H230 V440"/>
+<path d="M890 350 H575 V440"/>
+<path d="M890 350 H920 V440"/>
+<path d="M890 350 H1190 V440"/>
+</g>
+<g font-size="19" font-weight="700">
+<rect x="55" y="115" width="195" height="130" rx="20" fill="#0d3826" stroke="#2d8659"/>
+<text x="152" y="158" text-anchor="middle">Identity Events</text>
+<text x="152" y="190" text-anchor="middle" font-size="14" fill="#a9c8b5">Sign-in · Failure</text>
+<text x="152" y="215" text-anchor="middle" font-size="14" fill="#a9c8b5">Password · Role</text>
+<rect x="420" y="115" width="200" height="130" rx="20" fill="#0d3826" stroke="#2d8659"/>
+<text x="520" y="158" text-anchor="middle">Access Events</text>
+<text x="520" y="190" text-anchor="middle" font-size="14" fill="#a9c8b5">Signup · Request</text>
+<text x="520" y="215" text-anchor="middle" font-size="14" fill="#a9c8b5">Invite · Account</text>
+<rect x="790" y="115" width="200" height="130" rx="20" fill="#123f2c" stroke="#54df92"/>
+<text x="890" y="158" text-anchor="middle">Durable Event Store</text>
+<text x="890" y="190" text-anchor="middle" font-size="14" fill="#a9c8b5">SQLite outbox</text>
+<text x="890" y="215" text-anchor="middle" font-size="14" fill="#a9c8b5">Dedupe · Redaction</text>
+<rect x="1160" y="115" width="185" height="130" rx="20" fill="#0d3826" stroke="#2d8659"/>
+<text x="1252" y="158" text-anchor="middle">Audit Evidence</text>
+<text x="1252" y="190" text-anchor="middle" font-size="14" fill="#a9c8b5">Actor · Time</text>
+<text x="1252" y="215" text-anchor="middle" font-size="14" fill="#a9c8b5">Review status</text>
+<rect x="95" y="440" width="270" height="125" rx="20" fill="#0d3826" stroke="#2d8659"/>
+<text x="230" y="484" text-anchor="middle">In-App Mobile Inbox</text>
+<text x="230" y="518" text-anchor="middle" font-size="14" fill="#a9c8b5">Responsive · Polling · Acknowledge</text>
+<rect x="440" y="440" width="270" height="125" rx="20" fill="#0d3826" stroke="#2d8659"/>
+<text x="575" y="484" text-anchor="middle">Email Adapter</text>
+<text x="575" y="518" text-anchor="middle" font-size="14" fill="#a9c8b5">SMTP · TLS · Optional</text>
+<rect x="785" y="440" width="270" height="125" rx="20" fill="#0d3826" stroke="#2d8659"/>
+<text x="920" y="484" text-anchor="middle">HTTPS Webhook</text>
+<text x="920" y="518" text-anchor="middle" font-size="14" fill="#a9c8b5">External messaging adapter</text>
+<rect x="1095" y="440" width="250" height="125" rx="20" fill="#0d3826" stroke="#2d8659"/>
+<text x="1220" y="484" text-anchor="middle">Encrypted Web Push</text>
+<text x="1220" y="518" text-anchor="middle" font-size="14" fill="#a9c8b5">VAPID · Service Worker · HTTPS</text>
+</g>
+<rect x="375" y="630" width="650" height="80" rx="20" fill="#123f2c" stroke="#54df92"/>
+<text x="700" y="666" text-anchor="middle" font-size="21" font-weight="700">Founder Administrator Phone / Browser</text>
+<text x="700" y="694" text-anchor="middle" font-size="14" fill="#a9c8b5">Review · Acknowledge · Manage preferences · Take authorized action</text>
+</g></svg>

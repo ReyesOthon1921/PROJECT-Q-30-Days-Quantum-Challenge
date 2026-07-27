@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07110d">
+  <title>My Profile — AgroQ</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='access.css') }}">
+</head>
+<body>
+
+<header class="access-header">
+  <a class="access-brand" href="{{ url_for('dashboard') }}">
+    <span class="brand-mark">AQ</span>
+    <span><strong>AgroQ</strong><small>Account profile</small></span>
+  </a>
+  <nav><a href="{{ url_for('dashboard') }}">Dashboard</a></nav>
+</header>
+
+<main class="center-shell wide">
+  <section class="access-form-card">
+    <p class="eyebrow">PERSONAL PROFILE</p>
+    <h1>{{ g.user.display_name }}</h1>
+    <p class="muted">Application role: {{ g.user.role }}</p>
+
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ access_csrf_token }}">
+      <div class="form-grid">
+        <label>Relationship
+          <select name="relationship_type">
+            {% for key,label in access_relationship_types.items() %}
+            <option value="{{ key }}" {% if profile and profile.relationship_type == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Email *
+          <input name="email" type="email" required value="{{ profile.email if profile else '' }}">
+        </label>
+        <label>Organization
+          <input name="organization" value="{{ profile.organization if profile else '' }}">
+        </label>
+        <label>Role or title
+          <input name="role_title" value="{{ profile.role_title if profile else '' }}">
+        </label>
+        <label>GitHub URL
+          <input name="github_url" value="{{ profile.github_url if profile else '' }}">
+        </label>
+        <label>LinkedIn URL
+          <input name="linkedin_url" value="{{ profile.linkedin_url if profile else '' }}">
+        </label>
+        <label>Privacy
+          <select name="privacy_level">
+            {% for value in ['private','team','community'] %}
+            <option value="{{ value }}" {% if profile and profile.privacy_level == value %}selected{% endif %}>{{ value|title }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <label>Bio
+        <textarea name="bio" maxlength="2000" rows="5">{{ profile.bio if profile else '' }}</textarea>
+      </label>
+      <button class="primary-button" type="submit">Save profile</button>
+    </form>
+  </section>
+</main>
+</body>
+</html>

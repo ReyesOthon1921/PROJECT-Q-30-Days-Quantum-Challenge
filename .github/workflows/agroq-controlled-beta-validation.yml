@@ -1,0 +1,89 @@
+name: AgroQ Controlled Beta Validation
+
+on:
+  push:
+    branches:
+      - phase3-6-investor-prototype
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate-controlled-beta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    env:
+      AGROQ_DEPLOYMENT_MODE: staging
+      AGROQ_BIND_HOST: 0.0.0.0
+      AGROQ_DEBUG: "false"
+      AGROQ_SECRET_KEY: controlled-beta-ci-secret-not-production
+      AGROQ_ADMIN_USERNAME: controlledbetaadmin
+      AGROQ_ADMIN_PASSWORD: controlled-beta-ci-password-not-production
+      AGROQ_DB_PATH: ${{ runner.temp }}/agroq-controlled-beta/agroq.db
+      AGROQ_BACKUP_DIR: ${{ runner.temp }}/agroq-controlled-beta/backups
+      WEB_CONCURRENCY: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: agroq-lab/requirements-render.txt
+
+      - name: Install Python dependencies
+        run: python -m pip install -r agroq-lab/requirements-render.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: agroq-lab/investor-ui/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: agroq-lab/investor-ui
+        run: npm ci
+
+      - name: Run complete AgroQ test suite
+        working-directory: agroq-lab
+        run: python -m pytest -q
+
+      - name: Build investor frontend
+        working-directory: agroq-lab/investor-ui
+        run: npm run build -- --base=/app/
+
+      - name: Run Q16 release preflight
+        run: >-
+          python agroq-lab/release_preflight.py
+          --repo-root .
+          --allow-dirty
+          --isolated
+          --output-dir agroq-lab/results/release/q16
+
+      - name: Run Q17-Q19 controlled-beta preflight
+        run: >-
+          python agroq-lab/controlled_beta_preflight.py
+          --repo-root .
+          --output agroq-lab/results/controlled_beta/code_readiness.json
+
+      - name: Validate Git diff
+        run: git diff --check
+
+      - name: Upload controlled-beta evidence
+        uses: actions/upload-artifact@v7
+        with:
+          name: agroq-controlled-beta-code-readiness
+          path: |
+            agroq-lab/results/release/q16/
+            agroq-lab/results/controlled_beta/
+          if-no-files-found: error
+          retention-days: 30

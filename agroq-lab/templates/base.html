@@ -45,6 +45,12 @@
   <a href="{{ url_for('recommendations') }}">Approvals</a>
   <a href="{{ url_for('sync_conflicts') }}">Sync Conflicts</a>
   {% endif %}
+
+{% if g.user and g.user["role"] == "administrator" %}
+<a href="/admin/notifications">Notifications</a>
+{% endif %}
+
+<a href="/app/">Professional Interface</a>
 </nav>
 {% endif %}
 <main class="page">

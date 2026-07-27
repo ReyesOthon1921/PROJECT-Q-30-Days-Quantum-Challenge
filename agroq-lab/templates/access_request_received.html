@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07110d">
+  <title>Request Received — AgroQ</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='access.css') }}">
+</head>
+<body>
+
+<main class="center-shell">
+  <section class="confirmation-card">
+    <span class="success-icon">✓</span>
+    <p class="eyebrow">REQUEST RECEIVED</p>
+    <h1>Thank you for your interest in AgroQ.</h1>
+    <p>Your {{ relationship_label|lower }} request has been recorded for review.</p>
+    <code>{{ request_id }}</code>
+    <div class="form-actions centered">
+      <a class="primary-button" href="{{ url_for('login') }}">Sign in</a>
+      <a class="secondary-button" href="{{ url_for('access_portal') }}">Return to access portal</a>
+    </div>
+  </section>
+</main>
+</body>
+</html>

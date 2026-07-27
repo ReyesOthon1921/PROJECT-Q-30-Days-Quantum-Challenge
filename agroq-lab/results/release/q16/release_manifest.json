@@ -1,0 +1,80 @@
+{
+  "schema_version": "AGROQ-Q16-RELEASE-MANIFEST-1.0",
+  "generated_at": "2026-07-26T01:57:16+00:00",
+  "repository": {
+    "branch": "phase3-6-investor-prototype",
+    "commit": "9ec5f2c7f08d8d7fe827c40a96bcb094dc0e07a9",
+    "tree": "7d58cd20ec74fdacf39c6b505c006bf3d8827ef1",
+    "status": "A  .github/workflows/agroq-q16-validation.yml\nM  agroq-lab/Dockerfile\nM  agroq-lab/app.py\nA  agroq-lab/docs/Q16_RELEASE_RUNBOOK.md\nA  agroq-lab/docs/Q16_ROLLBACK_RUNBOOK.md\nA  agroq-lab/docs/RESEARCH_MENTORS_AND_COLLABORATORS.md\nM  agroq-lab/investor-ui/src/components/QuantumRegistryWorkspace.jsx\nA  agroq-lab/investor-ui/src/components/ReleaseReadinessWorkspace.jsx\nM  agroq-lab/investor-ui/src/data/quantumApi.js\nM  agroq-lab/investor-ui/src/quantum_registry.css\nA  agroq-lab/investor-ui/src/release_readiness.css\nM  agroq-lab/investor-ui/src/styles.css\nA  agroq-lab/release_manifest.py\nA  agroq-lab/release_preflight.py\nA  agroq-lab/release_readiness.py\nA  agroq-lab/results/release/q16/q16_preflight.json\nA  agroq-lab/results/release/q16/q16_preflight.md\nA  agroq-lab/staging_smoke.py\nA  agroq-lab/tests/test_release_preflight.py\nA  agroq-lab/tests/test_release_readiness_api.py\nA  agroq-lab/tests/test_release_readiness_core.py\nA  agroq-lab/tests/test_research_mentor_acknowledgments.py\nA  agroq-lab/tests/test_staging_smoke.py\nM  render.yaml"
+  },
+  "database_schema_sha256": "278c7a8ee6758fa4465bc0602eca902b478b895e2500031902e2f0eaa8ed5510",
+  "critical_files": [
+    {
+      "path": "render.yaml",
+      "size_bytes": 995,
+      "sha256": "14c5501dc38e379f03f6968faafee51485354ffa543220627d93f651b5864b88"
+    },
+    {
+      "path": "agroq-lab/Dockerfile",
+      "size_bytes": 1133,
+      "sha256": "23557946a22f38a7419f1f43844128aafbb87321dcd239028dc26f83a1899956"
+    },
+    {
+      "path": "agroq-lab/app.py",
+      "size_bytes": 99131,
+      "sha256": "171d525f254a9c4457b98625759bc667a2197999a554640aaa748e4c228c39ed"
+    },
+    {
+      "path": "agroq-lab/schema.sql",
+      "size_bytes": 27249,
+      "sha256": "278c7a8ee6758fa4465bc0602eca902b478b895e2500031902e2f0eaa8ed5510"
+    },
+    {
+      "path": "agroq-lab/release_preflight.py",
+      "size_bytes": 19471,
+      "sha256": "ae0248d22c9805f7c5f2f3d0007949e6aafbb12f0debe18c893e0a4406dbe9e9"
+    },
+    {
+      "path": "agroq-lab/release_manifest.py",
+      "size_bytes": 3450,
+      "sha256": "dc873793d5dbd141e058d75080ba11cdbb872db6234b8f02995595660f94693d"
+    },
+    {
+      "path": "agroq-lab/staging_smoke.py",
+      "size_bytes": 3699,
+      "sha256": "452dbf30ec01c7cc21754152ab0a070edcc8cd486d06c8f0d4d7cef630ee4a07"
+    },
+    {
+      "path": "agroq-lab/release_readiness.py",
+      "size_bytes": 8437,
+      "sha256": "dbb413a399203001ec86b0fefb8197a8fae32c83eca6a1c0c79419ea68003073"
+    },
+    {
+      "path": ".github/workflows/agroq-q16-validation.yml",
+      "size_bytes": 2411,
+      "sha256": "b122d933d92301019d07aeb0bc090b528599fd960fd6e55c26c3041cca5d394c"
+    },
+    {
+      "path": "agroq-lab/docs/Q16_RELEASE_RUNBOOK.md",
+      "size_bytes": 2644,
+      "sha256": "4739b200cd1766e308f1c082661044cf4fab5922148be0aff345f3b543d918f0"
+    },
+    {
+      "path": "agroq-lab/docs/Q16_ROLLBACK_RUNBOOK.md",
+      "size_bytes": 1882,
+      "sha256": "8c836bf3a4a7530ac3662c51d477c7580dff5df9f27d5d11e15105b1afd9ac3a"
+    },
+    {
+      "path": "agroq-lab/docs/RESEARCH_MENTORS_AND_COLLABORATORS.md",
+      "size_bytes": 4689,
+      "sha256": "1655c977fe56a70451f5a38ac880cbe30b87284bbe30e58ce290ac859a2b1cca"
+    }
+  ],
+  "missing_files": [],
+  "ready": true,
+  "boundaries": [
+    "This manifest records repository evidence, not remote deployment success.",
+    "Staging verification is recorded separately by staging_smoke.py.",
+    "SQLite deployment remains limited to one application worker."
+  ]
+}
